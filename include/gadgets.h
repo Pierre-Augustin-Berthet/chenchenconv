@@ -3,8 +3,16 @@
 
 #include <stdint.h>
 
-typedef MaskedA {int32_t shares[3];} MaskedA;
-typedef MaskedB {uint64_t shares[3];} MaskedB;
+#define MASKORDER 3
+
+typedef MaskedA {int32_t shares[MASKORDER];} MaskedA;
+typedef MaskedB {uint64_t shares[MASKORDER];} MaskedB;
+
+void    MaskA               (MaskedA out, uint32_t in);
+void    UnmaskA             (uint32_t *out, MaskedA in);
+
+void    MaskB               (MaskedB out, uint64_t in);
+void    UnmaskB             (uint64_t *out, MaskedB in);
 
 void    SecAnd              (MaskedB out, MaskedB ina, MaskedB inb);
 void    SecOr               (MaskedB out, MaskedB ina, MaskedB inb);
