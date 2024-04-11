@@ -11,11 +11,11 @@ output  :   Boolean masking of input (MaskedB)
 ------------------------------------------------*/
 void MaskB(MaskedB out, uint64_t in){
     uint64_t r=0;
-    for(size_t i=MASKORDER; i>1; i--){
+    for(size_t i=0; i<MASKORDER; i++){
         out[i] = rand64();
         r ^= out[i];
     }
-    out[0] = in^r;
+    out[MASKORDER] = in^r;
 }
 
 /*------------------------------------------------
@@ -25,10 +25,10 @@ output    :   sensitive data in (uint64_t)
 ------------------------------------------------*/
 void UnmaskB(uint64_t *out, MaskedB in){
     uint64_t r=0;
-    for(size_t i=MASKORDER; i>1; i--){
+    for(size_t i=0; i<MASKORDER; i++){
         r ^= in[i];
     }
-    *out = in[0]^r;
+    *out = in[MASKORDER]^r;
 }
 
 /*------------------------------------------------
@@ -38,16 +38,14 @@ output    :   sensitive data in (uint64_t)
 ------------------------------------------------*/
 void SecAnd(MaskedB out, MaskedB ina, MaskedB inb){
     uint64_t r[MASKSIZE][MASKSIZE];
-    for(size_t i = 0; i <MASKSIZE; i++){
+    for(size_t i = 0; i<MASKSIZE; i++) out[i] = ina[i]&inb[i];
+    for(size_t i = 0; i <MASKSIZE-1; i++){
         for(size_t j = i+1; j<MASKSIZE;j++){
-            r[i][j]=rand64();
-            r[j][i]=(r[i][j]^(ina[i]&inb[j]))^(ina[j]&inb[i]);
-        }
-    }
-    for(size_t i =0 ; i< MASKSIZE;i++){
-        out[i]= ina[i]&inb[i];
-        for(size_t j=0; j<MASKSIZE;j++){
-            if(i!=j) out[i]^=r[i][j];
+            r[i][j] = rand64();
+            r[j][i] = (r[i][j]^(ina[i]&inb[j]));
+            r[j][i] ^= (ina[j]&inb[i]);
+            out[i] ^= r[i][j];
+            out[j] ^= r[j][i];
         }
     }
 }
