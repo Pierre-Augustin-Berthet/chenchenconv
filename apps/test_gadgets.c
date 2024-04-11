@@ -1,40 +1,49 @@
+#include "utils.h"
 #include "gadgets.h"
-#include <stdio.h>
-
-#define OUTPUT stdout
 
 int main(int *argc, char **argv){
 
     MaskedA a1, a2, a3;
     MaskedB b1, b2, b3;
 
-    uint64_t B,resB;
-    uint32_t A,resA;
+    uint64_t B1,B2,resB;
+    uint32_t A1,A2,resA;
 
-    fprintf(OUTPUT,"=========================\nTests of the masked gadgets\n=========================\n\n");
+    fprintf(OUTPUT,"==================================================\nTests of the masked gadgets\n==================================================\n");
     fprintf(OUTPUT,"Boolean masking\n");
-
     //MaskB, UnmaskB, SecAnd
-
-    B = rand64();
-    MaskB(b1,B);
+    B1 = rand64();
+    MaskB(b1,B1);
     UnmaskB(&resB,b1);
 
-    if(B^resB){
-        fprintf(OUTPUT,"Boolean masking-demasking failed!");
+    if(B1^resB){
+        fprintf(OUTPUT,"Boolean Masking-Demasking failed!\n");
+        print_binary_form(B1);
+        fprintf(OUTPUT,"\n!=\n");
+        print_binary_form(resB);
+        fprintf(OUTPUT,"\n");
         exit(1);
     }
+    fprintf(OUTPUT,"Boolean Masking-Demasking Succeeded!\n");
 
-    resB = rand64();
-    MaskB(b2,resB);
+    B2 = rand64();
+    MaskB(b2,B2);
     SecAnd(b3,b1,b2);
-    B &= resB;
     UnmaskB(&resB,b3);
 
-    if(B^resB){
-        fprintf(OUTPUT,"SecAnd failed!");
+    if((B1&B2)^resB){
+        fprintf(OUTPUT,"SecAnd failed!\n");
+        print_binary_form(B1);
+        fprintf(OUTPUT,"\n&\n");
+        print_binary_form(B2);
+        fprintf(OUTPUT,"\n=\n");
+        print_binary_form(B1&B2);
+        fprintf(OUTPUT,"\n!=\n");
+        print_binary_form(resB);
+        fprintf(OUTPUT,"\n");
         exit(1);
     }
+    fprintf(OUTPUT,"SecAnd Succeeded!\n");
 
     return 0;
 }

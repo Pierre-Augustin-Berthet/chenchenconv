@@ -2,11 +2,15 @@
 #define GADGETS_H
 
 #include <stdint.h>
+#include <stddef.h>
 
-#define MASKORDER 3
+#include "utils.h"
 
-typedef MaskedA {int32_t shares[MASKORDER];} MaskedA;
-typedef MaskedB {uint64_t shares[MASKORDER];} MaskedB;
+#define MASKORDER 2
+#define MASKSIZE MASKORDER+1
+
+typedef int32_t MaskedA[MASKSIZE];
+typedef uint64_t MaskedB[MASKSIZE];
 
 void    MaskA               (MaskedA out, uint32_t in);
 void    UnmaskA             (uint32_t *out, MaskedA in);
