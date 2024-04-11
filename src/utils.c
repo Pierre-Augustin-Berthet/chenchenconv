@@ -16,9 +16,26 @@ uint64_t rand64(void){
    return((rotor0*0x1525374657E5F50DUL)+0x8B459B95879A07F3UL);
  }
 
+ int32_t randmod(int32_t mod){
+  return rand()%mod;
+ }
+
  void print_binary_form(uint64_t in){
   fprintf(OUTPUT,"0b");
   for(int i = 0; i<64;i++){
     fprintf(OUTPUT,"%ld",(in>>i)&1);
   }
  }
+  
+int32_t addq(int32_t ina, int32_t inb, int32_t mod){
+  return ina + inb % mod;
+}
+ 
+
+int32_t subq(int32_t ina, int32_t inb, int32_t mod){
+  return ina - inb % mod;
+}
+
+int32_t mulq(int32_t ina, int32_t inb, int32_t mod){
+  return ina*inb % mod;
+}
