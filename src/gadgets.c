@@ -89,7 +89,11 @@ void UnmaskA(int32_t *out, MaskedA in, int32_t mod){
     *out = addq(in[MASKORDER],r,mod);
 }
 
-
+/*------------------------------------------------
+SecMult   :   Secure multiplication mod a power of 2 at order MASKORDER
+input     :   Arithmetic maskings ina,inb (MaskedA), Modulo mod (int32_t)
+output    :   Arithmetic masking out (MaskedA)
+------------------------------------------------*/
 void SecMult(MaskedA out, MaskedA ina, MaskedA inb, int32_t mod){
     int32_t r[MASKSIZE][MASKSIZE];
     for(size_t i = 0; i<MASKSIZE; i++) out[i] = mulq(ina[i],inb[i],mod);
@@ -104,11 +108,18 @@ void SecMult(MaskedA out, MaskedA ina, MaskedA inb, int32_t mod){
     }
 }
 
+/*------------------------------------------------
+SecAdd    :   Secure addition at order MASKORDER
+input     :   Boolean maskings ina,inb (MaskedB)
+output    :   Arithmetic masking out (MaskedB)
+------------------------------------------------*/
+void    SecAdd(MaskedB out, MaskedB ina, Masked inb){
+
+}
+
+
 void    RefreshMasks        ();
-void    Refresh             ();
-
-
-void    SecAdd              ();
+void    Refresh             (); //ATTENTION ON DOIT POUVOIR CHOISIR QUELLES SHARES ON REFRESH
 
 void    A2B                 (MaskedB out, MaskedA in);
 void    B2A                 (MaskedA out, MaskedB in);

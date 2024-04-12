@@ -23,15 +23,13 @@ void    MaskA               (MaskedA out, int32_t in, int32_t mod);
 void    UnmaskA             (int32_t *out, MaskedA in, int32_t mod);
 
 void    SecMult             (MaskedA out, MaskedA ina, MaskedA inb, int32_t mod);
+void    SecAdd              (MaskedB out, MaskedB ina, MaskedB inb);
 
 void    RefreshMasks        ();
 void    Refresh             ();
 
-void    SecAdd              ();
-
-
-void    A2B                 (MaskedB out, MaskedA in);
-void    B2A                 (MaskedA out, MaskedB in);
+void    A2B                 (MaskedB out, MaskedA in, int32_t mod);
+void    B2A                 (MaskedA out, MaskedB in, int32_t mod);
 void    B2A_bit             ();
 
 
