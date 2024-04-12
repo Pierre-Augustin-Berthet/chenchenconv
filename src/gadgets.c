@@ -109,18 +109,88 @@ void SecMult(MaskedA out, MaskedA ina, MaskedA inb, int32_t mod){
 }
 
 /*------------------------------------------------
+RefreshXOR:   XOR with Refresh for SecAdd at order MASKORDER
+input     :   Boolean masking in (MaskedB), 
+              Power of 2 modulo k2 (int32_t)
+output    :   Boolean masking out (MaskedB)
+------------------------------------------------*/
+void RefreshXOR(MaskedB out, MaskedB in, int32_t k2){
+    uint64_t r;
+    for(size_t i = 0; i<MASKSIZE; i++) out[i] = in[i];
+    for(size_t i = 0; i<MASKORDER; i++){
+        for(size_t j = i+1; j<MASKSIZE; j++){
+            r = (uint64_t) randmod(k2);
+            out[i] ^= r;
+            out[j] ^= r;
+        }
+    }
+}
+
+/*------------------------------------------------
 SecAdd    :   Secure addition at order MASKORDER
-input     :   Boolean maskings ina,inb (MaskedB)
+input     :   Boolean maskings ina,inb (MaskedB),
+              Power of 2 k (int32_t),
+              Log2 of k minus 1 log2km1 (int32_t)
 output    :   Arithmetic masking out (MaskedB)
 ------------------------------------------------*/
-void    SecAdd(MaskedB out, MaskedB ina, Masked inb){
-
+void SecAdd(MaskedB out, MaskedB ina, MaskedB inb, int32_t k, int32_t log2km1){
+    MaskedB p,g,a;
+    int pow=1;
+    for(size_t i = 0; i<MASKSIZE; i++) 
+        p[i] = ina[i] ^ inb[i];
+    SecAnd(g,ina,inb);
+    for(size_t j = 0; j<log2km1-1; j++){
+        for(size_t i = 0; i<MASKSIZE; i++) 
+            a[i] = g[i] << pow;
+        SecAnd(a,a,p);
+        for(size_t i =0; i<MASKSIZE; i++) {
+            g[i] ^= a[i];
+            a[i] = p[i] << pow;
+        }
+        RefreshXOR(a,a,k);
+        SecAnd(p,p,a);
+        pow *= 2;
+    }
+    for(size_t i = 0; i<MASKSIZE; i++) a[i] = g[i] << pow;
+    SecAnd(a,a,p);
+    for(size_t i = 0; i<MASKSIZE; i++){
+        g[i] ^= a[i];
+        out[i] = ina[i]^inb[i]^(g[i]<<1);
+    }
 }
 
 
 void    RefreshMasks        ();
 void    Refresh             (); //ATTENTION ON DOIT POUVOIR CHOISIR QUELLES SHARES ON REFRESH
 
-void    A2B                 (MaskedB out, MaskedA in);
-void    B2A                 (MaskedA out, MaskedB in);
+void A2B(MaskedB out, MaskedA in, int32_t mod, int size){
+    if(size=1)
+        out[0] = in[0];
+    
+    MaskedA up,down;
+    MaskedB y,z;
+
+    for(size_t i = 0; i < size/2; i++){
+        down[i] = in[i];
+    }
+    for(size_t i = 0; i < size - size/2; i++){
+        up[i] = in[size/2 + i];
+    }
+
+    A2B(y,down,mod,size/2);
+    A2B(z,up,mod,size-size/2);
+
+    for(size_t i = size/2; i<size;i++){
+        y[i] = 0;
+    }
+    for(size_t i = size-size/2;i<size;i++){
+        z[i] = 0;
+    }
+    RefreshXOR(y,y,6);
+    RefreshXOR(z,z,6);
+    SecAdd(out,z,y,16,4);
+}
+
+
+void    B2A                 (MaskedA out, MaskedB in, int32_t mod);
 void    B2A_bit             ();

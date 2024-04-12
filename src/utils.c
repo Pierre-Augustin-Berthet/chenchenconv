@@ -33,7 +33,8 @@ int32_t addq(int32_t ina, int32_t inb, int32_t mod){
  
 
 int32_t subq(int32_t ina, int32_t inb, int32_t mod){
-  return ina - inb % mod;
+  int32_t res = ina - inb % mod;
+  return (res<0) ? res + mod : res;
 }
 
 int32_t mulq(int32_t ina, int32_t inb, int32_t mod){

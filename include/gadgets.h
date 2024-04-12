@@ -17,13 +17,13 @@ void    UnmaskB             (uint64_t *out, MaskedB in);
 
 void    SecAnd              (MaskedB out, MaskedB ina, MaskedB inb);
 void    SecOr               (MaskedB out, MaskedB ina, MaskedB inb);
-
+void    RefreshXOR          (MaskedB out, MaskedB in, int32_t k2);
+void    SecAdd              (MaskedB out, MaskedB ina, MaskedB inb, int32_t k, int32_t log2km1);
 
 void    MaskA               (MaskedA out, int32_t in, int32_t mod);
 void    UnmaskA             (int32_t *out, MaskedA in, int32_t mod);
 
 void    SecMult             (MaskedA out, MaskedA ina, MaskedA inb, int32_t mod);
-void    SecAdd              (MaskedB out, MaskedB ina, MaskedB inb);
 
 void    RefreshMasks        ();
 void    Refresh             ();

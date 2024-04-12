@@ -1,10 +1,12 @@
 #include "utils.h"
 #include "gadgets.h"
 
+#include <time.h>
+
 #define MODULO 65536
 
 int main(int *argc, char **argv){
-
+    srand(time(NULL));
     MaskedA a1, a2, a3;
     MaskedB b1, b2, b3;
 
@@ -64,6 +66,38 @@ int main(int *argc, char **argv){
     }
     fprintf(OUTPUT,"SecOr Succeeded!\n");
 
+    RefreshXOR(b3,b2,64);
+    UnmaskB(&resB,b3);
+    if(B2^resB){
+        fprintf(OUTPUT,"RefreshXOR failed!\n");
+        print_binary_form(B2);
+        fprintf(OUTPUT,"\n!=\n");
+        print_binary_form(resB);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+    fprintf(OUTPUT,"RefreshXOR Succeeded!\n");
+
+    uint64_t mask = MODULO -1;
+    uint64_t tempB1 = B1&mask;
+    uint64_t tempB2 = B2&mask;
+    MaskB(b1,tempB1);
+    MaskB(b2,tempB2);
+    SecAdd(b3,b1,b2,16,4);
+    UnmaskB(&resB,b3);
+
+    if(1){
+        fprintf(OUTPUT,"SecAdd failed!\n");
+        fprintf(OUTPUT,"%ld",tempB1);
+        fprintf(OUTPUT,"\n+\n");
+        fprintf(OUTPUT,"%ld",tempB2);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%ld",resB&(mask<<1 | 1));
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+    fprintf(OUTPUT,"SecAdd Succeeded!\n");
+
     fprintf(OUTPUT,"\n---------------Arithmetic masking---------------\n");
     //MaskA, UnmaskA, SecMult, SecAdd
     A1 = randmod(MODULO);
@@ -98,22 +132,6 @@ int main(int *argc, char **argv){
         exit(1);
     }
     fprintf(OUTPUT,"SecMul Succeeded!\n");
-/*
-    SecAdd(a3,a1,a2);
-    UnmaskA(&resA,a3,MODULO);
 
-    if(subq(resA,addq(A1,A2,MODULO),MODULO)){
-        fprintf(OUTPUT,"SecAdd failed!\n");
-        fprintf(OUTPUT,"%d",A1);
-        fprintf(OUTPUT,"\n+\n");
-        fprintf(OUTPUT,"%d",A2);
-        fprintf(OUTPUT,"\n=\n");
-        fprintf(OUTPUT,"%d",addq(A1,A2,MODULO));
-        fprintf(OUTPUT,"\n!=\n");
-        fprintf(OUTPUT,"%d",resA);
-        fprintf(OUTPUT,"\n");
-        exit(1);
-    }
-    fprintf(OUTPUT,"SecAdd Succeeded!\n");*/
     return 0;
 }
