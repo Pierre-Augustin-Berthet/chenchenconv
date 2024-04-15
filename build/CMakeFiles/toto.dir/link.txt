@@ -1,0 +1,1 @@
+/usr/bin/cc -fPIC   -shared -Wl,-soname,libtoto.so -o libtoto.so CMakeFiles/toto.dir/src/gadgets.c.o CMakeFiles/toto.dir/src/utils.c.o CMakeFiles/toto.dir/src/secFPR.c.o CMakeFiles/toto.dir/src/floorFPR.c.o 

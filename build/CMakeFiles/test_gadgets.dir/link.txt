@@ -1,0 +1,1 @@
+/usr/bin/cc   -rdynamic CMakeFiles/test_gadgets.dir/apps/test_gadgets.c.o  -o test_gadgets  -Wl,-rpath,/home/dr4/Documents/chenchenconv/build libtoto.so -lm 
