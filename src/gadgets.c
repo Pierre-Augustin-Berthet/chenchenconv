@@ -1,11 +1,11 @@
 #include "gadgets.h"
 /*------------------------------------------------
 MaskB   :   Boolean Masking at order MASKORDER
-input   :   sensitive data in (uint64_t)
+input   :   sensitive data in (uint32_t)
 output  :   Boolean masking out (MaskedB)
 ------------------------------------------------*/
-void MaskB(MaskedB out, uint64_t in){
-    uint64_t r=0;
+void MaskB(MaskedB out, uint32_t in){
+    uint32_t r=0;
     for(size_t i=0; i<MASKORDER; i++){
         out[i] = rand64();
         r ^= out[i];
@@ -16,10 +16,10 @@ void MaskB(MaskedB out, uint64_t in){
 /*------------------------------------------------
 UnmaskB   :   Boolean unmasking at order MASKORDER
 input     :   Boolean masking in (MaskedB)
-output    :   sensitive data out (uint64_t)
+output    :   sensitive data out (uint32_t)
 ------------------------------------------------*/
-void UnmaskB(uint64_t *out, MaskedB in){
-    uint64_t r=0;
+void UnmaskB(uint32_t *out, MaskedB in){
+    uint32_t r=0;
     for(size_t i=0; i<MASKORDER; i++){
         r ^= in[i];
     }
@@ -32,7 +32,7 @@ input     :   Boolean maskings ina, inb (MaskedB)
 output    :   Boolean masking out (MaskedB)
 ------------------------------------------------*/
 void SecAnd(MaskedB out, MaskedB ina, MaskedB inb){
-    uint64_t r[MASKSIZE][MASKSIZE];
+    uint32_t r[MASKSIZE][MASKSIZE];
     for(size_t i = 0; i<MASKSIZE; i++) out[i] = ina[i]&inb[i];
     for(size_t i = 0; i <MASKSIZE-1; i++){
         for(size_t j = i+1; j<MASKSIZE;j++){
@@ -51,7 +51,7 @@ input     :   Boolean maskings ina,inb (MaskedB)
 output    :   Boolean masking out (MaskedB)
 ------------------------------------------------*/
 void SecOr(MaskedB out, MaskedB ina, MaskedB inb){
-    MaskedB t,s;
+    uint32_t t[MASKSIZE],s[MASKSIZE];
     t[0] = ~ina[0];
     s[0] = ~inb[0];
     for(size_t i=1; i< MASKSIZE;i++){
@@ -64,11 +64,11 @@ void SecOr(MaskedB out, MaskedB ina, MaskedB inb){
 
 /*------------------------------------------------
 MaskA   :   Arithmetic Masking at order MASKORDER
-input   :   sensitive data in (int32_t), Modulo mod (int32_t)
+input   :   sensitive data in (uint32_t), Modulo mod (uint32_t)
 output  :   Arithmetic masking out (MaskedA)
 ------------------------------------------------*/
-void MaskA(MaskedA out, int32_t in, int32_t mod){
-    int32_t r=0;
+void MaskA(MaskedA out, uint32_t in, uint32_t mod){
+    uint32_t r=0;
     for(size_t i=0; i<MASKORDER; i++){
         out[i] = randmod(mod);
         r = addq(r,out[i],mod);
@@ -78,24 +78,24 @@ void MaskA(MaskedA out, int32_t in, int32_t mod){
 
 /*------------------------------------------------
 UnmaskA   :   Arithmetic unmasking at order MASKORDER
-input     :   Arithmetic masking in (MaskedA), Modulo mod (int32_t)
-output    :   sensitive data out (int32_t)
+input     :   Arithmetic masking in (MaskedA), Modulo mod (uint32_t)
+output    :   sensitive data out (uint32_t)
 ------------------------------------------------*/
-void UnmaskA(int32_t *out, MaskedA in, int32_t mod){
-    int32_t r=0;
+void UnmaskA(uint32_t *out, MaskedA in, uint32_t mod){
+    uint32_t r=0;
     for(size_t i=0; i<MASKORDER; i++){
         r = addq(r,in[i],mod);
     }
-    *out = addq(in[MASKORDER],r,mod);
+    *out = addq(in[MASKORDER],r,mod)%mod;
 }
 
 /*------------------------------------------------
 SecMult   :   Secure multiplication mod a power of 2 at order MASKORDER
-input     :   Arithmetic maskings ina,inb (MaskedA), Modulo mod (int32_t)
+input     :   Arithmetic maskings ina,inb (MaskedA), Modulo mod (uint32_t)
 output    :   Arithmetic masking out (MaskedA)
 ------------------------------------------------*/
-void SecMult(MaskedA out, MaskedA ina, MaskedA inb, int32_t mod){
-    int32_t r[MASKSIZE][MASKSIZE];
+void SecMult(MaskedA out, MaskedA ina, MaskedA inb, uint32_t mod){
+    uint32_t r[MASKSIZE][MASKSIZE];
     for(size_t i = 0; i<MASKSIZE; i++) out[i] = mulq(ina[i],inb[i],mod);
     for(size_t i = 0; i <MASKSIZE-1; i++){
         for(size_t j = i+1; j<MASKSIZE;j++){
@@ -111,15 +111,15 @@ void SecMult(MaskedA out, MaskedA ina, MaskedA inb, int32_t mod){
 /*------------------------------------------------
 RefreshXOR:   XOR with Refresh for SecAdd at order MASKORDER
 input     :   Boolean masking in (MaskedB), 
-              Power of 2 modulo k2 (int32_t)
+              Power of 2 modulo k2 (uint32_t)
 output    :   Boolean masking out (MaskedB)
 ------------------------------------------------*/
-void RefreshXOR(MaskedB out, MaskedB in, int32_t k2){
-    uint64_t r;
+void RefreshXOR(MaskedB out, MaskedB in, uint32_t k2){
+    uint32_t r;
     for(size_t i = 0; i<MASKSIZE; i++) out[i] = in[i];
     for(size_t i = 0; i<MASKORDER; i++){
         for(size_t j = i+1; j<MASKSIZE; j++){
-            r = (uint64_t) randmod(k2);
+            r = (uint32_t) randmod(k2);
             out[i] ^= r;
             out[j] ^= r;
         }
@@ -129,12 +129,12 @@ void RefreshXOR(MaskedB out, MaskedB in, int32_t k2){
 /*------------------------------------------------
 SecAdd    :   Secure addition at order MASKORDER
 input     :   Boolean maskings ina,inb (MaskedB),
-              Power of 2 k (int32_t),
-              Log2 of k minus 1 log2km1 (int32_t)
+              Power of 2 k (uint32_t),
+              Log2 of k minus 1 log2km1 (uint32_t)
 output    :   Arithmetic masking out (MaskedB)
 ------------------------------------------------*/
-void SecAdd(MaskedB out, MaskedB ina, MaskedB inb, int32_t k, int32_t log2km1){
-    MaskedB p,g,a;
+void SecAdd(MaskedB out, MaskedB ina, MaskedB inb, uint32_t k, uint32_t log2km1){
+    uint32_t p[MASKSIZE],g[MASKSIZE],a[MASKSIZE];
     int pow=1;
     for(size_t i = 0; i<MASKSIZE; i++) 
         p[i] = ina[i] ^ inb[i];
@@ -159,16 +159,28 @@ void SecAdd(MaskedB out, MaskedB ina, MaskedB inb, int32_t k, int32_t log2km1){
     }
 }
 
-
-void    RefreshMasks        ();
+/*------------------------------------------------
+RefreshMasks :   NI-Refresh at order MASKORDER
+input        :   Boolean masking out (MaskedB),
+                 Amount of shares refreshed size (int)
+output       :   Boolean masking out (MaskedB)
+------------------------------------------------*/
+void RefreshMasks(MaskedB out, int size){
+    uint32_t r;
+    for(size_t i = 1; i < size; i++){
+        r = rand64();
+        out[0] ^= r;
+        out[i] ^= r;
+    }
+}
 void    Refresh             (); //ATTENTION ON DOIT POUVOIR CHOISIR QUELLES SHARES ON REFRESH
 
-void A2B(MaskedB out, MaskedA in, int32_t mod, int size){
+void A2B(MaskedB out, MaskedA in, uint32_t mod, int size){
     if(size=1)
         out[0] = in[0];
     
-    MaskedA up,down;
-    MaskedB y,z;
+    uint32_t up[size-size/2],down[size/2];
+    uint32_t y[size/2],z[size-size/2];
 
     for(size_t i = 0; i < size/2; i++){
         down[i] = in[i];
@@ -191,6 +203,61 @@ void A2B(MaskedB out, MaskedA in, int32_t mod, int size){
     SecAdd(out,z,y,16,4);
 }
 
+//For B2A
+uint32_t Psi(uint32_t x,uint32_t y)
+{
+  return (x ^ y)-y;
+}
 
-void    B2A                 (MaskedA out, MaskedB in, int32_t mod);
+//For B2A
+uint32_t Psi0(uint32_t x, uint32_t y,int n)
+{
+  return Psi(x,y) ^ ((~n & 1) * x);
+}
+
+static void B2Aext(MaskedA out, MaskedB extended, uint32_t mod, int size);
+void B2A(MaskedA out, MaskedB in, uint32_t mod, int size){
+    uint32_t extended[size+1];
+    extended[size]= 0;
+    for(size_t i = 0; i<size; i++) extended[i] = in[i];
+    B2Aext(out,extended,mod,size);
+}
+
+void B2Aext(MaskedA out, MaskedB x, uint32_t mod, int size){
+    if(size==2){
+        uint32_t r1 = rand64();
+        uint32_t r2 = rand64();
+
+        uint32_t y0 = (x[0]^r1)^r2;
+        uint32_t y1 = x[1]^r1;
+        uint32_t y2 = x[2]^r2;
+
+        uint32_t z0 = y0^Psi(y0,y1);
+        uint32_t z1 = Psi(y0,y2);
+
+        out[0] = y1^y2;
+        out[1] = z0^z1;
+        return;
+    }
+
+    uint32_t y[size+1];
+    for(size_t i = 0; i < size +1;i++) y[i] = x[i];
+ 
+  RefreshMasks(y,size+1);
+ 
+  uint32_t z[size];
+ 
+  z[0]=Psi0(y[0],y[1],size);
+  for(int i=1;i<size;i++) z[i]=Psi(y[0],y[i+1]);
+ 
+  uint32_t A[size-1],B[size-1];
+  B2Aext(A,y+1,mod,size-1);
+  B2Aext(B,z,mod,size-1);
+  
+  for(int i=0;i<size-2;i++)
+    out[i]=addq(A[i],B[i],mod);
+ 
+  out[size-2]=A[size-2];
+  out[size-1]=B[size-2];
+}
 void    B2A_bit             ();

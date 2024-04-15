@@ -9,27 +9,27 @@
 #define MASKORDER 2
 #define MASKSIZE MASKORDER+1
 
-typedef int32_t MaskedA[MASKSIZE];
-typedef uint64_t MaskedB[MASKSIZE];
+typedef uint32_t* MaskedA;
+typedef uint32_t* MaskedB;
 
-void    MaskB               (MaskedB out, uint64_t in);
-void    UnmaskB             (uint64_t *out, MaskedB in);
+void    MaskB               (MaskedB out, uint32_t in);
+void    UnmaskB             (uint32_t *out, MaskedB in);
 
 void    SecAnd              (MaskedB out, MaskedB ina, MaskedB inb);
 void    SecOr               (MaskedB out, MaskedB ina, MaskedB inb);
-void    RefreshXOR          (MaskedB out, MaskedB in, int32_t k2);
-void    SecAdd              (MaskedB out, MaskedB ina, MaskedB inb, int32_t k, int32_t log2km1);
+void    RefreshXOR          (MaskedB out, MaskedB in, uint32_t k2);
+void    SecAdd              (MaskedB out, MaskedB ina, MaskedB inb, uint32_t k, uint32_t log2km1);
 
-void    MaskA               (MaskedA out, int32_t in, int32_t mod);
-void    UnmaskA             (int32_t *out, MaskedA in, int32_t mod);
+void    MaskA               (MaskedA out, uint32_t in, uint32_t mod);
+void    UnmaskA             (uint32_t *out, MaskedA in, uint32_t mod);
 
-void    SecMult             (MaskedA out, MaskedA ina, MaskedA inb, int32_t mod);
+void    SecMult             (MaskedA out, MaskedA ina, MaskedA inb, uint32_t mod);
 
-void    RefreshMasks        ();
+void    RefreshMasks        (MaskedB out, int size);
 void    Refresh             ();
 
-void    A2B                 (MaskedB out, MaskedA in, int32_t mod);
-void    B2A                 (MaskedA out, MaskedB in, int32_t mod);
+void    A2B                 (MaskedB out, MaskedA in, uint32_t mod, int size);
+void    B2A                 (MaskedA out, MaskedB in, uint32_t mod, int size);
 void    B2A_bit             ();
 
 

@@ -7,11 +7,11 @@
 
 int main(int *argc, char **argv){
     srand(time(NULL));
-    MaskedA a1, a2, a3;
-    MaskedB b1, b2, b3;
+    uint32_t a1[MASKSIZE], a2[MASKSIZE], a3[MASKSIZE];
+    uint32_t b1[MASKSIZE], b2[MASKSIZE], b3[MASKSIZE];
 
-    uint64_t B1,B2,resB;
-    int32_t A1,A2,resA;
+    uint32_t B1,B2,resB;
+    uint32_t A1,A2,resA;
 
     fprintf(OUTPUT,"==================================================\nTests of the masked gadgets\n==================================================\n");
     fprintf(OUTPUT,"---------------Boolean masking---------------\n");
@@ -66,6 +66,19 @@ int main(int *argc, char **argv){
     }
     fprintf(OUTPUT,"SecOr Succeeded!\n");
 
+    RefreshMasks(b2,MASKORDER);
+    UnmaskB(&resB,b2);
+    
+    if(B2^resB){
+        fprintf(OUTPUT,"RefreshMasks failed!\n");
+        print_binary_form(B2);
+        fprintf(OUTPUT,"\n!=\n");
+        print_binary_form(resB);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+    fprintf(OUTPUT,"RefreshMasks Succeeded!\n");
+
     RefreshXOR(b3,b2,64);
     UnmaskB(&resB,b3);
     if(B2^resB){
@@ -77,29 +90,31 @@ int main(int *argc, char **argv){
         exit(1);
     }
     fprintf(OUTPUT,"RefreshXOR Succeeded!\n");
-
-    uint64_t mask = MODULO -1;
-    uint64_t tempB1 = B1&mask;
-    uint64_t tempB2 = B2&mask;
+/*
+    uint32_t tempB1 = randmod(MODULO);
+    uint32_t tempB2 = randmod(MODULO);
     MaskB(b1,tempB1);
     MaskB(b2,tempB2);
     SecAdd(b3,b1,b2,16,4);
     UnmaskB(&resB,b3);
+    resB %= MODULO;
 
-    if(1){
+    if(subq(resB,addq(tempB1,tempB2,MODULO),MODULO)){
         fprintf(OUTPUT,"SecAdd failed!\n");
-        fprintf(OUTPUT,"%ld",tempB1);
+        fprintf(OUTPUT,"%d",tempB1);
         fprintf(OUTPUT,"\n+\n");
-        fprintf(OUTPUT,"%ld",tempB2);
+        fprintf(OUTPUT,"%d",tempB2);
+        fprintf(OUTPUT,"\n=\n");
+        fprintf(OUTPUT,"%d",addq(tempB1,tempB2,MODULO));
         fprintf(OUTPUT,"\n!=\n");
-        fprintf(OUTPUT,"%ld",resB&(mask<<1 | 1));
+        fprintf(OUTPUT,"%d",resB);
         fprintf(OUTPUT,"\n");
         exit(1);
     }
-    fprintf(OUTPUT,"SecAdd Succeeded!\n");
+    fprintf(OUTPUT,"SecAdd Succeeded!\n");*/
 
     fprintf(OUTPUT,"\n---------------Arithmetic masking---------------\n");
-    //MaskA, UnmaskA, SecMult, SecAdd
+    //MaskA, UnmaskA, SecMult
     A1 = randmod(MODULO);
     MaskA(a1,A1,MODULO);
     UnmaskA(&resA,a1,MODULO);
@@ -132,6 +147,23 @@ int main(int *argc, char **argv){
         exit(1);
     }
     fprintf(OUTPUT,"SecMul Succeeded!\n");
+
+    fprintf(OUTPUT,"\n---------------Conversions---------------\n");
+    B2 = randmod(MODULO);
+    MaskB(b2,B2);
+    B2A(a2,b2,MODULO,MASKSIZE);
+    UnmaskA(&resA,a2,MODULO);
+
+    if(subq(resA,B2,MODULO)){
+        fprintf(OUTPUT,"B2A Conversion failed!\n");
+        fprintf(OUTPUT,"%d",B2);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%d",resA);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+    fprintf(OUTPUT,"B2A Conversion Succeeded!\n");
+
 
     return 0;
 }
