@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/gadgets.h
+stdint.h
+-
+stddef.h
+-
+utils.h
+../include/utils.h
+
+../include/secFPR.h
+gadgets.h
+../include/gadgets.h
+
+../include/utils.h
+stdint.h
+-
+stdlib.h
+-
+stdio.h
+-
+
+/home/dr4/Documents/chenchenconv/src/secFPR.c
+secFPR.h
+/home/dr4/Documents/chenchenconv/src/secFPR.h
+
