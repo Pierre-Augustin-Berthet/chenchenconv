@@ -11,7 +11,7 @@ output      :   Boolean masking out (MaskedB)
 void SecNonZeroA(MaskedB out, MaskedA in, int32_t mod){
     MaskedB t,l,r;
     for(size_t i= MASKSIZE/2; i < MASKSIZE; i++)  in[i] = -in[i];
-    A2B(t,in);
+    A2B(t,in, mod, MASKSIZE);
     int32_t bitsize;
     int32_t len=bitsize/2;
     while(len>=1){
@@ -54,7 +54,7 @@ void SecNonZeroB(MaskedB out, MaskedB in){
 
 
 
-void SecFprUrsh(MaskedB_64 out, MaskedB_64 in, MaskedA c){
+void SecFprUrsh(MaskedB out, MaskedB in, MaskedA c){
     MaskedB m;
     m[0] = ((uint64_t)1)<<63;
     for (int j =0; j< MASKSIZE; j++){
@@ -80,7 +80,7 @@ void SecFprUrsh(MaskedB_64 out, MaskedB_64 in, MaskedA c){
         out[i] = temp[i] ^ in[i];
         out[i]^= temp[i] & 1;
     }
-    MaskedB_64 b;
+    MaskedB b;
     SecNonZeroB(b, out);
     for (int i = 0; i<MASKSIZE; i++){
         out[i] = (temp - temp & 1) | b[i];
