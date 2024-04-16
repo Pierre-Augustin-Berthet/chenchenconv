@@ -32,5 +32,7 @@ void    A2B                 (MaskedB out, MaskedA in, uint64_t mod, int size);
 void    B2A                 (MaskedA out, MaskedB in, uint64_t mod, int size);
 void    B2A_bit             ();
 
+void 	RightRotate	     (uint64_t * x, uint32_t c);
+
 
 #endif

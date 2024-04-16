@@ -6,7 +6,7 @@
 void SecNonZeroA(MaskedB out, MaskedA in, int32_t mod);
 void SecNonZeroB(MaskedB out, MaskedB in);
 
-void SecFprUrsh(MaskedB out, MaskedB x, MaskedA c, int32_t mod);
+void SecFprUrsh(MaskedB out, MaskedB x, MaskedA c);
 
 void SecFprNorm64(MaskedB x, MaskedA e, int32_t mod);
 

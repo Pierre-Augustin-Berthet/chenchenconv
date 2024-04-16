@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 #test projet 
 project(gadget)
 
-set(GADGETS_SOURCES src/gadgets.c src/utils.c)
+set(GADGETS_SOURCES src/gadgets.c src/utils.c src/secFPR.c src/floorFPR.c)
 
 include_directories(include)
 
