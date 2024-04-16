@@ -119,7 +119,7 @@ void RefreshXOR(MaskedB out, MaskedB in, uint64_t k2){
     for(size_t i = 0; i<MASKSIZE; i++) out[i] = in[i];
     for(size_t i = 0; i<MASKORDER; i++){
         for(size_t j = i+1; j<MASKSIZE; j++){
-            r = (uint64_t) randmod(k2);
+            r = randmod(k2);
             out[i] ^= r;
             out[j] ^= r;
         }
@@ -134,7 +134,7 @@ input     :   Boolean maskings ina,inb (MaskedB),
 output    :   Arithmetic masking out (MaskedB)
 ------------------------------------------------*/
 void SecAdd(MaskedB out, MaskedB ina, MaskedB inb, uint64_t k, uint64_t log2km1){
-    uint64_t p[MASKSIZE],g[MASKSIZE],a[MASKSIZE];
+    uint64_t p[MASKSIZE],g[MASKSIZE],a[MASKSIZE],a2[MASKSIZE];
     int pow=1;
     for(size_t i = 0; i<MASKSIZE; i++) 
         p[i] = ina[i] ^ inb[i];
@@ -142,19 +142,20 @@ void SecAdd(MaskedB out, MaskedB ina, MaskedB inb, uint64_t k, uint64_t log2km1)
     for(size_t j = 0; j<log2km1-1; j++){
         for(size_t i = 0; i<MASKSIZE; i++) 
             a[i] = g[i] << pow;
-        SecAnd(a,a,p);
+        SecAnd(a2,a,p);
         for(size_t i =0; i<MASKSIZE; i++) {
-            g[i] ^= a[i];
-            a[i] = p[i] << pow;
+            g[i] ^= a2[i];
+            a2[i] = p[i] << pow;
         }
-        RefreshXOR(a,a,k);
-        SecAnd(p,p,a);
+        RefreshXOR(a2,a2,k);
+        SecAnd(a,p,a2);
+        for(size_t i = 0; i < MASKSIZE; i++) p[i] = a[i];
         pow *= 2;
     }
     for(size_t i = 0; i<MASKSIZE; i++) a[i] = g[i] << pow;
-    SecAnd(a,a,p);
+    SecAnd(a2,a,p);
     for(size_t i = 0; i<MASKSIZE; i++){
-        g[i] ^= a[i];
+        g[i] ^= a2[i];
         out[i] = ina[i]^inb[i]^(g[i]<<1);
     }
 }
