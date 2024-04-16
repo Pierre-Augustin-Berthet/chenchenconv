@@ -261,11 +261,39 @@ void B2Aext(MaskedA out, MaskedB x, uint64_t mod, int size){
   out[size-2]=A[size-2];
   out[size-1]=B[size-2];
 }
-void    B2A_bit             ();
 
 
+
+//First one : a right rotation
 void RightRotate(uint64_t * x, uint32_t c){
     uint64_t temp = (1<<c)-1;
     temp = *x & temp;
     *x = ((*x) >> c) + temp << (64 - c);  
 }
+
+//Second one : a right shift
+void RightRotate2(uint64_t * x, uint32_t c){
+    *x = ((*x) >> c);  
+}
+
+void B2A_bit_j(MaskedA C, MaskedA A, uint64_t xn, uint64_t mod){
+    MaskedA B;
+    B[MASKSIZE - 1] = rand64()% mod;
+    B[0] = A[0] - B[MASKSIZE - 1];
+    for (int j = 1; j<MASKSIZE-1; j++){
+        uint64_t R = rand64() % mod;
+        B[j] = A[j] - R % mod;
+        B[MASKSIZE - 1] = B[MASKSIZE - 1] + R % mod;
+    }
+    for (int j = 0; j < MASKSIZE; j++){
+        C[j] = B[j] - 2 * (B[j]*xn) % mod;
+    }
+    C[0] = C[0] + xn % mod; 
+}
+
+void B2A_bit(MaskedA A, MaskedB x, uint64_t mod){
+    A[0] = x[1];
+    for (int j = 1; j<MASKSIZE; j++){
+        B2A_bit_j(A,A,x[j], mod);
+    } 
+}   

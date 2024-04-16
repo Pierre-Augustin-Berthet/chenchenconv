@@ -49,17 +49,20 @@ void SecNonZeroB(MaskedB out, MaskedB in){
 }
 
 
-
-
-
-
+/*------------------------------------------------
+SecFprUrsh  :   Secure right-shift
+input       :   Boolean masking in (MaskedB)
+                6-bits Integer vector c
+output      :   Boolean masking out (MaskedB)
+------------------------------------------------*/
 
 void SecFprUrsh(MaskedB out, MaskedB in, MaskedA c){
     MaskedB m;
     m[0] = ((uint64_t)1)<<63;
     for (int j =0; j< MASKSIZE; j++){
         for (int i = 0; i < MASKSIZE; i++){
-            RightRotate(&in[i], c[j]);
+            RightRotate(&in[i], c[j]); 
+// Just need to verify here if we want a rotation or a shifted version of it
         }
         RefreshMasks(in, MASKSIZE);
         for (int i = 0; i < MASKSIZE; i++){
@@ -84,5 +87,63 @@ void SecFprUrsh(MaskedB out, MaskedB in, MaskedA c){
     SecNonZeroB(b, out);
     for (int i = 0; i<MASKSIZE; i++){
         out[i] = (temp - temp & 1) | b[i];
+    }
+}
+
+void SecFprUrsh2(MaskedB out, MaskedB in, MaskedA c){
+    MaskedB m;
+    m[0] = ((uint64_t)1)<<63;
+    for (int j =0; j< MASKSIZE; j++){
+        for (int i = 0; i < MASKSIZE; i++){
+            RightRotate2(&in[i], c[j]); 
+// Just need to verify here if we want a rotation or a shifted version of it
+        }
+        RefreshMasks(in, MASKSIZE);
+        for (int i = 0; i < MASKSIZE; i++){
+            RightRotate2(&m[i], c[j]);
+        }
+        RefreshMasks(m, MASKSIZE);
+    }
+    uint8_t len = 1;
+    while(len<=32){
+        for (int i = 0; i < MASKSIZE; i++){
+            m[i] = m[i] ^ (m[i]>>len);
+        }
+        len <<= 1;
+    }
+    MaskedB temp;
+    SecAnd(temp, in, m);
+    for (int i = 0; i<MASKSIZE; i++){
+        out[i] = temp[i] ^ in[i];
+        out[i]^= temp[i] & 1;
+    }
+    MaskedB b;
+    SecNonZeroB(b, out);
+    for (int i = 0; i<MASKSIZE; i++){
+        out[i] = (temp - temp & 1) | b[i];
+    }
+}
+
+void 
+SecFprNorm64(MaskedB out, MaskedA e){
+    MaskedB t, n, b, bp;
+    for (int j = 5 ; j>=0; j--){
+        for (int i = 0; i< MASKSIZE; i++){
+            t[i] = out[i] ^ (out[i]<<(1<<j));
+            n[i] = out[i] >> (64 - (1<<j));
+        }
+        SecNonZeroB(b, n);
+        for (int i = 0; i<MASKSIZE; i++){
+            bp[i] = -b[i];
+        }
+        //Il faut écrire not(bp[0]);
+        SecAnd(t, t, bp);
+        for (int i = 0; i<MASKSIZE; i++){
+            out[i] = out[i] ^ t[i];
+        }
+        //B2A_bit();
+        for (int i = 0; i<MASKSIZE; i++){
+            e[i] = e[i] + (b[i]<<j);
+        }
     }
 }
