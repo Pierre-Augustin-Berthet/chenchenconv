@@ -6,13 +6,13 @@
 #include <stdio.h>
 #define OUTPUT stdout
 
-uint32_t rand64(void);
-uint32_t randmod(uint32_t mod);
+uint64_t rand64(void);
+uint64_t randmod(uint64_t mod);
 
-void print_binary_form(uint32_t in);
+void print_binary_form(uint64_t in);
 
-uint32_t addq(uint32_t ina, uint32_t inb, uint32_t mod);
-uint32_t subq(uint32_t ina, uint32_t inb, uint32_t mod);
-uint32_t mulq(uint32_t ina, uint32_t inb, uint32_t mod);
+uint64_t addq(uint64_t ina, uint64_t inb, uint64_t mod);
+uint64_t subq(uint64_t ina, uint64_t inb, uint64_t mod);
+uint64_t mulq(uint64_t ina, uint64_t inb, uint64_t mod);
 
 #endif

@@ -7,11 +7,11 @@
 
 int main(int *argc, char **argv){
     srand(time(NULL));
-    uint32_t a1[MASKSIZE], a2[MASKSIZE], a3[MASKSIZE];
-    uint32_t b1[MASKSIZE], b2[MASKSIZE], b3[MASKSIZE];
+    uint64_t a1[MASKSIZE], a2[MASKSIZE], a3[MASKSIZE];
+    uint64_t b1[MASKSIZE], b2[MASKSIZE], b3[MASKSIZE];
 
-    uint32_t B1,B2,resB;
-    uint32_t A1,A2,resA;
+    uint64_t B1,B2,resB;
+    uint64_t A1,A2,resA;
 
     fprintf(OUTPUT,"==================================================\nTests of the masked gadgets\n==================================================\n");
     fprintf(OUTPUT,"---------------Boolean masking---------------\n");
@@ -90,9 +90,9 @@ int main(int *argc, char **argv){
         exit(1);
     }
     fprintf(OUTPUT,"RefreshXOR Succeeded!\n");
-/*
-    uint32_t tempB1 = randmod(MODULO);
-    uint32_t tempB2 = randmod(MODULO);
+
+    uint64_t tempB1 = randmod(MODULO);
+    uint64_t tempB2 = randmod(MODULO);
     MaskB(b1,tempB1);
     MaskB(b2,tempB2);
     SecAdd(b3,b1,b2,16,4);
@@ -101,17 +101,17 @@ int main(int *argc, char **argv){
 
     if(subq(resB,addq(tempB1,tempB2,MODULO),MODULO)){
         fprintf(OUTPUT,"SecAdd failed!\n");
-        fprintf(OUTPUT,"%d",tempB1);
+        fprintf(OUTPUT,"%ld",tempB1);
         fprintf(OUTPUT,"\n+\n");
-        fprintf(OUTPUT,"%d",tempB2);
+        fprintf(OUTPUT,"%ld",tempB2);
         fprintf(OUTPUT,"\n=\n");
-        fprintf(OUTPUT,"%d",addq(tempB1,tempB2,MODULO));
+        fprintf(OUTPUT,"%ld",addq(tempB1,tempB2,MODULO));
         fprintf(OUTPUT,"\n!=\n");
-        fprintf(OUTPUT,"%d",resB);
+        fprintf(OUTPUT,"%ld",resB);
         fprintf(OUTPUT,"\n");
         exit(1);
     }
-    fprintf(OUTPUT,"SecAdd Succeeded!\n");*/
+    fprintf(OUTPUT,"SecAdd Succeeded!\n");
 
     fprintf(OUTPUT,"\n---------------Arithmetic masking---------------\n");
     //MaskA, UnmaskA, SecMult
@@ -121,9 +121,9 @@ int main(int *argc, char **argv){
 
     if(subq(A1,resA,MODULO)){
         fprintf(OUTPUT,"Arithmetic Masking-Demasking failed!\n");
-        fprintf(OUTPUT,"%d",A1);
+        fprintf(OUTPUT,"%ld",A1);
         fprintf(OUTPUT,"\n!=\n");
-        fprintf(OUTPUT,"%d",resA);
+        fprintf(OUTPUT,"%ld",resA);
         fprintf(OUTPUT,"\n");
         exit(1);
     }
@@ -136,13 +136,13 @@ int main(int *argc, char **argv){
 
     if(subq(resA,mulq(A1,A2,MODULO),MODULO)){
         fprintf(OUTPUT,"SecMul failed!\n");
-        fprintf(OUTPUT,"%d",A1);
+        fprintf(OUTPUT,"%ld",A1);
         fprintf(OUTPUT,"\n*\n");
-        fprintf(OUTPUT,"%d",A2);
+        fprintf(OUTPUT,"%ld",A2);
         fprintf(OUTPUT,"\n=\n");
-        fprintf(OUTPUT,"%d",mulq(A1,A2,MODULO));
+        fprintf(OUTPUT,"%ld",mulq(A1,A2,MODULO));
         fprintf(OUTPUT,"\n!=\n");
-        fprintf(OUTPUT,"%d",resA);
+        fprintf(OUTPUT,"%ld",resA);
         fprintf(OUTPUT,"\n");
         exit(1);
     }
@@ -156,9 +156,9 @@ int main(int *argc, char **argv){
 
     if(subq(resA,B2,MODULO)){
         fprintf(OUTPUT,"B2A Conversion failed!\n");
-        fprintf(OUTPUT,"%d",B2);
+        fprintf(OUTPUT,"%ld",B2);
         fprintf(OUTPUT,"\n!=\n");
-        fprintf(OUTPUT,"%d",resA);
+        fprintf(OUTPUT,"%ld",resA);
         fprintf(OUTPUT,"\n");
         exit(1);
     }
