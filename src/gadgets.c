@@ -262,3 +262,10 @@ void B2Aext(MaskedA out, MaskedB x, uint64_t mod, int size){
   out[size-1]=B[size-2];
 }
 void    B2A_bit             ();
+
+
+void RightRotate(uint64_t * x, uint32_t c){
+    uint64_t temp = (1<<c)-1;
+    temp = *x & temp;
+    *x = ((*x) >> c) + temp << (64 - c);  
+}
