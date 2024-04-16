@@ -79,7 +79,9 @@ int main(int *argc, char **argv){
     }
     fprintf(OUTPUT,"RefreshMasks Succeeded!\n");
 
-    RefreshXOR(b3,b2,64);
+    B2 = randmod(MODULO);
+    MaskB(b2,B2);
+    RefreshXOR(b3,b2,64,MASKSIZE);
     UnmaskB(&resB,b3);
     if(B2^resB){
         fprintf(OUTPUT,"RefreshXOR failed!\n");
@@ -95,7 +97,7 @@ int main(int *argc, char **argv){
     uint64_t tempB2 = randmod(MODULO);
     MaskB(b1,tempB1);
     MaskB(b2,tempB2);
-    SecAdd(b3,b1,b2,16,4);
+    SecAdd(b3,b1,b2,MODULO,4);
     UnmaskB(&resB,b3);
     resB %= MODULO;
 
@@ -164,6 +166,20 @@ int main(int *argc, char **argv){
     }
     fprintf(OUTPUT,"B2A Conversion Succeeded!\n");
 
+    A2 = randmod(MODULO);
+    MaskA(a2,A2,MODULO);
+    A2B(b2,a2,MODULO,MASKSIZE);
+    UnmaskB(&resB,b2);
+
+    if(subq(resB,A2,MODULO)){
+        fprintf(OUTPUT,"A2B Conversion failed!\n");
+        fprintf(OUTPUT,"%ld",A2);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%ld",resB);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+    fprintf(OUTPUT,"A2B Conversion Succeeded!\n");
 
     return 0;
 }

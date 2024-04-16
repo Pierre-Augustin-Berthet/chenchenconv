@@ -17,7 +17,7 @@ void    UnmaskB             (uint64_t *out, MaskedB in);
 
 void    SecAnd              (MaskedB out, MaskedB ina, MaskedB inb);
 void    SecOr               (MaskedB out, MaskedB ina, MaskedB inb);
-void    RefreshXOR          (MaskedB out, MaskedB in, uint64_t k2);
+void    RefreshXOR          (MaskedB out, MaskedB in, uint64_t mod, int size);
 void    SecAdd              (MaskedB out, MaskedB ina, MaskedB inb, uint64_t k, uint64_t log2km1);
 
 void    MaskA               (MaskedA out, uint64_t in, uint64_t mod);
