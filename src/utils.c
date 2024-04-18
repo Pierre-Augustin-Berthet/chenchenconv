@@ -22,7 +22,7 @@ uint64_t rand64(void){
 
  void print_binary_form(uint64_t in){
   fprintf(OUTPUT,"0b");
-  for(int i = 0; i<32;i++){
+  for(int i = 0; i<64;i++){
     fprintf(OUTPUT,"%ld",(in>>i)&1);
   }
  }

@@ -111,14 +111,15 @@ void SecMult(MaskedA out, MaskedA ina, MaskedA inb, uint64_t mod){
 /*------------------------------------------------
 RefreshXOR:   XOR with Refresh for SecAdd at order MASKORDER
 input     :   Boolean masking in (MaskedB), 
-              Power of 2 modulo k2 (uint64_t)
+              Modulo k2 (uint64_t),
+              Size size(int)
 output    :   Boolean masking out (MaskedB)
 ------------------------------------------------*/
-void RefreshXOR(MaskedB out, MaskedB in, uint64_t k2){
+void RefreshXOR(MaskedB out, MaskedB in, uint64_t k2, int size){
     uint64_t r;
-    for(size_t i = 0; i<MASKSIZE; i++) out[i] = in[i];
-    for(size_t i = 0; i<MASKORDER; i++){
-        for(size_t j = i+1; j<MASKSIZE; j++){
+    for(size_t i = 0; i<size; i++) out[i] = in[i];
+    for(size_t i = 0; i<size-1; i++){
+        for(size_t j = i+1; j<size; j++){
             r = randmod(k2);
             out[i] ^= r;
             out[j] ^= r;
@@ -147,7 +148,7 @@ void SecAdd(MaskedB out, MaskedB ina, MaskedB inb, uint64_t k, uint64_t log2km1)
             g[i] ^= a2[i];
             a2[i] = p[i] << pow;
         }
-        RefreshXOR(a2,a2,k);
+        RefreshXOR(a2,a2,k,MASKSIZE);
         SecAnd(a,p,a2);
         for(size_t i = 0; i < MASKSIZE; i++) p[i] = a[i];
         pow *= 2;
@@ -177,17 +178,18 @@ void RefreshMasks(MaskedB out, int size){
 void    Refresh             (); //ATTENTION ON DOIT POUVOIR CHOISIR QUELLES SHARES ON REFRESH
 
 void A2B(MaskedB out, MaskedA in, uint64_t mod, int size){
-    if(size=1)
+    if(size==1){
         out[0] = in[0];
-    
+        return;
+    }
     uint64_t up[size-size/2],down[size/2];
-    uint64_t y[size/2],z[size-size/2];
+    uint64_t y[size],z[size];
 
     for(size_t i = 0; i < size/2; i++){
         down[i] = in[i];
     }
-    for(size_t i = 0; i < size - size/2; i++){
-        up[i] = in[size/2 + i];
+    for(size_t i = size/2; i < size; i++){
+        up[i] = in[i];
     }
 
     A2B(y,down,mod,size/2);
@@ -199,9 +201,9 @@ void A2B(MaskedB out, MaskedA in, uint64_t mod, int size){
     for(size_t i = size-size/2;i<size;i++){
         z[i] = 0;
     }
-    RefreshXOR(y,y,6);
-    RefreshXOR(z,z,6);
-    SecAdd(out,z,y,16,4);
+    RefreshXOR(y,y,mod,size);
+    RefreshXOR(z,z,mod,size);
+    SecAdd(out,z,y,mod,4);
 }
 
 //For B2A
