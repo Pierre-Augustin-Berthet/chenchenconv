@@ -9,8 +9,8 @@
 #define MASKORDER 2
 #define MASKSIZE MASKORDER+1
 
-typedef uint64_t* MaskedA;
-typedef uint64_t* MaskedB;
+typedef uint64_t MaskedA[MASKSIZE];
+typedef uint64_t MaskedB[MASKSIZE];
 
 void    MaskB               (MaskedB out, uint64_t in);
 void    UnmaskB             (uint64_t *out, MaskedB in);
@@ -30,11 +30,12 @@ void    Refresh             ();
 
 void    A2B                 (MaskedB out, MaskedA in, uint64_t mod, int size);
 void    B2A                 (MaskedA out, MaskedB in, uint64_t mod, int size);
-void    B2A_bit             (MaskedB x, MaskedA e, uint64_t mod);
-void    B2A_bit_j           (MaskedA C, MaskedA A, uint64_t xn, uint64_t mod);
+void    B2A_bit             (MaskedA A, MaskedB x, uint64_t mod);
+void    B2A_bit_j           (MaskedA C, MaskedA A, uint64_t xn, uint64_t mod, int n);
 
 void 	RightRotate	        (uint64_t * x, uint32_t c);
 void 	RightRotate2	    (uint64_t * x, uint32_t c);
+void    NotB                (uint64_t * x);
 
 
 #endif
