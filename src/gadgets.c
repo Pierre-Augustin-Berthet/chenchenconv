@@ -263,11 +263,62 @@ void B2Aext(MaskedA out, MaskedB x, uint64_t mod, int size){
   out[size-2]=A[size-2];
   out[size-1]=B[size-2];
 }
-void    B2A_bit             ();
 
 
+
+//First one : a right rotation
 void RightRotate(uint64_t * x, uint32_t c){
     uint64_t temp = (1<<c)-1;
     temp = *x & temp;
     *x = ((*x) >> c) + temp << (64 - c);  
 }
+
+//Second one : a right shift
+void RightRotate2(uint64_t * x, uint32_t c){
+    *x = ((*x) >> c);  
+}
+
+void B2A_bit_j(MaskedA C, MaskedA A, uint64_t xn, uint64_t mod, int n){
+    uint64_t Aa =0;
+    for (int i = 0; i<n-1; i++){
+        Aa = (Aa + A[i]);
+    } 
+    MaskedA B;
+    for (int i = 0; i<MASKSIZE; i++) B[i] = 0;
+    for (int i = 0; i<MASKSIZE; i++) C[i] = 0;
+    B[n-1] = rand64()% mod;
+    
+    // b0 = a0 - bn-1 mod q;
+    uint64_t temp = (mod - B[n-1]) % mod;
+    B[0] = (A[0] + temp )%mod;
+
+    for (int j = 1; j<n-1; j++){
+        uint64_t R = rand64() % mod;
+
+    //bj = aj - r mod q;
+        temp = (mod - R) % mod;
+        B[j] = (A[j] + temp) % mod;
+        B[n-1] = (B[n-1] + R) % mod;
+    }
+
+    for (int j = 0; j < n; j++){
+    //cj = bj - 2*bj*xn mod q; 
+        temp = (mod - ((2 * (B[j] * xn))%mod)) % mod;
+        C[j] = (B[j] + temp) % mod;
+    }
+    
+    int b = ((C[0] + C[1] + C[2])%mod)%2;
+    C[0] = (C[0] + xn) % mod; 
+}
+
+void B2A_bit(MaskedA A, MaskedB b, uint64_t mod){
+    //Compute arithmetic value which unmask is equal to x1 xor x2 xor ... 
+    A[0] = b[0];
+    for (int j = 1; j<MASKSIZE; j++){
+        MaskedA C;
+        B2A_bit_j(C,A,b[j], mod, j+1);
+        for (int i = 0; i<MASKSIZE; i++) A[i] = C[i];
+        uint64_t res;
+        UnmaskA(&res,C, mod);
+    } 
+}   

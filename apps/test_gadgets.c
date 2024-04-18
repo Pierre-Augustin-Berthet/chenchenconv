@@ -165,7 +165,6 @@ int main(int *argc, char **argv){
         exit(1);
     }
     fprintf(OUTPUT,"B2A Conversion Succeeded!\n");
-
     A2 = randmod(MODULO);
     MaskA(a2,A2,MODULO);
     A2B(b2,a2,MODULO,MASKSIZE);
@@ -180,6 +179,28 @@ int main(int *argc, char **argv){
         exit(1);
     }
     fprintf(OUTPUT,"A2B Conversion Succeeded!\n");
+  
+    fprintf(OUTPUT,"\n-----------------B2A_bit-----------------\n");
+    MaskedB y;
+  
+    uint64_t e = 1099;
+    uint64_t res, mod;
+    mod = 5;
+    MaskedA A;
+    
+    for (uint64_t i = 0; i< (1<<3); i++){
+        mod = rand64()%3000;
+        printf("%lu = ", i);
+        y[0] = i&1;
+        y[1] = (i&0b10)>>1;
+        y[2] = (i&0b100)>>2;
+        printf("%lu %lu %lu = %lu ", y[2], y[1], y[0], y[2]^y[1]^y[0]);
+        B2A_bit(A, y, mod);
+
+        UnmaskA(&res,A, mod);
+
+        printf("------------> RES B2A_bit = %lu\n", res);
+    }
 
     return 0;
 }
