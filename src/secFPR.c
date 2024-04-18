@@ -33,14 +33,17 @@ input       :   Boolean masking in (MaskedB)
 output      :   Boolean masking out (MaskedB)
 ------------------------------------------------*/
 void SecNonZeroB(MaskedB out, MaskedB in){
-    MaskedB t,l,r;
+    uint64_t t[MASKSIZE],l[MASKSIZE],r[MASKSIZE],t2[MASKSIZE];
     for(size_t i= 0; i < MASKSIZE; i++) t[i] = in[i];
-    int32_t bitsize;
+    int32_t bitsize = 8*sizeof(in[0]);
     int32_t len=bitsize/2;
     while(len>=1){
-        //Refresh(l,t,len,2*len); // ATTENTION IL FAUT UN REFRESH OU ON NE REFRESH QUE CERTAINES SHARES
-        for(size_t i=0; i<len-1;i++){
-            r[i] = t[i];
+        for(size_t i=0; i<MASKSIZE;i++){
+            t2[i] = t[i]&((~(1<<len))<<len);
+        }
+        RefreshXOR(l,t2,(1<<len),MASKSIZE);
+        for(size_t i=0; i<MASKSIZE;i++){
+            r[i] = t[i]&(~(1<<len));
         }
         SecOr(t,l,r);
         len = len >> 1;

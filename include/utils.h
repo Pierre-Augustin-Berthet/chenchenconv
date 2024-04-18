@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 #define OUTPUT stdout
 
 uint64_t rand64(void);
