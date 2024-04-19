@@ -24,10 +24,15 @@ int main(int *argc, char **argv){
     }
     fprintf(OUTPUT,"SecNonZeroB with 0 Succeeded!\n");
 
-    if((~resB)&B1){
+    B1 = rand64();
+    MaskB(b1,B1);
+    SecNonZeroB(b2,b1);
+    UnmaskB(&resB,b2);
+    if(((B1!=0) & (resB == 0))||((B1==0) & (resB!=0))){
         fprintf(OUTPUT,"SecNonZeroB with random input failed!\n");
         print_binary_form(B1);
-        fprintf(OUTPUT,"\n!=0\n");
+        fprintf(OUTPUT,"\n!=\n");
+        print_binary_form(resB);
         fprintf(OUTPUT,"\n");
         exit(1);
     }
