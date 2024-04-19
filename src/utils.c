@@ -40,3 +40,32 @@ uint64_t subq(uint64_t ina, uint64_t inb, uint64_t mod){
 uint64_t mulq(uint64_t ina, uint64_t inb, uint64_t mod){
   return (ina*inb) % mod;
 }
+
+
+void Mult128(uint64_t * out, uint64_t* in){
+    uint64_t a1, a2, b1, b2;
+    a1 = in[0]>>32;
+    a2 = in[0]& 0xffffffff;
+    b1 = in[1]>>32;
+    b2 = in[1]& 0xffffffff;
+
+    uint64_t mult11, mult12, mult21, mult22;
+
+    mult11 = a1 * b1;
+    mult12 = a1 * b2;
+    mult21 = a2 * b1;
+    mult22 = a2 * b2;
+
+    uint64_t add1, carry;
+
+    out[0] = mult22 & 0xffffffff;
+    out[1] = mult11 + (mult12>>32) + (mult21>>32);
+
+    add1  = (mult22>>32) + (mult12 & 0xffffffff) + (mult21 & 0xffffffff);
+    carry = (add1 >>32);
+
+    out[1] += carry;
+
+    out[0] += add1 <<32;
+
+}

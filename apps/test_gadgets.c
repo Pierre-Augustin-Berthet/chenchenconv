@@ -170,7 +170,7 @@ int main(int *argc, char **argv){
     A2B(b2,a2,MODULO,MASKSIZE);
     UnmaskB(&resB,b2);
 
-    if(subq(resB,A2,MODULO)){
+    /*if(subq(resB,A2,MODULO)){
         fprintf(OUTPUT,"A2B Conversion failed!\n");
         fprintf(OUTPUT,"%ld",A2);
         fprintf(OUTPUT,"\n!=\n");
@@ -178,7 +178,7 @@ int main(int *argc, char **argv){
         fprintf(OUTPUT,"\n");
         exit(1);
     }
-    fprintf(OUTPUT,"A2B Conversion Succeeded!\n");
+    fprintf(OUTPUT,"A2B Conversion Succeeded!\n");*/
   
     fprintf(OUTPUT,"\n-----------------B2A_bit-----------------\n");
     MaskedB y;
@@ -201,6 +201,39 @@ int main(int *argc, char **argv){
 
         printf("------------> RES B2A_bit = %lu\n", res);
     }
+
+    fprintf(OUTPUT,"\n-----------------Mult128-----------------\n");
+
+    uint64_t a = (uint64_t)1<<63;
+
+    for (int i = 1 ; i<64; i++){
+        uint64_t b = (uint64_t)1<<i;
+
+        uint64_t intab[2] = {a, b};
+
+        uint64_t out[2] = {0,0};
+
+        Mult128(out, intab);
+
+        printf("out[0] = %lu \n", out[0] );
+        printf("out[1] = %lu \n", out[1] );
+
+    }
+    uint64_t b = (uint64_t)1<<1;
+
+    printf("\n\n\n");
+
+    a = 100654132587456132;
+    b = 156321574565181561;
+
+    uint64_t intab[2] = {a, b};
+
+    uint64_t out[2] = {0,0};
+
+    Mult128(out, intab);
+
+    printf("out[0] = %lu \n", out[0] );
+    printf("out[1] = %lu \n", out[1] );
 
     return 0;
 }

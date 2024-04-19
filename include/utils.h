@@ -16,4 +16,8 @@ uint64_t addq(uint64_t ina, uint64_t inb, uint64_t mod);
 uint64_t subq(uint64_t ina, uint64_t inb, uint64_t mod);
 uint64_t mulq(uint64_t ina, uint64_t inb, uint64_t mod);
 
+// For 128-bit integer
+
+void     Mult128    (uint64_t * out, uint64_t* in);
+
 #endif
