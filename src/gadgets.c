@@ -180,7 +180,7 @@ void    Refresh             (); //ATTENTION ON DOIT POUVOIR CHOISIR QUELLES SHAR
 void A2B(MaskedB out, MaskedA in, uint64_t mod, int size){
     if(size==1){
         out[0] = in[0];
-        printf("%lu\n",out[0]);
+        return;
     }
     else{
     uint64_t up[size-size/2],down[size/2];
@@ -202,8 +202,8 @@ void A2B(MaskedB out, MaskedA in, uint64_t mod, int size){
     for(size_t i = size-size/2;i<size;i++){
         z[i] = 0;
     }
-    //RefreshXOR(y,y,mod,size);
-    //RefreshXOR(z,z,mod,size);
+    RefreshXOR(y,y,mod,size);
+    RefreshXOR(z,z,mod,size);
     SecAdd(out,z,y,mod,4);
     }
 }
