@@ -39,11 +39,11 @@ void SecNonZeroB(MaskedB out, MaskedB in){
     int32_t len=bitsize/2;
     while(len>=1){
         for(size_t i=0; i<MASKSIZE;i++){
-            t2[i] = t[i]&((~(1<<len))<<len);
+            t2[i] = (t[i]<<(63-2*len))>>(63-2*len+len);
         }
         RefreshXOR(l,t2,(1<<len),MASKSIZE);
         for(size_t i=0; i<MASKSIZE;i++){
-            r[i] = t[i]&(~(1<<len));
+            r[i] = (t[i]<<(63-len))>>(63-len);
         }
         SecOr(t,l,r);
         len = len >> 1;
@@ -51,6 +51,25 @@ void SecNonZeroB(MaskedB out, MaskedB in){
     for(size_t i = 0; i <MASKSIZE; i++) out[i] = t[i]&1; // (t_i^{(1)})
 }
 
+void SecFPR(MaskedB x, MaskedB s, MaskedA e, MaskedB z){
+    MaskedB eb,b,za,ea,xb;
+    e[0] += 1076;
+    A2B(eb,e,(1<<16),MASKSIZE);
+    for(size_t i = 0; i <MASKSIZE; i++) b[i] = -((e[i]&(1<<15))>>15);
+    b[0] = ~b[0];
+    SecAnd(za,z,b);
+    for(size_t i = 0; i < MASKSIZE; i++) b[i] = -((za[i]&(1<<54))>>54);
+    SecAnd(ea,eb,b);
+    for(size_t i = 0; i <MASKSIZE; i++) b[i] = (za[i]&(1<<54)>>54);
+    SecAdd(eb,ea,b,(1<<16),4);
+    RefreshXOR(eb,eb,(1<<16),MASKSIZE);
+    RefreshXOR(s,s,1,MASKSIZE);
+    for(size_t i = 0; i < MASKSIZE ;i++) xb[i] = (s[i]&1 << 63) ^ ((eb[i]&(0x7ff))<<52)^(za[i]&0x3ffffffffffff8);
+    for(size_t i = 0; i < MASKSIZE; i++) {eb[i] = za[i]&1; b[i] = (za[i]&(1<<2))>>2;}
+    RefreshXOR(eb,eb,1,MASKSIZE);
+    SecOr(ea,eb,b);
+    for(size_t i = 0; i<MASKSIZE;i++) b[i] = (za[i]&0x2)>>1;
+}
 
 /*------------------------------------------------
 SecFprUrsh  :   Secure right-shift
