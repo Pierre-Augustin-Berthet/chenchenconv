@@ -103,13 +103,13 @@ int main(int *argc, char **argv){
 
     if(subq(resB,addq(tempB1,tempB2,MODULO),MODULO)){
         fprintf(OUTPUT,"SecAdd failed!\n");
-        fprintf(OUTPUT,"%ld",tempB1);
+        fprintf(OUTPUT,"%lu",tempB1);
         fprintf(OUTPUT,"\n+\n");
-        fprintf(OUTPUT,"%ld",tempB2);
+        fprintf(OUTPUT,"%lu",tempB2);
         fprintf(OUTPUT,"\n=\n");
-        fprintf(OUTPUT,"%ld",addq(tempB1,tempB2,MODULO));
+        fprintf(OUTPUT,"%lu",addq(tempB1,tempB2,MODULO));
         fprintf(OUTPUT,"\n!=\n");
-        fprintf(OUTPUT,"%ld",resB);
+        fprintf(OUTPUT,"%lu",resB);
         fprintf(OUTPUT,"\n");
         exit(1);
     }
@@ -123,9 +123,9 @@ int main(int *argc, char **argv){
 
     if(subq(A1,resA,MODULO)){
         fprintf(OUTPUT,"Arithmetic Masking-Demasking failed!\n");
-        fprintf(OUTPUT,"%ld",A1);
+        fprintf(OUTPUT,"%lu",A1);
         fprintf(OUTPUT,"\n!=\n");
-        fprintf(OUTPUT,"%ld",resA);
+        fprintf(OUTPUT,"%lu",resA);
         fprintf(OUTPUT,"\n");
         exit(1);
     }
@@ -138,13 +138,13 @@ int main(int *argc, char **argv){
 
     if(subq(resA,mulq(A1,A2,MODULO),MODULO)){
         fprintf(OUTPUT,"SecMul failed!\n");
-        fprintf(OUTPUT,"%ld",A1);
+        fprintf(OUTPUT,"%lu",A1);
         fprintf(OUTPUT,"\n*\n");
-        fprintf(OUTPUT,"%ld",A2);
+        fprintf(OUTPUT,"%lu",A2);
         fprintf(OUTPUT,"\n=\n");
-        fprintf(OUTPUT,"%ld",mulq(A1,A2,MODULO));
+        fprintf(OUTPUT,"%lu",mulq(A1,A2,MODULO));
         fprintf(OUTPUT,"\n!=\n");
-        fprintf(OUTPUT,"%ld",resA);
+        fprintf(OUTPUT,"%lu",resA);
         fprintf(OUTPUT,"\n");
         exit(1);
     }
@@ -158,27 +158,28 @@ int main(int *argc, char **argv){
 
     if(subq(resA,B2,MODULO)){
         fprintf(OUTPUT,"B2A Conversion failed!\n");
-        fprintf(OUTPUT,"%ld",B2);
+        fprintf(OUTPUT,"%lu",B2);
         fprintf(OUTPUT,"\n!=\n");
-        fprintf(OUTPUT,"%ld",resA);
+        fprintf(OUTPUT,"%lu",resA);
         fprintf(OUTPUT,"\n");
         exit(1);
     }
     fprintf(OUTPUT,"B2A Conversion Succeeded!\n");
-    A2 = randmod(MODULO);
-    MaskA(a2,A2,MODULO);
+    //A2 = randmod(MODULO);
+    //MaskA(a2,A2,MODULO);
+    a2[0] = 0; a2[1] = 0; a2[2] = 0;
     A2B(b2,a2,MODULO,MASKSIZE);
     UnmaskB(&resB,b2);
 
-    /*if(subq(resB,A2,MODULO)){
+    if(subq(resB,A2,MODULO)){
         fprintf(OUTPUT,"A2B Conversion failed!\n");
-        fprintf(OUTPUT,"%ld",A2);
+        fprintf(OUTPUT,"%lu",A2);
         fprintf(OUTPUT,"\n!=\n");
-        fprintf(OUTPUT,"%ld",resB);
+        fprintf(OUTPUT,"%lu",resB);
         fprintf(OUTPUT,"\n");
         exit(1);
     }
-    fprintf(OUTPUT,"A2B Conversion Succeeded!\n");*/
+    fprintf(OUTPUT,"A2B Conversion Succeeded!\n");
   
     fprintf(OUTPUT,"\n-----------------B2A_bit-----------------\n");
     MaskedB y;
