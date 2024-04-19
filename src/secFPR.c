@@ -55,12 +55,12 @@ void SecFPR(MaskedB x, MaskedB s, MaskedA e, MaskedB z){
     MaskedB eb,b,za,ea,xb;
     e[0] += 1076;
     A2B(eb,e,(1<<16),MASKSIZE);
-    for(size_t i = 0; i <MASKSIZE; i++) b[i] = -((e[i]&(1<<15))>>15);
+    for(size_t i = 0; i <MASKSIZE; i++) b[i] = -((e[i]<<(63-16))>>63);
     b[0] = ~b[0];
     SecAnd(za,z,b);
-    for(size_t i = 0; i < MASKSIZE; i++) b[i] = -((za[i]&(1<<54))>>54);
+    for(size_t i = 0; i < MASKSIZE; i++) b[i] = -((za[i]<<(63-55))>>63);
     SecAnd(ea,eb,b);
-    for(size_t i = 0; i <MASKSIZE; i++) b[i] = (za[i]&(1<<54)>>54);
+    for(size_t i = 0; i <MASKSIZE; i++) b[i] = ((za[i]<<(63-55))>>63);
     SecAdd(eb,ea,b,(1<<16),4);
     RefreshXOR(eb,eb,(1<<16),MASKSIZE);
     RefreshXOR(s,s,1,MASKSIZE);
