@@ -54,6 +54,21 @@ With the ongoing standardization of new POst-Quantum Cryptography (PQC) primitiv
 %
 %
 \section{Introduction}
+With the rise of quantum computing, mathematical problems which were hard to solve with current technologies will be easier to breach. Amongst the concerned problem is the Discrete Logarithm Problem (DLP) which can be solved in polynomial times by the Shor quantum algorithm \cite{shor}. As much of the current asymmetric primitives rely on this problem and will be breach, new cryptographic primitves are studied. The National Institute of Standards and Technology (NIST) launched a post-quantum standardization process \cite{chen2016}. The finalists are CRYSTALS-Kyber \cite{kyber,fips203}, CRYSTALS-Dilithium \cite{dilithium,fips204}, SPHNICS+ \cite{sphincs,fips205} and FALCON \cite{falcon}.
+
+\medskip
+
+\noindent Another concern for the security of cryptographic primitives is their robustness to a Side-Channel opponent. Side-Channel Analysis (SCA) was first introduced by Paul Kocher \cite{kocher} in the mid-1990. This new branch of cryptanalysis focuses on studying the impact of a cryptosystem on its surroundings. AS computations take time and energy, an opponent able of accessing the variation of one or both could find correlations between its physical observations and the data manipulated, thus resulting in a leakage and a security breach. Thus, the study of weaknesses in implementations of new primitives and the ways to protect them is an active field of research.
+
+\medskip While they have been many works focusing on CRYSTALS-Dilithium and CRYSTALS-Kyber, summed up by Ravi et al. \cite{ravi2024}, FALCON is noticeably harder to protect. Indeed, the algorithm relies on floating-point arithmetic, for which there is little litterature of how to protect it.
+
+\subsubsection{Related Work} Previous works have identified two main weaknesses within the signing process of Falcon : the pre-image computation and the Gaussian sampler. The pre-image computation was proved vulnerable by Karabulut and Aysu \cite{Karabulut} using an ElectroMagnetic (EM) attack. Their work was later improved by Guerreau et al. \cite{Guerreau}. To counter those attacks, Chen and Chen \cite{ChenChen} propose a masked implementation of the addition and multiplication of FALCON. However, they did not delved into the second weakness of Falcon, the Gaussian sampler.\newline
+The Gaussian sampler is vulnerableto timing attacks, as shown by previous work \cite{allworksseeChenChen}. A isochronous design was proposed by Howe et al. \cite{Howe}. However, a successful single power analysis (SPA) was proposed by Guerreau et al. \cite{Guerreau} and further improved by Zhang et al. \cite{zhang}. There is currently no masking countermeasure for FALCON's Gaussian Sampler. Existing work \cite{mitaka} tends to re-write the Gaussian SAmpler to remove the use of floating arithmetic. 
+
+\subsubsection{Our Contribution}
+
+\subsection{}
+\section{Introduction}
 \subsection{A Subsection Sample}
 Please note that the first paragraph of a section or subsection is
 not indented. The first paragraph that follows a table, figure,

@@ -14,7 +14,7 @@ int main(int *argc, char **argv){
     
     MaskB(b1,0);
     SecNonZeroB(b2,b1);
-    UnmaskB(&resB,b2);
+    UnmaskB(&resB,b2,MASKSIZE);
     if(resB){
         fprintf(OUTPUT,"SecNonZeroB with 0 failed!\n");
         fprintf(OUTPUT,"0\n!=\n");
@@ -27,7 +27,7 @@ int main(int *argc, char **argv){
     B1 = rand64();
     MaskB(b1,B1);
     SecNonZeroB(b2,b1);
-    UnmaskB(&resB,b2);
+    UnmaskB(&resB,b2,MASKSIZE);
     if(((B1!=0) & (resB == 0))||((B1==0) & (resB!=0))){
         fprintf(OUTPUT,"SecNonZeroB with random input failed!\n");
         print_binary_form(B1);

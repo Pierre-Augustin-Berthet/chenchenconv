@@ -18,7 +18,7 @@ int main(int *argc, char **argv){
     //MaskB, UnmaskB, SecAnd, SecOr
     B1 = rand64();
     MaskB(b1,B1);
-    UnmaskB(&resB,b1);
+    UnmaskB(&resB,b1,MASKSIZE);
 
     if(B1^resB){
         fprintf(OUTPUT,"Boolean Masking-Demasking failed!\n");
@@ -32,8 +32,8 @@ int main(int *argc, char **argv){
 
     B2 = rand64();
     MaskB(b2,B2);
-    SecAnd(b3,b1,b2);
-    UnmaskB(&resB,b3);
+    SecAnd(b3,b1,b2,MASKSIZE);
+    UnmaskB(&resB,b3,MASKSIZE);
 
     if((B1&B2)^resB){
         fprintf(OUTPUT,"SecAnd failed!\n");
@@ -50,7 +50,7 @@ int main(int *argc, char **argv){
     fprintf(OUTPUT,"SecAnd Succeeded!\n");
 
     SecOr(b3,b1,b2);
-    UnmaskB(&resB,b3);
+    UnmaskB(&resB,b3,MASKSIZE);
 
     if((B1|B2)^resB){
         fprintf(OUTPUT,"SecOr failed!\n");
@@ -67,7 +67,7 @@ int main(int *argc, char **argv){
     fprintf(OUTPUT,"SecOr Succeeded!\n");
 
     RefreshMasks(b2,MASKORDER);
-    UnmaskB(&resB,b2);
+    UnmaskB(&resB,b2,MASKSIZE);
     
     if(B2^resB){
         fprintf(OUTPUT,"RefreshMasks failed!\n");
@@ -82,7 +82,7 @@ int main(int *argc, char **argv){
     B2 = randmod(MODULO);
     MaskB(b2,B2);
     RefreshXOR(b3,b2,64,MASKSIZE);
-    UnmaskB(&resB,b3);
+    UnmaskB(&resB,b3,MASKSIZE);
     if(B2^resB){
         fprintf(OUTPUT,"RefreshXOR failed!\n");
         print_binary_form(B2);
@@ -97,8 +97,8 @@ int main(int *argc, char **argv){
     uint64_t tempB2 = randmod(MODULO);
     MaskB(b1,tempB1);
     MaskB(b2,tempB2);
-    SecAdd(b3,b1,b2,MODULO,4);
-    UnmaskB(&resB,b3);
+    SecAdd(b3,b1,b2,MODULO,4,MASKSIZE);
+    UnmaskB(&resB,b3,MASKSIZE);
     resB %= MODULO;
 
     if(subq(resB,addq(tempB1,tempB2,MODULO),MODULO)){
@@ -165,11 +165,12 @@ int main(int *argc, char **argv){
         exit(1);
     }
     fprintf(OUTPUT,"B2A Conversion Succeeded!\n");
-    //A2 = randmod(MODULO);
-    //MaskA(a2,A2,MODULO);
-    a2[0] = 0; a2[1] = 0; a2[2] = 0;
+    A2 = randmod(MODULO);
+    MaskA(a2,A2,MODULO);
+    //a2[0] = 0; a2[1] = 0; a2[2] = 0;
     A2B(b2,a2,MODULO,MASKSIZE);
-    UnmaskB(&resB,b2);
+    UnmaskB(&resB,b2,MASKSIZE);
+    resB%=MODULO;
 
     if(subq(resB,A2,MODULO)){
         fprintf(OUTPUT,"A2B Conversion failed!\n");
