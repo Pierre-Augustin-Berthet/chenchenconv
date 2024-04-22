@@ -1,0 +1,280 @@
+@article{doi:10.1137/S0036144598347011,
+author = {Shor, Peter W.},
+title = {Polynomial-Time Algorithms for Prime Factorization and Discrete Logarithms on a Quantum Computer},
+journal = {SIAM Review},
+volume = {41},
+number = {2},
+pages = {303-332},
+year = {1999},
+doi = {10.1137/S0036144598347011},
+
+URL = { 
+        https://doi.org/10.1137/S0036144598347011
+},
+eprint = { 
+        https://doi.org/10.1137/S0036144598347011
+}
+,
+    abstract = { A digital computer is generally believed to be an efficient universal computing device; that is, it is believed to be able to simulate any physical computing device with an increase in computation time by at most a polynomial factor. This may not be true when quantum mechanics is taken into consideration. This paper considers factoring integers and finding discrete logarithms, two problems that are generally thought to be hard on classical computers and that have been used as the basis of several proposed cryptosystems. Efficient randomized algorithms are given for these two problems on a hypothetical quantum computer. These algorithms take a number of steps polynomial in the input size, for example, the number of digits of the integer to be factored. }
+}
+
+@book{chen2016report,
+  title={Report on post-quantum cryptography},
+  author={Chen, Lily and Chen, Lily and Jordan, Stephen and Liu, Yi-Kai and Moody, Dustin and Peralta, Rene and Perlner, Ray A and Smith-Tone, Daniel},
+  volume={12},
+  year={2016},
+  publisher={US Department of Commerce, National Institute of Standards and Technology~…}
+}
+
+@INPROCEEDINGS{8406610,
+  author={Bos, Joppe and Ducas, Leo and Kiltz, Eike and Lepoint, T and Lyubashevsky, Vadim and Schanck, John M. and Schwabe, Peter and Seiler, Gregor and Stehle, Damien},
+  booktitle={2018 IEEE European Symposium on Security and Privacy (EuroS\&P)}, 
+  title={CRYSTALS - Kyber: A CCA-Secure Module-Lattice-Based KEM}, 
+  year={2018},
+  volume={},
+  number={},
+  pages={353-367},
+  abstract={Rapid advances in quantum computing, together with the announcement by the National Institute of Standards and Technology (NIST) to define new standards for digitalsignature, encryption, and key-establishment protocols, have created significant interest in post-quantum cryptographic schemes. This paper introduces Kyber (part of CRYSTALS - Cryptographic Suite for Algebraic Lattices - a package submitted to NIST post-quantum standardization effort in November 2017), a portfolio of post-quantum cryptographic primitives built around a key-encapsulation mechanism (KEM), based on hardness assumptions over module lattices. Our KEM is most naturally seen as a successor to the NEWHOPE KEM (Usenix 2016). In particular, the key and ciphertext sizes of our new construction are about half the size, the KEM offers CCA instead of only passive security, the security is based on a more general (and flexible) lattice problem, and our optimized implementation results in essentially the same running time as the aforementioned scheme. We first introduce a CPA-secure public-key encryption scheme, apply a variant of the Fujisaki-Okamoto transform to create a CCA-secure KEM, and eventually construct, in a black-box manner, CCA-secure encryption, key exchange, and authenticated-key-exchange schemes. The security of our primitives is based on the hardness of Module-LWE in the classical and quantum random oracle models, and our concrete parameters conservatively target more than 128 bits of postquantum security.},
+  keywords={Encryption;Lattices;Electronic mail;Protocols;Public key;post quantum cryptography;key encapsulation;module lattices;learning with errors},
+  doi={10.1109/EuroSP.2018.00032},
+  ISSN={},
+  month={April},}
+
+
+@article{nistfips203mlkem,
+  author          = {NIST},
+  journal         = {NIST FIPS},
+  title           = {Module-Lattice-Based Key-Encapsulation Mechanism Standard},
+  year            = {2024},
+  doi             = {10.6028/NIST.FIPS.203.ipd},
+}
+
+@article{nistfips204mldsa,
+  author          = {NIST},
+  journal         = {NIST FIPS},
+  title           = {Module-Lattice-Based Digital Signature Standard},
+  year            = {2024},
+  doi             = {10.6028/NIST.FIPS.204.ipd},
+}
+
+@article{nistfips205shdsa,
+  author          = {NIST},
+  journal         = {NIST FIPS},
+  title           = {Stateless Hash-Based Digital Signature Standard},
+  year            = {2024},
+  doi             = {10.6028/NIST.FIPS.205.ipd},
+}
+
+@article{Ducas_Kiltz_Lepoint_Lyubashevsky_Schwabe_Seiler_Stehlé_2018, title={CRYSTALS-Dilithium: A Lattice-Based Digital Signature Scheme}, volume={2018}, url={https://tches.iacr.org/index.php/TCHES/article/view/839}, DOI={10.13154/tches.v2018.i1.238-268}, abstractNote={In this paper, we present the lattice-based signature scheme Dilithium, which is a component of the CRYSTALS (Cryptographic Suite for Algebraic Lattices) suite that was submitted to NIST’s call for post-quantum cryptographic standards. The design of the scheme avoids all uses of discrete Gaussian sampling and is easily implementable in constant-time. For the same security levels, our scheme has a public key that is 2.5X smaller than the previously most efficient lattice-based schemes that did not use Gaussians, while having essentially the same signature size. In addition to the new design, we significantly improve the running time of the main component of many lattice-based constructions – the number theoretic transform. Our AVX2-based implementation results in a speed-up of roughly a factor of 2 over the previously best algorithms that appear in the literature. The techniques for obtaining this speed-up also have applications to other lattice-based schemes.}, number={1}, journal={IACR Transactions on Cryptographic Hardware and Embedded Systems}, author={Ducas, Léo and Kiltz, Eike and Lepoint, Tancrède and Lyubashevsky, Vadim and Schwabe, Peter and Seiler, Gregor and Stehlé, Damien}, year={2018}, month={Feb.}, pages={238–268} }
+
+@inproceedings{10.1145/3319535.3363229,
+author = {Bernstein, Daniel J. and H\"{u}lsing, Andreas and K\"{o}lbl, Stefan and Niederhagen, Ruben and Rijneveld, Joost and Schwabe, Peter},
+title = {The SPHINCS+ Signature Framework},
+year = {2019},
+isbn = {9781450367479},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3319535.3363229},
+doi = {10.1145/3319535.3363229},
+abstract = {We introduce SPHINCS+, a stateless hash-based signature framework. SPHINCS+ has significant advantages over the state of the art in terms of speed, signature size, and security, and is among the nine remaining signature schemes in the second round of the NIST PQC standardization project. One of our main contributions in this context is a new few-time signature scheme that we call FORS. Our second main contribution is the introduction of tweakable hash functions and a demonstration how they allow for a unified security analysis of hash-based signature schemes. We give a security reduction for SPHINCS+ using this abstraction and derive secure parameters in accordance with the resulting bound. Finally, we present speed results for our optimized implementation of SPHINCS+ and compare to SPHINCS-256, Gravity-SPHINCS, and Picnic.},
+booktitle = {Proceedings of the 2019 ACM SIGSAC Conference on Computer and Communications Security},
+pages = {2129–2146},
+numpages = {18},
+keywords = {tweakable hash functions, stateless, sphincs, post-quantum cryptography, hash-based signatures, exact security, NIST PGC},
+location = {London, United Kingdom},
+series = {CCS '19}
+}
+
+@article{prest2020falcon,
+  title={Falcon},
+  author={Prest, Thomas and Fouque, Pierre-Alain and Hoffstein, Jeffrey and Kirchner, Paul and Lyubashevsky, Vadim and Pornin, Thomas and Ricosset, Thomas and Seiler, Gregor and Whyte, William and Zhang, Zhenfei},
+  journal={Post-Quantum Cryptography Project of NIST},
+  year={2020}
+}
+
+@InProceedings{10.1007/3-540-68697-5_9,
+author="Kocher, Paul C.",
+editor="Koblitz, Neal",
+title="Timing Attacks on Implementations of Diffie-Hellman, RSA, DSS, and Other Systems",
+booktitle="Advances in Cryptology --- CRYPTO '96",
+year="1996",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="104--113",
+abstract="By carefully measuring the amount of time required to perform private key operations, attackers may be able to find fixed Diffie-Hellman exponents, factor RSA keys, and break other cryptosystems. Against a vulnerable system, the attack is computationally inexpensive and often requires only known ciphertext. Actual systems are potentially at risk, including cryptographic tokens, network-based cryptosystems, and other applications where attackers can make reasonably accurate timing measurements. Techniques for preventing the attack for RSA and Diffie-Hellman are presented. Some cryptosystems will need to be revised to protect against the attack, and new protocols and algorithms may need to incorporate measures to prevent timing attacks.",
+isbn="978-3-540-68697-2"
+}
+
+@article{10.1145/3603170,
+author = {Ravi, Prasanna and Chattopadhyay, Anupam and D’Anvers, Jan Pieter and Baksi, Anubhab},
+title = {Side-channel and Fault-injection attacks over Lattice-based Post-quantum Schemes (Kyber, Dilithium): Survey and New Results},
+year = {2024},
+issue_date = {March 2024},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {23},
+number = {2},
+issn = {1539-9087},
+url = {https://doi.org/10.1145/3603170},
+doi = {10.1145/3603170},
+abstract = {In this work, we present a systematic study of Side-Channel Attacks (SCA) and Fault Injection Attacks (FIA) on structured lattice-based schemes, with main focus on Kyber Key Encapsulation Mechanism (KEM) and Dilithium signature scheme, which are leading candidates in the NIST standardization process for Post-Quantum Cryptography (PQC). Through our study, we attempt to understand the underlying similarities and differences between the existing attacks while classifying them into different categories. Given the wide variety of reported attacks, simultaneous protection against all the attacks requires to implement customized protections/countermeasures for both Kyber and Dilithium. We therefore present a range of customized countermeasures, capable of providing defenses/mitigations against existing SCA/FIA, and incorporate several SCA and FIA countermeasures within a single design of Kyber and Dilithium. Among the several countermeasures discussed in this work, we present novel countermeasures that offer simultaneous protection against several SCA- and FIA-based chosen-ciphertext attacks for Kyber KEM. We implement the presented countermeasures within two well-known public software libraries for PQC: (1) pqm4 library for the ARM Cortex-M4-based microcontroller and (2) liboqs library for the Raspberry Pi 3 Model B Plus based on the ARM Cortex-A53 processor. Our performance evaluation reveals that the presented custom countermeasures incur reasonable performance overheads on both the evaluated embedded platforms. We therefore believe our work argues for usage of custom countermeasures within real-world implementations of lattice-based schemes, either in a standalone manner or as reinforcements to generic countermeasures such as masking.},
+journal = {ACM Trans. Embed. Comput. Syst.},
+month = {mar},
+articleno = {35},
+numpages = {54},
+keywords = {Lattice-based cryptography, side-channel attacks, fault-injection attacks, Kyber, Dilithium}
+}
+
+@INPROCEEDINGS{9586131,
+  author={Karabulut, Emre and Aysu, Aydin},
+  booktitle={2021 58th ACM/IEEE Design Automation Conference (DAC)}, 
+  title={FALCON Down: Breaking FALCON Post-Quantum Signature Scheme through Side-Channel Attacks}, 
+  year={2021},
+  volume={},
+  number={},
+  pages={691-696},
+  abstract={This paper proposes the first side-channel attack on FALCON—a NIST Round-3 finalist for the post-quantum digital signature standard. We demonstrate a known-plaintext attack that uses the electromagnetic measurements of the device to extract the secret signing keys, which then can be used to forge signatures on arbitrary messages. The proposed attack targets the unique floating-point multiplications within FALCON’s Fast Fourier Transform through a novel extend-and-prune strategy that extracts the sign, mantissa, and exponent variables without false positives. The extracted floating-point values are then mapped back to the secret key’s coefficients. Our attack, notably, does not require pre-characterizing the power profile of the target device or crafting special inputs. Instead, the statistical differences on obtained traces are sufficient to successfully execute our proposed differential electromagnetic analysis. The results on an ARM-Cortex-M4 running the FALCON NIST’s reference software show that approximately 10k measurements are sufficient to extract the entire key.},
+  keywords={Quantum computing;Electromagnetic measurements;Fast Fourier transforms;Side-channel attacks;NIST;Software;Electromagnetic analysis;side-channel attacks;post-quantum cryptography;digital signatures},
+  doi={10.1109/DAC18074.2021.9586131},
+  ISSN={0738-100X},
+  month={Dec},}
+
+@article{Guerreau_Martinelli_Ricosset_Rossi_2022, title={The Hidden Parallelepiped Is Back Again: Power Analysis Attacks on Falcon}, volume={2022}, url={https://tches.iacr.org/index.php/TCHES/article/view/9697}, DOI={10.46586/tches.v2022.i3.141-164}, abstractNote={&amp;lt;p&amp;gt;FALCON is a very efficient and compact lattice-based signature finalist of the NIST’s Post-Quantum standardization campaign. This work assesses Falcon’s sidechannel resistance by analyzing two vulnerabilities, namely the pre-image computation and the trapdoor sampling. The first attack is an improvement of Karabulut and Aysu (DAC 2021). It overcomes several difficulties inherent to the structure of the stored key like the Fourier representation and directly recovers the key with a limited number of traces and a reduced complexity. The main part of this paper is dedicated to our second attack: we show that a simple power analysis during the signature execution could provide the exact value of the output of a subroutine called the base sampler. This intermediate value does not directly lead to the secret and we had to&amp;lt;br&amp;gt;adapt the so-called hidden parallelepiped attack initially introduced by Nguyen and Regev in Eurocrypt 2006 and reused by Ducas and Nguyen in Asiacrypt 2012. We extensively quantify the resources for our attacks and experimentally demonstrate them with FALCON’s reference implementation on the ELMO simulator (McCann, Oswald and Whitnall USENIX 2017) and on a ChipWhisperer Lite with STM32F3 target (ARM Cortex M4).&amp;lt;br&amp;gt;These new attacks highlight the need for side-channel protection for one of the three finalists of NIST’s standardization campaign by pointing out the vulnerable parts and quantifying the resources of the attacks.&amp;lt;/p&amp;gt;}, number={3}, journal={IACR Transactions on Cryptographic Hardware and Embedded Systems}, author={Guerreau, Morgane and Martinelli, Ange and Ricosset, Thomas and Rossi, Mélissa}, year={2022}, month={Jun.}, pages={141–164} }
+
+@InProceedings{10.1007/978-3-031-30634-1_19,
+author="Zhang, Shiduo
+and Lin, Xiuhan
+and Yu, Yang
+and Wang, Weijia",
+editor="Hazay, Carmit
+and Stam, Martijn",
+title="Improved Power Analysis Attacks on Falcon",
+booktitle="Advances in Cryptology -- EUROCRYPT 2023",
+year="2023",
+publisher="Springer Nature Switzerland",
+address="Cham",
+pages="565--595",
+abstract="Falcon is one of the three post-quantum signature schemes selected for standardization by NIST. Due to its low bandwidth and high efficiency, Falcon is seen as an attractive option for quantum-safe embedded systems. In this work, we study Falcon's side-channel resistance by analysing its Gaussian samplers. Our results are mainly twofold.",
+isbn="978-3-031-30634-1"
+}
+
+@InProceedings{10.1007/978-3-031-07082-2_9,
+author="Espitau, Thomas
+and Fouque, Pierre-Alain
+and G{\'e}rard, Fran{\c{c}}ois
+and Rossi, M{\'e}lissa
+and Takahashi, Akira
+and Tibouchi, Mehdi
+and Wallet, Alexandre
+and Yu, Yang",
+editor="Dunkelman, Orr
+and Dziembowski, Stefan",
+title="Mitaka: A Simpler, Parallelizable, Maskable Variant of Falcon",
+booktitle="Advances in Cryptology -- EUROCRYPT 2022",
+year="2022",
+publisher="Springer International Publishing",
+address="Cham",
+pages="222--253",
+abstract="This work describes the Mitaka signature scheme: a new hash-and-sign signature scheme over NTRU lattices which can be seen as a variant of NIST finalist Falcon. It achieves comparable efficiency but is considerably simpler, online/offline, and easier to parallelize and protect against side-channels, thus offering significant advantages from an implementation standpoint. It is also much more versatile in terms of parameter selection.",
+isbn="978-3-031-07082-2"
+}
+
+@article{Chen_Chen_2024, title={Masking Floating-Point Number Multiplication and Addition of Falcon: First- and Higher-order Implementations and Evaluations}, volume={2024}, url={https://tches.iacr.org/index.php/TCHES/article/view/11428}, DOI={10.46586/tches.v2024.i2.276-303}, abstractNote={&amp;lt;p&amp;gt;In this paper, we provide the first masking scheme for floating-point number multiplication and addition to defend against recent side-channel attacks on Falcon’s pre-image vector computation. Our approach involves a masked nonzero check gadget that securely identifies whether a shared value is zero. This gadget can be utilized for various computations such as rounding the mantissa, computing the sticky bit, checking the equality of two values, and normalizing a number. To support the masked floating-point number addition, we also developed a masked shift and a masked normalization gadget. Our masking design provides both first- and higherorder mask protection, and we demonstrate the theoretical security by proving the (Strong)-Non-Interference properties in the probing model. To evaluate the performance of our approach, we implemented unmasked, first-order, and second-order algorithms on an Arm Cortex-M4 processor, providing cycle counts and the number of random bytes used. We also report the time for one complete signing process with our countermeasure on an Intel-Core CPU. In addition, we assessed the practical security of our approach by conducting the test vector leakage assessment (TVLA) to validate the effectiveness of our protection. Specifically, our TVLA experiment results for second-order masking passed the test in 100,000 measured traces.&amp;lt;/p&amp;gt;}, number={2}, journal={IACR Transactions on Cryptographic Hardware and Embedded Systems}, author={Chen, Keng-Yu and Chen, Jiun-Peng}, year={2024}, month={Mar.}, pages={276–303} }
+
+@inproceedings{10.1145/2976749.2978427,
+author = {Barthe, Gilles and Bela\"{\i}d, Sonia and Dupressoir, Fran\c{c}ois and Fouque, Pierre-Alain and Gr\'{e}goire, Benjamin and Strub, Pierre-Yves and Zucchini, R\'{e}becca},
+title = {Strong Non-Interference and Type-Directed Higher-Order Masking},
+year = {2016},
+isbn = {9781450341394},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/2976749.2978427},
+doi = {10.1145/2976749.2978427},
+abstract = {Differential power analysis (DPA) is a side-channel attack in which an adversary retrieves cryptographic material by measuring and analyzing the power consumption of the device on which the cryptographic algorithm under attack executes. An effective countermeasure against DPA is to mask secrets by probabilistically encoding them over a set of shares, and to run masked algorithms that compute on these encodings. Masked algorithms are often expected to provide, at least, a certain level of probing security. Leveraging the deep connections between probabilistic information flow and probing security, we develop a precise, scalable, and fully automated methodology to verify the probing security of masked algorithms, and generate them from unprotected descriptions of the algorithm. Our methodology relies on several contributions of independent interest, including a stronger notion of probing security that supports compositional reasoning, and a type system for enforcing an expressive class of probing policies. Finally, we validate our methodology on examples that go significantly beyond the state-of-the-art.},
+booktitle = {Proceedings of the 2016 ACM SIGSAC Conference on Computer and Communications Security},
+pages = {116–129},
+numpages = {14},
+keywords = {formal verification, higher-order masking, non-interference, probing security},
+location = {Vienna, Austria},
+series = {CCS '16}
+}
+
+@InProceedings{10.1007/978-3-662-53140-2_16,
+author="Groot Bruinderink, Leon
+and H{\"u}lsing, Andreas
+and Lange, Tanja
+and Yarom, Yuval",
+editor="Gierlichs, Benedikt
+and Poschmann, Axel Y.",
+title="Flush, Gauss, and Reload -- A Cache Attack on the BLISS Lattice-Based Signature Scheme",
+booktitle="Cryptographic Hardware and Embedded Systems -- CHES 2016",
+year="2016",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="323--345",
+abstract="We present the first side-channel attack on a lattice-based signature scheme, using the Flush+Reload cache-attack. The attack is targeted at the discrete Gaussian sampler, an important step in the Bimodal Lattice Signature Schemes (BLISS). After observing only 450 signatures with a perfect side-channel, an attacker is able to extract the secret BLISS-key in less than 2 minutes, with a success probability of 0.96. Similar results are achieved in a proof-of-concept implementation using the Flush+Reload technique with less than 3500 signatures.",
+isbn="978-3-662-53140-2"
+}
+
+@inproceedings{10.1145/3133956.3134028,
+author = {Espitau, Thomas and Fouque, Pierre-Alain and G\'{e}rard, Beno\^{\i}t and Tibouchi, Mehdi},
+title = {Side-Channel Attacks on BLISS Lattice-Based Signatures: Exploiting Branch Tracing against strongSwan and Electromagnetic Emanations in Microcontrollers},
+year = {2017},
+isbn = {9781450349468},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3133956.3134028},
+doi = {10.1145/3133956.3134028},
+abstract = {In this paper, we investigate the security of the BLISS lattice-based signature scheme, one of the most promising candidates for postquantum-secure signatures, against side-channel attacks. Several works have been devoted to its efficient implementation on various platforms, from desktop CPUs to microcontrollers and FPGAs, and more recent papers have also considered its security against certain types of physical attacks, notably fault injection and cache attacks. We turn to more traditional side-channel analysis, and describe several attacks that can yield a full key recovery.We first identify a serious source of leakage in the rejection sampling algorithm used during signature generation. Existing implementations of that rejection sampling step, which is essential for security, actually leak the "relative norm" of the secret key. We show how an extension of an algorithm due to Howgrave-Graham and Szydlo can be used to recover the key from that relative norm, at least when the absolute norm is easy to factor (which happens for a significant fraction of secret keys). We describe how this leakage can be exploited in practice both on an embedded device (an 8-bit AVR microcontroller) using electromagnetic analysis (EMA), and a desktop computer (recent Intel CPU running Linux) using branch tracing. The latter attack has been mounted against the open source VPN software strongSwan.We also show that other parts of the BLISS signing algorithm can leak secrets not just for a subset of secret keys, but for 100\% of them. The BLISS Gaussian sampling algorithm in strongSwan is intrinsically variable time. This would be hard to exploit using a noisy source of leakage like EMA, but branch tracing allows to recover the entire randomness and hence the key: we show that a single execution of the strongSwan signature algorithm is actually sufficient for full key recovery. We also describe a more traditional side-channel attack on the sparse polynomial multiplications carried out in BLISS: classically, multiplications can be attacked using DPA; however, our target 8-bit AVR target implementation uses repeated shifted additions instead. Surprisingly, we manage to obtain a full key recovery in that setting using integer linear programming from a single EMA trace.},
+booktitle = {Proceedings of the 2017 ACM SIGSAC Conference on Computer and Communications Security},
+pages = {1857–1874},
+numpages = {18},
+keywords = {bliss, branch tracing, digital signatures, ema, lattices, number theory, postquantum cryptography, side-channel analysis},
+location = {Dallas, Texas, USA},
+series = {CCS '17}
+}
+@misc{cryptoeprint:2019/478,
+      author = {Sarah McCarthy and James Howe and Neil Smyth and Seamus Brannigan and Máire O’Neill},
+      title = {BEARZ Attack FALCON: Implementation Attacks with Countermeasures on the FALCON signature scheme},
+      howpublished = {Cryptology ePrint Archive, Paper 2019/478},
+      year = {2019},
+      note = {\url{https://eprint.iacr.org/2019/478}},
+      url = {https://eprint.iacr.org/2019/478}
+}
+@inproceedings{10.1145/3133956.3134023,
+author = {Pessl, Peter and Bruinderink, Leon Groot and Yarom, Yuval},
+title = {To BLISS-B or not to be: Attacking strongSwan's Implementation of Post-Quantum Signatures},
+year = {2017},
+isbn = {9781450349468},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3133956.3134023},
+doi = {10.1145/3133956.3134023},
+abstract = {In the search for post-quantum secure alternatives to RSA and ECC, lattice-based cryptography appears to be an attractive and efficient option. A particularly interesting lattice-based signature scheme is BLISS, offering key and signature sizes in the range of RSA moduli. A range of works on efficient implementations of BLISS is available, and the scheme has seen a first real-world adoption in strongSwan, an IPsec-based VPN suite. In contrast, the implementation-security aspects of BLISS, and lattice-based cryptography in general, are still largely unexplored.At CHES 2016, Groot Bruinderink et al. presented the first side-channel attack on BLISS, thus proving that this topic cannot be neglected. Nevertheless, their attack has some limitations. First, the technique is demonstrated via a proof-of-concept experiment that was not performed under realistic attack settings. Furthermore, the attack does not apply to BLISS-B, an improved variant of BLISS and also the default option in strongSwan. This problem also applies to later works on implementation security of BLISS.In this work, we solve both of the above problems. We present a new side-channel key-recovery algorithm against both the original BLISS and the BLISS-B variant. Our key-recovery algorithm draws on a wide array of techniques, including learning-parity with noise, integer programs, maximimum likelihood tests, and a lattice-basis reduction. With each application of a technique, we reveal additional information on the secret key culminating in a complete key recovery.Finally, we show that cache attacks on post-quantum cryptography are not only possible, but also practical. We mount an asynchronous cache attack on the production-grade BLISS-B implementation of strongSwan. The attack recovers the secret signing key after observing roughly 6000 signature generations.},
+booktitle = {Proceedings of the 2017 ACM SIGSAC Conference on Computer and Communications Security},
+pages = {1843–1855},
+numpages = {13},
+keywords = {cache attacks, lattice reduction, lattice-based cryptography, learning parity with noise, side-channel analysis, signatures},
+location = {Dallas, Texas, USA},
+series = {CCS '17}
+}
+
+@InProceedings{10.1007/978-3-030-44223-1_4,
+author="Howe, James
+and Prest, Thomas
+and Ricosset, Thomas
+and Rossi, M{\'e}lissa",
+editor="Ding, Jintai
+and Tillich, Jean-Pierre",
+title="Isochronous Gaussian Sampling: From Inception to Implementation",
+booktitle="Post-Quantum Cryptography",
+year="2020",
+publisher="Springer International Publishing",
+address="Cham",
+pages="53--71",
+abstract="Gaussian sampling over the integers is a crucial tool in lattice-based cryptography, but has proven over the recent years to be surprisingly challenging to perform in a generic, efficient and provable secure manner. In this work, we present a modular framework for generating discrete Gaussians with arbitrary center and standard deviation. Our framework is extremely simple, and it is precisely this simplicity that allowed us to make it easy to implement, provably secure, portable, efficient, and provably resistant against timing attacks. Our sampler is a good candidate for any trapdoor sampling and it is actually the one that has been recently implemented in the Falcon signature scheme. Our second contribution aims at systematizing the detection of implementation errors in Gaussian samplers. We provide a statistical testing suite for discrete Gaussians called SAGA (Statistically Acceptable GAussian). In a nutshell, our two contributions take a step towards trustable and robust Gaussian sampling real-world implementations.",
+isbn="978-3-030-44223-1"
+}
+
+
+
