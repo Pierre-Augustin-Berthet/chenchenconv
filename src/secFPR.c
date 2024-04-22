@@ -39,11 +39,11 @@ void SecNonZeroB(MaskedB out, MaskedB in){
     int32_t len=bitsize/2;
     while(len>=1){
         for(size_t i=0; i<MASKSIZE;i++){
-            t2[i] = (t[i]<<(63-2*len))>>(63-2*len+len);
+            t2[i] = (t[i]<<(63-2*len+1))>>(63-2*len+1+len-1);
         }
         RefreshXOR(l,t2,(1<<len),MASKSIZE);
         for(size_t i=0; i<MASKSIZE;i++){
-            r[i] = (t[i]<<(63-len))>>(63-len);
+            r[i] = (t[i]<<(63-len+1))>>(63-len+1);
         }
         SecOr(t,l,r);
         len = len >> 1;
@@ -169,6 +169,18 @@ SecFprNorm64(MaskedB out, MaskedA e, uint64_t mod){
             e[i] = e[i] + (b[i]<<j);
         }
     }
+}
+
+void SecFprMul(MaskedB out, MaskedB x, MaskedB y, uint64_t mod){
+    MaskedB s,sx,sy,e,ex,ey,p,mx,my,b,z,z2,w,bx,by,d;
+    //TO DO Extract sx,ex,mx,sy,ey,my
+    for(size_t i= 0; i <MASKSIZE; i++) s[i] = sx[i]^sy[i];
+    e[0] = ex[0] + ey[0] -2100;
+    for(size_t i=1;i<MASKSIZE;i++) e[i] = ex[i] + ey[i];
+    SecMult(d,mx,my,mod);//ATTENTION 128bits!!!
+    A2B(p,d,mod,MASKSIZE); //ATTENTION 128bits!!!!
+    for(size_t i =0; i<MASKSIZE;i++) w[i] = (p[i] <<(63-51))>>(63-51); //ATTENTION 128bits!!!
+    SecNonZeroB(b,w);
 }
 
 
