@@ -24,6 +24,18 @@ int main(int *argc, char **argv){
     }
     fprintf(OUTPUT,"SecNonZeroB with 0 Succeeded!\n");
 
+    MaskB(b1,((uint64_t)1<<63)^((uint64_t)1<<50));
+    SecNonZeroB(b2,b1);
+    UnmaskB(&resB,b2,MASKSIZE);
+    if(resB==0){
+        fprintf(OUTPUT,"SecNonZeroB with (1<<63)^(1<<50) failed!\n");
+        fprintf(OUTPUT,"0\n!=\n");
+        print_binary_form(resB);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+    fprintf(OUTPUT,"SecNonZeroB with (1<<63)^(1<<50) Succeeded!\n");
+
     B1 = rand64();
     MaskB(b1,B1);
     SecNonZeroB(b2,b1);
