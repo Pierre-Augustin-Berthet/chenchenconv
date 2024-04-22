@@ -41,7 +41,7 @@ void SecNonZeroB(MaskedB out, MaskedB in){
     while(len>=1){
         mask >>= len;
         for(size_t i=0; i<MASKSIZE;i++){
-            t2[i] = ((t[i]>>len)&mask;
+            t2[i] = ((t[i]>>len)&mask);
         }
         RefreshXOR(l,t2,((uint64_t)1<<len),MASKSIZE);
         for(size_t i=0; i<MASKSIZE;i++){
