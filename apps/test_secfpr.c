@@ -105,14 +105,14 @@ int main(int *argc, char **argv){
     fprintf(OUTPUT,"\n-----------------FprAdd------------------\n");
 
 
-    inb[0] = 5 ;
+    inb[0] = 0;
     inb[1] = 0;
     inb[2] = 0;
 
     MaskedB inb2;
     int mod = 2;
 
-    inb2[0] = 5 + ((uint64_t)1<<31);
+    inb2[0] = ((uint64_t)1<<63)+1;
     inb2[1] = 0;
     inb2[2] = 0;
 

@@ -33,40 +33,27 @@ input       :   Boolean masking in (MaskedB)
 output      :   Boolean masking out (MaskedB)
 ------------------------------------------------*/
 void SecNonZeroB(MaskedB out, MaskedB in){
-    uint64_t res;
-    UnmaskB(&res, in, MASKSIZE);
-    printf("in     = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
 
     uint64_t t[MASKSIZE],l[MASKSIZE],r[MASKSIZE],t2[MASKSIZE];
     for(size_t i= 0; i < MASKSIZE; i++) t[i] = in[i];
-    int64_t bitsize = 8*sizeof(in[0]);
-    int64_t len=bitsize/2;
+    uint64_t len = 32;
     while(len>=1){
+        uint64_t mask =0;
+        for (int i = 0; i<len; i++) mask += (uint64_t)1<<i;
         for(size_t i=0; i<MASKSIZE;i++){
-            t2[i] = (t[i]<<(63-2*len+1))>>(63-2*len+1+len-1);
-        }
+            t2[i] = (t[i]>>(len)) & mask;
+        } 
         RefreshXOR(l,t2,(1<<len),MASKSIZE);
         for(size_t i=0; i<MASKSIZE;i++){
-            r[i] = (t[i]<<(63-len+1))>>(63-len+1);
+            r[i] = t[i] & mask;
         }
         SecOr(t,l,r);
-
-        
-        UnmaskB(&res, t, MASKSIZE);
-        printf("t = %lu\n", res);
-        print_binary_form(res);
-        printf("\n");
 
         len = len >> 1;
     }
     
     for(size_t i = 0; i <MASKSIZE; i++) out[i] = t[i]&1; // (t_i^{(1)})
-    UnmaskB(&res, out, MASKSIZE);
-    printf("out    = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
+
 }
 
 void SecFPR(MaskedB x, MaskedB s, MaskedA e, MaskedB z){
