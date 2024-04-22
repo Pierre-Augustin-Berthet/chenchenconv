@@ -65,7 +65,7 @@ int main(int *argc, char **argv){
 
     SecFprUrsh(outb, inb, ina);
 
-    UnmaskB(&i_out, outb);
+    UnmaskB(&i_out, outb, MASKSIZE);
 
     printf("i_out = %lu\n", i_out);
     print_binary_form(i_out);
@@ -97,7 +97,7 @@ int main(int *argc, char **argv){
         printf("e = %lu\n", ina[i]);
     }
 
-    UnmaskB(&i_out, inb);
+    UnmaskB(&i_out, inb, MASKSIZE);
     printf("i_out = %lu\n", i_out);
     print_binary_form(i_out);
     printf("\n");
