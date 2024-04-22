@@ -123,6 +123,7 @@ void SecFprUrsh(MaskedB out, MaskedB in, MaskedA c){
     SecNonZeroB(b, out);
     for (int i = 0; i<MASKSIZE; i++){
 <<<<<<< HEAD
+<<<<<<< HEAD
         out[i] = (temp[i] - (temp[i] & (uint64_t)1)) | b[i];
 =======
         out[i] = (temp - temp & 1) | b[i];
@@ -161,6 +162,9 @@ void SecFprUrsh2(MaskedB out, MaskedB in, MaskedA c){
     for (int i = 0; i<MASKSIZE; i++){
         out[i] = (temp - temp & 1) | b[i];
 >>>>>>> main
+=======
+       out[i] = (temp[i] - (temp[i] & (uint64_t)1)) | b[i];
+>>>>>>> fc26312c1ed71c35b909b6ec2e558615729bcfad
     }
 }
 
@@ -179,6 +183,7 @@ SecFprNorm64(MaskedB out, MaskedA e, uint64_t mod){
             bp[i] = -b[i];
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
         bp[0] = ~bp[0];
         SecAnd(t, t, bp);
 =======
@@ -186,6 +191,10 @@ SecFprNorm64(MaskedB out, MaskedA e, uint64_t mod){
         //Il faut écrire not(bp[0]);
         SecAnd(t, t, bp,MASKSIZE);
 >>>>>>> main
+=======
+        bp[0] = ~bp[0];
+        SecAnd(t, t, bp);
+>>>>>>> fc26312c1ed71c35b909b6ec2e558615729bcfad
         for (int i = 0; i<MASKSIZE; i++){
             out[i] = out[i] ^ t[i];
         }
@@ -220,7 +229,11 @@ void SecFprAdd(MaskedB out, MaskedB in1, MaskedB in2, uint64_t mod){
         in2m[i] = (in2[i]>>1);
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
     in2m[0] = ~in2m[0];
+=======
+      in2m[0] = ~in2m[0];
+>>>>>>> fc26312c1ed71c35b909b6ec2e558615729bcfad
 
 /* Check this part
 *//*
@@ -246,11 +259,14 @@ Just one question here : which parameters must I choose for this function.
     printf("d = %lu ---->\n", res);
     //print_binary_form(res);
 //*/
+<<<<<<< HEAD
 
 =======
     in2m[0] = -in2m[0] -1;
     SecAdd(d, in1m, in2m, ((uint64_t)1<<63), 64,MASKSIZE);      //d=xm-ym-1
 >>>>>>> main
+=======
+>>>>>>> fc26312c1ed71c35b909b6ec2e558615729bcfad
     for (int i = 1; i<MASKSIZE; i++){
         dp[i] = d[i];
     }
@@ -291,6 +307,7 @@ NOT YET : TO DO -- TEST
         x_63[i] = in1m[i]>>63;
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
     SecAnd(cs, b, x_63);
     //TEST A FAIRE ICI
 
@@ -298,6 +315,11 @@ NOT YET : TO DO -- TEST
 =======
     SecAnd(cs, b, x_63,MASKSIZE);
 >>>>>>> main
+=======
+    SecAnd(cs, b, x_63);
+    //TEST A FAIRE ICI
+    
+>>>>>>> fc26312c1ed71c35b909b6ec2e558615729bcfad
     for (int i = 0; i<MASKSIZE; i++){
         x_63[i] = (d[i]>>63) ^ b[i] ^ bp[i];
     }

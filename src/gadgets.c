@@ -34,6 +34,7 @@ input     :   Boolean maskings ina, inb (MaskedB)
 output    :   Boolean masking out (MaskedB)
 ------------------------------------------------*/
 <<<<<<< HEAD
+<<<<<<< HEAD
 void SecAnd(MaskedB out, MaskedB ina, MaskedB inb){
     MaskedB tempout;
     uint64_t r[MASKSIZE][MASKSIZE];
@@ -47,6 +48,15 @@ void SecAnd(uint64_t *out, uint64_t *ina, uint64_t *inb, int size){
     for(size_t i = 0; i <size-1; i++){
         for(size_t j = i+1; j<size;j++){
 >>>>>>> main
+=======
+
+void SecAnd(MaskedB out, MaskedB ina, MaskedB inb, int size){
+    MaskedB tempout;
+    uint64_t r[size][size];
+    for(size_t i = 0; i<size; i++) tempout[i] = ina[i]&inb[i];
+    for(size_t i = 0; i <size-1; i++){
+        for(size_t j = i+1; j<size;j++){
+>>>>>>> fc26312c1ed71c35b909b6ec2e558615729bcfad
             r[i][j] = rand64();
             r[j][i] = (r[i][j]^(ina[i]&inb[j]));
             r[j][i] ^= (ina[j]&inb[i]);
