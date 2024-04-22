@@ -32,17 +32,20 @@ input     :   Boolean maskings ina, inb (MaskedB)
 output    :   Boolean masking out (MaskedB)
 ------------------------------------------------*/
 void SecAnd(MaskedB out, MaskedB ina, MaskedB inb){
+    MaskedB tempout;
     uint64_t r[MASKSIZE][MASKSIZE];
-    for(size_t i = 0; i<MASKSIZE; i++) out[i] = ina[i]&inb[i];
+    for(size_t i = 0; i<MASKSIZE; i++) tempout[i] = ina[i]&inb[i];
     for(size_t i = 0; i <MASKSIZE-1; i++){
         for(size_t j = i+1; j<MASKSIZE;j++){
             r[i][j] = rand64();
             r[j][i] = (r[i][j]^(ina[i]&inb[j]));
             r[j][i] ^= (ina[j]&inb[i]);
-            out[i] ^= r[i][j];
-            out[j] ^= r[j][i];
+            tempout[i] ^= r[i][j];
+            tempout[j] ^= r[j][i];
         }
     }
+    for(size_t i = 0; i<MASKSIZE; i++) out[i] = tempout[i];
+
 }
 
 /*------------------------------------------------
@@ -271,6 +274,16 @@ void RightRotate(uint64_t * x, uint32_t c){
     uint64_t temp = (1<<c)-1;
     temp = *x & temp;
     *x = ((*x) >> c) + temp << (64 - c);  
+}
+
+void vecRightRotate(MaskedB in, uint32_t c){
+    for (int i = 0; i<MASKSIZE; i++){
+       
+        uint64_t temp = ((uint64_t)1<<c)-1;
+        temp = in[i] & temp;
+        uint64_t temp2 = ((in[i]) >> c);
+        in[i] = (temp2) ^ (temp << (64 - c));  
+    } 
 }
 
 //Second one : a right shift

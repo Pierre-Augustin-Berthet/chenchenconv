@@ -34,6 +34,7 @@ void    B2A_bit             (MaskedA A, MaskedB x, uint64_t mod);
 void    B2A_bit_j           (MaskedA C, MaskedA A, uint64_t xn, uint64_t mod, int n);
 
 void 	RightRotate	        (uint64_t * x, uint32_t c);
+void vecRightRotate(MaskedB in, uint32_t c);
 void 	RightRotate2	    (uint64_t * x, uint32_t c);
 void    NotB                (uint64_t * x);
 

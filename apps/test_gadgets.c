@@ -235,5 +235,9 @@ int main(int *argc, char **argv){
     printf("out[0] = %lu \n", out[0] );
     printf("out[1] = %lu \n", out[1] );
 
+    fprintf(OUTPUT,"\n-----------------t=t&c-----------------\n");
+
+  
+
     return 0;
 }

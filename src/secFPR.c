@@ -33,10 +33,16 @@ input       :   Boolean masking in (MaskedB)
 output      :   Boolean masking out (MaskedB)
 ------------------------------------------------*/
 void SecNonZeroB(MaskedB out, MaskedB in){
+    uint64_t res;
+    UnmaskB(&res, in);
+    printf("in     = %lu\n", res);
+    print_binary_form(res);
+    printf("\n");
+
     uint64_t t[MASKSIZE],l[MASKSIZE],r[MASKSIZE],t2[MASKSIZE];
     for(size_t i= 0; i < MASKSIZE; i++) t[i] = in[i];
-    int32_t bitsize = 8*sizeof(in[0]);
-    int32_t len=bitsize/2;
+    int64_t bitsize = 8*sizeof(in[0]);
+    int64_t len=bitsize/2;
     while(len>=1){
         for(size_t i=0; i<MASKSIZE;i++){
             t2[i] = (t[i]<<(63-2*len))>>(63-2*len+len);
@@ -46,9 +52,21 @@ void SecNonZeroB(MaskedB out, MaskedB in){
             r[i] = (t[i]<<(63-len))>>(63-len);
         }
         SecOr(t,l,r);
+
+        
+        UnmaskB(&res, t);
+        printf("t = %lu\n", res);
+        print_binary_form(res);
+        printf("\n");
+
         len = len >> 1;
     }
+    
     for(size_t i = 0; i <MASKSIZE; i++) out[i] = t[i]&1; // (t_i^{(1)})
+    UnmaskB(&res, out);
+    printf("out    = %lu\n", res);
+    print_binary_form(res);
+    printf("\n");
 }
 
 void SecFPR(MaskedB x, MaskedB s, MaskedA e, MaskedB z){
@@ -80,24 +98,20 @@ output      :   Boolean masking out (MaskedB)
 
 void SecFprUrsh(MaskedB out, MaskedB in, MaskedA c){
     MaskedB m;
+    for (int i = 0; i<MASKSIZE; i++) m[i] = 0;
     m[0] = ((uint64_t)1)<<63;
     for (int j =0; j< MASKSIZE; j++){
-        for (int i = 0; i < MASKSIZE; i++){
-            RightRotate(&in[i], c[j]); 
-// Just need to verify here if we want a rotation or a shifted version of it
-        }
+        vecRightRotate(in, c[j]);
         RefreshMasks(in, MASKSIZE);
-        for (int i = 0; i < MASKSIZE; i++){
-            RightRotate(&m[i], c[j]);
-        }
+        vecRightRotate(m, c[j]);
         RefreshMasks(m, MASKSIZE);
     }
-    uint8_t len = 1;
+    uint64_t len = 1;
     while(len<=32){
         for (int i = 0; i < MASKSIZE; i++){
             m[i] = m[i] ^ (m[i]>>len);
         }
-        len <<= 1;
+        len = len << 1;
     }
     MaskedB temp;
     SecAnd(temp, in, m);
@@ -108,65 +122,32 @@ void SecFprUrsh(MaskedB out, MaskedB in, MaskedA c){
     MaskedB b;
     SecNonZeroB(b, out);
     for (int i = 0; i<MASKSIZE; i++){
-        out[i] = (temp - temp & 1) | b[i];
-    }
-}
-
-void SecFprUrsh2(MaskedB out, MaskedB in, MaskedA c){
-    MaskedB m;
-    m[0] = ((uint64_t)1)<<63;
-    for (int j =0; j< MASKSIZE; j++){
-        for (int i = 0; i < MASKSIZE; i++){
-            RightRotate2(&in[i], c[j]); 
-// Just need to verify here if we want a rotation or a shifted version of it
-        }
-        RefreshMasks(in, MASKSIZE);
-        for (int i = 0; i < MASKSIZE; i++){
-            RightRotate2(&m[i], c[j]);
-        }
-        RefreshMasks(m, MASKSIZE);
-    }
-    uint8_t len = 1;
-    while(len<=32){
-        for (int i = 0; i < MASKSIZE; i++){
-            m[i] = m[i] ^ (m[i]>>len);
-        }
-        len <<= 1;
-    }
-    MaskedB temp;
-    SecAnd(temp, in, m);
-    for (int i = 0; i<MASKSIZE; i++){
-        out[i] = temp[i] ^ in[i];
-        out[i]^= temp[i] & 1;
-    }
-    MaskedB b;
-    SecNonZeroB(b, out);
-    for (int i = 0; i<MASKSIZE; i++){
-        out[i] = (temp - temp & 1) | b[i];
+        out[i] = (temp[i] - (temp[i] & (uint64_t)1)) | b[i];
     }
 }
 
 void 
 SecFprNorm64(MaskedB out, MaskedA e, uint64_t mod){
-    MaskedB t, n, b, bp;
+    MaskedB t, n, b, bp, tp;
+    MaskedA ba;
+    e[0]= e[0]-63;
     for (int j = 5 ; j>=0; j--){
         for (int i = 0; i< MASKSIZE; i++){
             t[i] = out[i] ^ (out[i]<<(1<<j));
             n[i] = out[i] >> (64 - (1<<j));
         }
-        SecNonZeroB(b, n); // Les éléments de b sont des bits.
-        for (int i = 1; i<MASKSIZE; i++){
+        SecNonZeroB(b, n); 
+        for (int i = 0; i<MASKSIZE; i++){
             bp[i] = -b[i];
         }
-        bp[0] = b[0];
-        //Il faut écrire not(bp[0]);
+        bp[0] = ~bp[0];
         SecAnd(t, t, bp);
         for (int i = 0; i<MASKSIZE; i++){
             out[i] = out[i] ^ t[i];
         }
-        B2A_bit(b, e, mod );
+        B2A_bit(ba, b, mod );
         for (int i = 0; i<MASKSIZE; i++){
-            e[i] = e[i] + (b[i]<<j);
+            e[i] = e[i] + (ba[i]<<j) %mod;
         }
     }
 }
@@ -176,27 +157,82 @@ SecFprNorm64(MaskedB out, MaskedA e, uint64_t mod){
 void SecFprAdd(MaskedB out, MaskedB in1, MaskedB in2, uint64_t mod){
     //PART 1 : BEFORE EXTRACTING (S,E,M)
     MaskedB in1m, in2m, d, b, bp, cs, m, x_63, dp;
+    uint64_t res;
+
     for (int i = 0; i<MASKSIZE; i++){
-        in1m[i] = (in1[i]<<2)>>2;
-        in2m[i] = (in2[i]<<2)>>2;
+        in1m[i] = (in1[i]>>1);
+        in2m[i] = (in2[i]>>1);
     }
-    in2m[0] = -in2m[0] -1;
+    in2m[0] = ~in2m[0];
+
+/* Check this part
+*//*
+    UnmaskB(&res, in1m);
+    printf("in1m = %lu\n", res);
+    UnmaskB(&res, in1);
+    printf("in1 = %lu\n", res);
+
+    UnmaskB(&res, in2m);
+    printf("in2m = %lu ---->", res);
+    print_binary_form(res);
+    UnmaskB(&res, in2);
+    printf("\nin2 = %lu\n", res);
+
+*/
+
+
     SecAdd(d, in1m, in2m, ((uint64_t)1<<63), 64);      //d=xm-ym-1
+/* Check this part
+Just one question here : which parameters must I choose for this function.
+*////*
+    UnmaskB(&res, d);
+    printf("d = %lu ---->\n", res);
+    //print_binary_form(res);
+//*/
+
     for (int i = 1; i<MASKSIZE; i++){
         dp[i] = d[i];
     }
-    dp[0] = -d[0]-1;
+    dp[0] = ~d[0];
     SecNonZeroB(b, dp);
-    dp[0] = -(d[0] ^ ((uint64_t)1<<63)) -1;
-    SecNonZeroB(bp,d);
+/* Check this part
+Here the result must be 0 or 1 : 0 if in1 = in2, 1 if not.
+*////*
+    UnmaskB(&res, dp);
+    printf("dp = %lu ------> ", res);
+    print_binary_form(res);
+    printf("\n");
+    printf("\n\n");
+    UnmaskB(&res, b);
+    printf("b = %lu\n", res);
+//*/
+
+    dp[0] = ~(d[0] ^ ((uint64_t)1<<63));
+
+    SecNonZeroB(bp,dp);
+/* Check this part
+NOT YET : TO DO -- TEST
+*/
+    UnmaskB(&res, dp);
+    printf("dp = %lu ------> ", res);
+    print_binary_form(res);
+    printf("\n\n");
+    printf("\n");
+    UnmaskB(&res, bp);
+    printf("bp = %lu\n", res);
+
+
     for (int i = 1; i<MASKSIZE; i++){
         dp[i] = b[i];
     }
-    dp[0] = -b[0]-1;
+    dp[0] = ~b[0];
     for (int i = 0; i<MASKSIZE; i++){
-        x_63[i] = in1m[i]>>63; //Le 63 à valider
+        x_63[i] = in1m[i]>>63;
     }
     SecAnd(cs, b, x_63);
+    //TEST A FAIRE ICI
+
+
     for (int i = 0; i<MASKSIZE; i++){
         x_63[i] = (d[i]>>63) ^ b[i] ^ bp[i];
     }
