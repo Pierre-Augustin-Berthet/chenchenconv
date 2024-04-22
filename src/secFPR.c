@@ -33,27 +33,25 @@ input       :   Boolean masking in (MaskedB)
 output      :   Boolean masking out (MaskedB)
 ------------------------------------------------*/
 void SecNonZeroB(MaskedB out, MaskedB in){
-
     uint64_t t[MASKSIZE],l[MASKSIZE],r[MASKSIZE],t2[MASKSIZE];
     for(size_t i= 0; i < MASKSIZE; i++) t[i] = in[i];
-    uint64_t len = 32;
+    int64_t bitsize = 8*sizeof(in[0]);
+    uint64_t mask = ~((uint64_t)(0));
+    int64_t len=bitsize/2;
     while(len>=1){
-        uint64_t mask =0;
-        for (int i = 0; i<len; i++) mask += (uint64_t)1<<i;
+        mask >>= len;
         for(size_t i=0; i<MASKSIZE;i++){
-            t2[i] = (t[i]>>(len)) & mask;
-        } 
-        RefreshXOR(l,t2,(1<<len),MASKSIZE);
+            t2[i] = ((t[i]>>len)&mask;
+        }
+        RefreshXOR(l,t2,((uint64_t)1<<len),MASKSIZE);
         for(size_t i=0; i<MASKSIZE;i++){
-            r[i] = t[i] & mask;
+            r[i] = (t[i])&mask;
         }
         SecOr(t,l,r);
-
         len = len >> 1;
     }
     
     for(size_t i = 0; i <MASKSIZE; i++) out[i] = t[i]&1; // (t_i^{(1)})
-
 }
 
 void SecFPR(MaskedB x, MaskedB s, MaskedA e, MaskedB z){
@@ -69,7 +67,7 @@ void SecFPR(MaskedB x, MaskedB s, MaskedA e, MaskedB z){
     SecAdd(eb,ea,b,(1<<16),4,MASKSIZE);
     RefreshXOR(eb,eb,(1<<16),MASKSIZE);
     RefreshXOR(s,s,1,MASKSIZE);
-    for(size_t i = 0; i < MASKSIZE ;i++) xb[i] = (s[i]&1 << 63) ^ ((eb[i]&(0x7ff))<<52)^((za[i]&0x3ffffffffffff8)>>2);
+    for(size_t i = 0; i < MASKSIZE ;i++) xb[i] = ((uint64_t)(s[i]&1) << 63) ^ ((eb[i]&(0x7ff))<<52)^((za[i]&0x3ffffffffffff8)>>2);
     for(size_t i = 0; i < MASKSIZE; i++) {eb[i] = za[i]&1; b[i] = (za[i]&(1<<2))>>2;}
     RefreshXOR(eb,eb,1,MASKSIZE);
     SecOr(ea,eb,b);
@@ -180,12 +178,12 @@ void SecFprAdd(MaskedB out, MaskedB in1, MaskedB in2, uint64_t mod){
 
 */
 
-
-    SecAdd(d, in1m, in2m, ((uint64_t)1<<63), 64, MASKSIZE);      //d=xm-ym-1
+ SecAdd(d, in1m, in2m, ((uint64_t)1<<63), 64, MASKSIZE);      //d=xm-ym-1
 /* Check this part
 Just one question here : which parameters must I choose for this function.
 *////*
     UnmaskB(&res, d, MASKSIZE);
+
     printf("d = %lu ---->\n", res);
     //print_binary_form(res);
 //*/
@@ -204,7 +202,7 @@ Here the result must be 0 or 1 : 0 if in1 = in2, 1 if not.
     printf("\n\n");
     UnmaskB(&res, b, MASKSIZE);
     printf("b = %lu\n", res);
-//*/
+*/
 
     dp[0] = ~(d[0] ^ ((uint64_t)1<<63));
 
@@ -213,13 +211,14 @@ Here the result must be 0 or 1 : 0 if in1 = in2, 1 if not.
 NOT YET : TO DO -- TEST
 */
     UnmaskB(&res, dp, MASKSIZE);
+
     printf("dp = %lu ------> ", res);
     print_binary_form(res);
     printf("\n\n");
     printf("\n");
     UnmaskB(&res, bp, MASKSIZE);
     printf("bp = %lu\n", res);
-
+*/
 
     for (int i = 1; i<MASKSIZE; i++){
         dp[i] = b[i];
