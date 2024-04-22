@@ -18,7 +18,7 @@ int main(int *argc, char **argv){
     //MaskB, UnmaskB, SecAnd, SecOr
     B1 = rand64();
     MaskB(b1,B1);
-    UnmaskB(&resB,b1);
+    UnmaskB(&resB,b1,MASKSIZE);
 
     if(B1^resB){
         fprintf(OUTPUT,"Boolean Masking-Demasking failed!\n");
@@ -32,8 +32,8 @@ int main(int *argc, char **argv){
 
     B2 = rand64();
     MaskB(b2,B2);
-    SecAnd(b3,b1,b2);
-    UnmaskB(&resB,b3);
+    SecAnd(b3,b1,b2,MASKSIZE);
+    UnmaskB(&resB,b3,MASKSIZE);
 
     if((B1&B2)^resB){
         fprintf(OUTPUT,"SecAnd failed!\n");
@@ -50,7 +50,7 @@ int main(int *argc, char **argv){
     fprintf(OUTPUT,"SecAnd Succeeded!\n");
 
     SecOr(b3,b1,b2);
-    UnmaskB(&resB,b3);
+    UnmaskB(&resB,b3,MASKSIZE);
 
     if((B1|B2)^resB){
         fprintf(OUTPUT,"SecOr failed!\n");
@@ -67,7 +67,7 @@ int main(int *argc, char **argv){
     fprintf(OUTPUT,"SecOr Succeeded!\n");
 
     RefreshMasks(b2,MASKORDER);
-    UnmaskB(&resB,b2);
+    UnmaskB(&resB,b2,MASKSIZE);
     
     if(B2^resB){
         fprintf(OUTPUT,"RefreshMasks failed!\n");
@@ -82,7 +82,7 @@ int main(int *argc, char **argv){
     B2 = randmod(MODULO);
     MaskB(b2,B2);
     RefreshXOR(b3,b2,64,MASKSIZE);
-    UnmaskB(&resB,b3);
+    UnmaskB(&resB,b3,MASKSIZE);
     if(B2^resB){
         fprintf(OUTPUT,"RefreshXOR failed!\n");
         print_binary_form(B2);
@@ -97,19 +97,19 @@ int main(int *argc, char **argv){
     uint64_t tempB2 = randmod(MODULO);
     MaskB(b1,tempB1);
     MaskB(b2,tempB2);
-    SecAdd(b3,b1,b2,MODULO,4);
-    UnmaskB(&resB,b3);
+    SecAdd(b3,b1,b2,MODULO,4,MASKSIZE);
+    UnmaskB(&resB,b3,MASKSIZE);
     resB %= MODULO;
 
     if(subq(resB,addq(tempB1,tempB2,MODULO),MODULO)){
         fprintf(OUTPUT,"SecAdd failed!\n");
-        fprintf(OUTPUT,"%ld",tempB1);
+        fprintf(OUTPUT,"%lu",tempB1);
         fprintf(OUTPUT,"\n+\n");
-        fprintf(OUTPUT,"%ld",tempB2);
+        fprintf(OUTPUT,"%lu",tempB2);
         fprintf(OUTPUT,"\n=\n");
-        fprintf(OUTPUT,"%ld",addq(tempB1,tempB2,MODULO));
+        fprintf(OUTPUT,"%lu",addq(tempB1,tempB2,MODULO));
         fprintf(OUTPUT,"\n!=\n");
-        fprintf(OUTPUT,"%ld",resB);
+        fprintf(OUTPUT,"%lu",resB);
         fprintf(OUTPUT,"\n");
         exit(1);
     }
@@ -123,9 +123,9 @@ int main(int *argc, char **argv){
 
     if(subq(A1,resA,MODULO)){
         fprintf(OUTPUT,"Arithmetic Masking-Demasking failed!\n");
-        fprintf(OUTPUT,"%ld",A1);
+        fprintf(OUTPUT,"%lu",A1);
         fprintf(OUTPUT,"\n!=\n");
-        fprintf(OUTPUT,"%ld",resA);
+        fprintf(OUTPUT,"%lu",resA);
         fprintf(OUTPUT,"\n");
         exit(1);
     }
@@ -138,13 +138,13 @@ int main(int *argc, char **argv){
 
     if(subq(resA,mulq(A1,A2,MODULO),MODULO)){
         fprintf(OUTPUT,"SecMul failed!\n");
-        fprintf(OUTPUT,"%ld",A1);
+        fprintf(OUTPUT,"%lu",A1);
         fprintf(OUTPUT,"\n*\n");
-        fprintf(OUTPUT,"%ld",A2);
+        fprintf(OUTPUT,"%lu",A2);
         fprintf(OUTPUT,"\n=\n");
-        fprintf(OUTPUT,"%ld",mulq(A1,A2,MODULO));
+        fprintf(OUTPUT,"%lu",mulq(A1,A2,MODULO));
         fprintf(OUTPUT,"\n!=\n");
-        fprintf(OUTPUT,"%ld",resA);
+        fprintf(OUTPUT,"%lu",resA);
         fprintf(OUTPUT,"\n");
         exit(1);
     }
@@ -158,27 +158,29 @@ int main(int *argc, char **argv){
 
     if(subq(resA,B2,MODULO)){
         fprintf(OUTPUT,"B2A Conversion failed!\n");
-        fprintf(OUTPUT,"%ld",B2);
+        fprintf(OUTPUT,"%lu",B2);
         fprintf(OUTPUT,"\n!=\n");
-        fprintf(OUTPUT,"%ld",resA);
+        fprintf(OUTPUT,"%lu",resA);
         fprintf(OUTPUT,"\n");
         exit(1);
     }
     fprintf(OUTPUT,"B2A Conversion Succeeded!\n");
     A2 = randmod(MODULO);
     MaskA(a2,A2,MODULO);
+    //a2[0] = 0; a2[1] = 0; a2[2] = 0;
     A2B(b2,a2,MODULO,MASKSIZE);
-    UnmaskB(&resB,b2);
+    UnmaskB(&resB,b2,MASKSIZE);
+    resB%=MODULO;
 
-    /*if(subq(resB,A2,MODULO)){
+    if(subq(resB,A2,MODULO)){
         fprintf(OUTPUT,"A2B Conversion failed!\n");
-        fprintf(OUTPUT,"%ld",A2);
+        fprintf(OUTPUT,"%lu",A2);
         fprintf(OUTPUT,"\n!=\n");
-        fprintf(OUTPUT,"%ld",resB);
+        fprintf(OUTPUT,"%lu",resB);
         fprintf(OUTPUT,"\n");
         exit(1);
     }
-    fprintf(OUTPUT,"A2B Conversion Succeeded!\n");*/
+    fprintf(OUTPUT,"A2B Conversion Succeeded!\n");
   
     fprintf(OUTPUT,"\n-----------------B2A_bit-----------------\n");
     MaskedB y;

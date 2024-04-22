@@ -45,11 +45,11 @@ void SecNonZeroB(MaskedB out, MaskedB in){
     int64_t len=bitsize/2;
     while(len>=1){
         for(size_t i=0; i<MASKSIZE;i++){
-            t2[i] = (t[i]<<(63-2*len))>>(63-2*len+len);
+            t2[i] = (t[i]<<(63-2*len+1))>>(63-2*len+1+len-1);
         }
         RefreshXOR(l,t2,(1<<len),MASKSIZE);
         for(size_t i=0; i<MASKSIZE;i++){
-            r[i] = (t[i]<<(63-len))>>(63-len);
+            r[i] = (t[i]<<(63-len+1))>>(63-len+1);
         }
         SecOr(t,l,r);
 
@@ -73,16 +73,16 @@ void SecFPR(MaskedB x, MaskedB s, MaskedA e, MaskedB z){
     MaskedB eb,b,za,ea,xb;
     e[0] += 1076;
     A2B(eb,e,(1<<16),MASKSIZE);
-    for(size_t i = 0; i <MASKSIZE; i++) b[i] = -((e[i]&(1<<15))>>15);
+    for(size_t i = 0; i <MASKSIZE; i++) b[i] = -((e[i]<<(63-15))>>63);
     b[0] = ~b[0];
-    SecAnd(za,z,b);
-    for(size_t i = 0; i < MASKSIZE; i++) b[i] = -((za[i]&(1<<54))>>54);
-    SecAnd(ea,eb,b);
-    for(size_t i = 0; i <MASKSIZE; i++) b[i] = (za[i]&(1<<54)>>54);
-    SecAdd(eb,ea,b,(1<<16),4);
+    SecAnd(za,z,b,MASKSIZE);
+    for(size_t i = 0; i < MASKSIZE; i++) b[i] = -((za[i]<<(63-54))>>63);
+    SecAnd(ea,eb,b,MASKSIZE);
+    for(size_t i = 0; i <MASKSIZE; i++) b[i] = ((za[i]<<(63-54))>>63);
+    SecAdd(eb,ea,b,(1<<16),4,MASKSIZE);
     RefreshXOR(eb,eb,(1<<16),MASKSIZE);
     RefreshXOR(s,s,1,MASKSIZE);
-    for(size_t i = 0; i < MASKSIZE ;i++) xb[i] = (s[i]&1 << 63) ^ ((eb[i]&(0x7ff))<<52)^(za[i]&0x3ffffffffffff8);
+    for(size_t i = 0; i < MASKSIZE ;i++) xb[i] = (s[i]&1 << 63) ^ ((eb[i]&(0x7ff))<<52)^((za[i]&0x3ffffffffffff8)>>2);
     for(size_t i = 0; i < MASKSIZE; i++) {eb[i] = za[i]&1; b[i] = (za[i]&(1<<2))>>2;}
     RefreshXOR(eb,eb,1,MASKSIZE);
     SecOr(ea,eb,b);
@@ -114,7 +114,7 @@ void SecFprUrsh(MaskedB out, MaskedB in, MaskedA c){
         len = len << 1;
     }
     MaskedB temp;
-    SecAnd(temp, in, m);
+    SecAnd(temp, in, m,MASKSIZE);
     for (int i = 0; i<MASKSIZE; i++){
         out[i] = temp[i] ^ in[i];
         out[i]^= temp[i] & 1;
@@ -122,7 +122,7 @@ void SecFprUrsh(MaskedB out, MaskedB in, MaskedA c){
     MaskedB b;
     SecNonZeroB(b, out);
     for (int i = 0; i<MASKSIZE; i++){
-        out[i] = (temp[i] - (temp[i] & (uint64_t)1)) | b[i];
+       out[i] = (temp[i] - (temp[i] & (uint64_t)1)) | b[i];
     }
 }
 
@@ -152,6 +152,18 @@ SecFprNorm64(MaskedB out, MaskedA e, uint64_t mod){
     }
 }
 
+void SecFprMul(MaskedB out, MaskedB x, MaskedB y, uint64_t mod){
+    MaskedB s,sx,sy,e,ex,ey,p,mx,my,b,z,z2,w,bx,by,d;
+    //TO DO Extract sx,ex,mx,sy,ey,my
+    for(size_t i= 0; i <MASKSIZE; i++) s[i] = sx[i]^sy[i];
+    e[0] = ex[0] + ey[0] -2100;
+    for(size_t i=1;i<MASKSIZE;i++) e[i] = ex[i] + ey[i];
+    SecMult(d,mx,my,mod);//ATTENTION 128bits!!!
+    A2B(p,d,mod,MASKSIZE); //ATTENTION 128bits!!!!
+    for(size_t i =0; i<MASKSIZE;i++) w[i] = (p[i] <<(63-51))>>(63-51); //ATTENTION 128bits!!!
+    SecNonZeroB(b,w);
+}
+
 
 
 void SecFprAdd(MaskedB out, MaskedB in1, MaskedB in2, uint64_t mod){
@@ -163,7 +175,7 @@ void SecFprAdd(MaskedB out, MaskedB in1, MaskedB in2, uint64_t mod){
         in1m[i] = (in1[i]>>1);
         in2m[i] = (in2[i]>>1);
     }
-    in2m[0] = ~in2m[0];
+      in2m[0] = ~in2m[0];
 
 /* Check this part
 *//*
@@ -189,7 +201,6 @@ Just one question here : which parameters must I choose for this function.
     printf("d = %lu ---->\n", res);
     //print_binary_form(res);
 //*/
-
     for (int i = 1; i<MASKSIZE; i++){
         dp[i] = d[i];
     }
@@ -231,8 +242,7 @@ NOT YET : TO DO -- TEST
     }
     SecAnd(cs, b, x_63);
     //TEST A FAIRE ICI
-
-
+    
     for (int i = 0; i<MASKSIZE; i++){
         x_63[i] = (d[i]>>63) ^ b[i] ^ bp[i];
     }
@@ -241,7 +251,7 @@ NOT YET : TO DO -- TEST
         x_63[i] = in1[i] ^ in2[i];
         cs[i] = -cs[i];
     }
-    SecAnd(m, x_63, cs);
+    SecAnd(m, x_63, cs,MASKSIZE);
     for (int i = 0; i<MASKSIZE; i++){
         in1[i] = in1[i] ^ m[i];
         in2[i] = in2[i] ^ m[i];
@@ -286,7 +296,7 @@ NOT YET : TO DO -- TEST
         //---> not(cp[i](16)) +1 = 0b111...1111
         // and ---> my = my
     }
-    SecAnd(my, my, tempb);
+    SecAnd(my, my, tempb,MASKSIZE);
     for (int i = 0; i<MASKSIZE; i++) temp[i] = c[i]&0b11111;
     SecFprUrsh(my, my, temp);
     for (int i = 1; i<MASKSIZE; i++) {
@@ -295,13 +305,13 @@ NOT YET : TO DO -- TEST
     }
     un[0] = 1;
     myp[0] = -my[0] - 1;
-    SecAdd(tempb, myp, un,((uint64_t)1<<63), 64);
+    SecAdd(tempb, myp, un,((uint64_t)1<<63), 64,MASKSIZE);
     for (int i = 0; i<MASKSIZE; i++) s[i] = (-(sx[i] ^ sy[i]))&1; // voir pour la taille ici.
     //Refresh(my); //A MODIFIER 
     for (int i = 0; i<MASKSIZE; i++) tempb[i] = my[i] ^ myp[i];
-    SecAnd(myp, tempb, s);
+    SecAnd(myp, tempb, s,MASKSIZE);
     for (int i = 0; i<MASKSIZE; i++) my[i] = my[i] ^ myp[i];
-    SecAdd(z, mx, my,((uint64_t)1<<63), 64);
+    SecAdd(z, mx, my,((uint64_t)1<<63), 64,MASKSIZE);
     SecFprNorm64(z,ex, mod);
     for (int i = 0; i<MASKSIZE; i++) b[i] = z[i]&0b111111111;
     SecNonZeroB(b,b);

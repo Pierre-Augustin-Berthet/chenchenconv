@@ -16,27 +16,30 @@ void MaskB(MaskedB out, uint64_t in){
 /*------------------------------------------------
 UnmaskB   :   Boolean unmasking at order MASKORDER
 input     :   Boolean masking in (MaskedB)
+              Number of shares size (int)
 output    :   sensitive data out (uint64_t)
 ------------------------------------------------*/
-void UnmaskB(uint64_t *out, MaskedB in){
+void UnmaskB(uint64_t *out, uint64_t *in,int size){
     uint64_t r=0;
-    for(size_t i=0; i<MASKORDER; i++){
+    for(size_t i=0; i<size-1; i++){
         r ^= in[i];
     }
-    *out = in[MASKORDER]^r;
+    *out = in[size-1]^r;
 }
 
 /*------------------------------------------------
 SecAnd    :   Secure AND at order MASKORDER
 input     :   Boolean maskings ina, inb (MaskedB)
+              Number of shares size (int)
 output    :   Boolean masking out (MaskedB)
 ------------------------------------------------*/
-void SecAnd(MaskedB out, MaskedB ina, MaskedB inb){
+
+void SecAnd(MaskedB out, MaskedB ina, MaskedB inb, int size){
     MaskedB tempout;
-    uint64_t r[MASKSIZE][MASKSIZE];
-    for(size_t i = 0; i<MASKSIZE; i++) tempout[i] = ina[i]&inb[i];
-    for(size_t i = 0; i <MASKSIZE-1; i++){
-        for(size_t j = i+1; j<MASKSIZE;j++){
+    uint64_t r[size][size];
+    for(size_t i = 0; i<size; i++) tempout[i] = ina[i]&inb[i];
+    for(size_t i = 0; i <size-1; i++){
+        for(size_t j = i+1; j<size;j++){
             r[i][j] = rand64();
             r[j][i] = (r[i][j]^(ina[i]&inb[j]));
             r[j][i] ^= (ina[j]&inb[i]);
@@ -61,7 +64,7 @@ void SecOr(MaskedB out, MaskedB ina, MaskedB inb){
         t[i] = ina[i];
         s[i] = inb[i];
     }
-    SecAnd(out,t,s);
+    SecAnd(out,t,s,MASKSIZE);
     out[0] = ~out[0];
 }
 
@@ -135,30 +138,31 @@ SecAdd    :   Secure addition at order MASKORDER
 input     :   Boolean maskings ina,inb (MaskedB),
               Power of 2 k (uint64_t),
               Log2 of k minus 1 log2km1 (uint64_t)
+              Number of shares size (int)
 output    :   Arithmetic masking out (MaskedB)
 ------------------------------------------------*/
-void SecAdd(MaskedB out, MaskedB ina, MaskedB inb, uint64_t k, uint64_t log2km1){
-    uint64_t p[MASKSIZE],g[MASKSIZE],a[MASKSIZE],a2[MASKSIZE];
+void SecAdd(uint64_t *out, uint64_t *ina, uint64_t* inb, uint64_t k, uint64_t log2km1,int size){
+    uint64_t p[size],g[size],a[size],a2[size];
     int pow=1;
-    for(size_t i = 0; i<MASKSIZE; i++) 
+    for(size_t i = 0; i<size; i++) 
         p[i] = ina[i] ^ inb[i];
-    SecAnd(g,ina,inb);
+    SecAnd(g,ina,inb,size);
     for(size_t j = 0; j<log2km1-1; j++){
-        for(size_t i = 0; i<MASKSIZE; i++) 
+        for(size_t i = 0; i<size; i++) 
             a[i] = g[i] << pow;
-        SecAnd(a2,a,p);
-        for(size_t i =0; i<MASKSIZE; i++) {
+        SecAnd(a2,a,p,size);
+        for(size_t i =0; i<size; i++) {
             g[i] ^= a2[i];
             a2[i] = p[i] << pow;
         }
-        RefreshXOR(a2,a2,k,MASKSIZE);
-        SecAnd(a,p,a2);
-        for(size_t i = 0; i < MASKSIZE; i++) p[i] = a[i];
+        RefreshXOR(a2,a2,k,size);
+        SecAnd(a,p,a2,size);
+        for(size_t i = 0; i < size; i++) p[i] = a[i];
         pow *= 2;
     }
-    for(size_t i = 0; i<MASKSIZE; i++) a[i] = g[i] << pow;
-    SecAnd(a2,a,p);
-    for(size_t i = 0; i<MASKSIZE; i++){
+    for(size_t i = 0; i<size; i++) a[i] = g[i] << pow;
+    SecAnd(a2,a,p,size);
+    for(size_t i = 0; i<size; i++){
         g[i] ^= a2[i];
         out[i] = ina[i]^inb[i]^(g[i]<<1);
     }
@@ -180,33 +184,28 @@ void RefreshMasks(MaskedB out, int size){
 }
 void    Refresh             (); //ATTENTION ON DOIT POUVOIR CHOISIR QUELLES SHARES ON REFRESH
 
-void A2B(MaskedB out, MaskedA in, uint64_t mod, int size){
+void A2B(uint64_t *out, uint64_t *in, uint64_t mod, int size){
     if(size==1){
         out[0] = in[0];
         return;
     }
+    else{
     uint64_t up[size-size/2],down[size/2];
     uint64_t y[size],z[size];
 
-    for(size_t i = 0; i < size/2; i++){
-        down[i] = in[i];
-    }
-    for(size_t i = size/2; i < size; i++){
-        up[i] = in[i];
-    }
+    for(size_t i = 0; i < size/2; i++){down[i] = in[i];}
+    for(size_t i = 0; i < size-size/2; i++){ up[i] = in[i+size/2];}
 
     A2B(y,down,mod,size/2);
     A2B(z,up,mod,size-size/2);
 
-    for(size_t i = size/2; i<size;i++){
-        y[i] = 0;
-    }
-    for(size_t i = size-size/2;i<size;i++){
-        z[i] = 0;
-    }
+    for(size_t i = size/2; i<size;i++){y[i] = 0;}
+    for(size_t i = size-size/2;i<size;i++){z[i] = 0;}
+
     RefreshXOR(y,y,mod,size);
     RefreshXOR(z,z,mod,size);
-    SecAdd(out,z,y,mod,4);
+    SecAdd(out,z,y,mod,4,size);
+    }
 }
 
 //For B2A
