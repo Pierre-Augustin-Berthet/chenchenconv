@@ -36,14 +36,16 @@ void SecNonZeroB(MaskedB out, MaskedB in){
     uint64_t t[MASKSIZE],l[MASKSIZE],r[MASKSIZE],t2[MASKSIZE];
     for(size_t i= 0; i < MASKSIZE; i++) t[i] = in[i];
     int64_t bitsize = 8*sizeof(in[0]);
+    uint64_t mask = ~((uint64_t)(0));
     int64_t len=bitsize/2;
     while(len>=1){
+        mask >>= len;
         for(size_t i=0; i<MASKSIZE;i++){
-            t2[i] = (t[i]<<(63-2*len+1))>>(63-2*len+1+len-1);
+            t2[i] = ((t[i])&(mask<<len))>>len;
         }
-        RefreshXOR(l,t2,(1<<len),MASKSIZE);
+        RefreshXOR(l,t2,((uint64_t)1<<len),MASKSIZE);
         for(size_t i=0; i<MASKSIZE;i++){
-            r[i] = (t[i]<<(63-len+1))>>(63-len+1);
+            r[i] = (t[i])&mask;
         }
         SecOr(t,l,r);
         len = len >> 1;
