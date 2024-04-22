@@ -33,9 +33,9 @@ input     :   Boolean maskings ina, inb (MaskedB)
               Number of shares size (int)
 output    :   Boolean masking out (MaskedB)
 ------------------------------------------------*/
-
-void SecAnd(MaskedB out, MaskedB ina, MaskedB inb, int size){
+void SecAnd(uint64_t *out, uint64_t *ina, uint64_t *inb, int size){
     MaskedB tempout;
+    for (int i = 0; i<MASKSIZE; i++) tempout[i] = 0;
     uint64_t r[size][size];
     for(size_t i = 0; i<size; i++) tempout[i] = ina[i]&inb[i];
     for(size_t i = 0; i <size-1; i++){
@@ -47,7 +47,7 @@ void SecAnd(MaskedB out, MaskedB ina, MaskedB inb, int size){
             tempout[j] ^= r[j][i];
         }
     }
-    for(size_t i = 0; i<MASKSIZE; i++) out[i] = tempout[i];
+    for(size_t i = 0; i<size; i++) out[i] = tempout[i];
 
 }
 

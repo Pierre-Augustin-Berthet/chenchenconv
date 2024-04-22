@@ -41,7 +41,7 @@ void SecNonZeroB(MaskedB out, MaskedB in){
     while(len>=1){
         mask >>= len;
         for(size_t i=0; i<MASKSIZE;i++){
-            t2[i] = ((t[i])&(mask<<len))>>len;
+            t2[i] = ((t[i]>>len)&mask;
         }
         RefreshXOR(l,t2,((uint64_t)1<<len),MASKSIZE);
         for(size_t i=0; i<MASKSIZE;i++){
@@ -107,7 +107,7 @@ void SecFprUrsh(MaskedB out, MaskedB in, MaskedA c){
     MaskedB b;
     SecNonZeroB(b, out);
     for (int i = 0; i<MASKSIZE; i++){
-       out[i] = (temp[i] - (temp[i] & (uint64_t)1)) | b[i];
+        out[i] = (temp[i] - (temp[i] & (uint64_t)1)) | b[i];
     }
 }
 
@@ -125,8 +125,10 @@ SecFprNorm64(MaskedB out, MaskedA e, uint64_t mod){
         for (int i = 0; i<MASKSIZE; i++){
             bp[i] = -b[i];
         }
+
         bp[0] = ~bp[0];
-        SecAnd(t, t, bp,MASKSIZE);
+        SecAnd(t, t, bp, MASKSIZE);
+
         for (int i = 0; i<MASKSIZE; i++){
             out[i] = out[i] ^ t[i];
         }
@@ -160,28 +162,28 @@ void SecFprAdd(MaskedB out, MaskedB in1, MaskedB in2, uint64_t mod){
         in1m[i] = (in1[i]>>1);
         in2m[i] = (in2[i]>>1);
     }
-      in2m[0] = ~in2m[0];
-
+    in2m[0] = ~in2m[0];
 /* Check this part
 *//*
-    UnmaskB(&res, in1m);
+    UnmaskB(&res, in1m, MASKSIZE);
     printf("in1m = %lu\n", res);
     UnmaskB(&res, in1);
     printf("in1 = %lu\n", res);
 
-    UnmaskB(&res, in2m);
+    UnmaskB(&res, in2m, MASKSIZE);
     printf("in2m = %lu ---->", res);
     print_binary_form(res);
-    UnmaskB(&res, in2);
+    UnmaskB(&res, in2, MASKSIZE);
     printf("\nin2 = %lu\n", res);
 
 */
 
-
-    SecAdd(d, in1m, in2m, ((uint64_t)1<<63), 64,MASKSIZE);      //d=xm-ym-1
+ SecAdd(d, in1m, in2m, ((uint64_t)1<<63), 64, MASKSIZE);      //d=xm-ym-1
 /* Check this part
 Just one question here : which parameters must I choose for this function.
-    UnmaskB(&res, d);
+*////*
+    UnmaskB(&res, d, MASKSIZE);
+
     printf("d = %lu ---->\n", res);
     //print_binary_form(res);
 //*/
@@ -192,13 +194,13 @@ Just one question here : which parameters must I choose for this function.
     SecNonZeroB(b, dp);
 /* Check this part
 Here the result must be 0 or 1 : 0 if in1 = in2, 1 if not.
-*//*
-    UnmaskB(&res, dp);
+*////*
+    UnmaskB(&res, dp, MASKSIZE);
     printf("dp = %lu ------> ", res);
     print_binary_form(res);
     printf("\n");
     printf("\n\n");
-    UnmaskB(&res, b);
+    UnmaskB(&res, b, MASKSIZE);
     printf("b = %lu\n", res);
 */
 
@@ -207,13 +209,14 @@ Here the result must be 0 or 1 : 0 if in1 = in2, 1 if not.
     SecNonZeroB(bp,dp);
 /* Check this part
 NOT YET : TO DO -- TEST
+*/
+    UnmaskB(&res, dp, MASKSIZE);
 
-    UnmaskB(&res, dp);
     printf("dp = %lu ------> ", res);
     print_binary_form(res);
     printf("\n\n");
     printf("\n");
-    UnmaskB(&res, bp);
+    UnmaskB(&res, bp, MASKSIZE);
     printf("bp = %lu\n", res);
 */
 
@@ -224,9 +227,10 @@ NOT YET : TO DO -- TEST
     for (int i = 0; i<MASKSIZE; i++){
         x_63[i] = in1m[i]>>63;
     }
+
     SecAnd(cs, b, x_63,MASKSIZE);
     //TEST A FAIRE ICI
-    
+
     for (int i = 0; i<MASKSIZE; i++){
         x_63[i] = (d[i]>>63) ^ b[i] ^ bp[i];
     }
