@@ -17,7 +17,8 @@
 % Used for displaying a sample figure. If possible, figure files should
 % be included in EPS format.
 %
-\usepackage{algorithmicx}
+\usepackage[vlined,algoruled,linesnumbered]{algorithm2e}
+\usepackage{amsmath,amssymb,nccmath,mathtools}
 % If you use the hyperref package, please uncomment the following two lines
 % to display URLs in blue roman font according to Springer's eBook style:
 \usepackage{color}
@@ -51,7 +52,7 @@ C\'edric Tavernier\inst{3}\orcidID{0009-0007-5224-492X}}
 \maketitle              % typeset the header of the contribution
 %
 \begin{abstract}
-With the ongoing standardization of new POst-Quantum Cryptography (PQC) primitives by the National Institute of Standards and Technology (NIST), it is important to investigate the robustness of new designs to Side Channel Analysis (SCA). Amongst those future standards is Falcon, a lattice-based signature which relies of rational numbers. It thus requires an implementation using floating point arithmetic, which is harder to design well and secure. While recent work proposed a solution to mask the addition and the multiplication, some roadblocks remains, most noticeably how to protect the floor function. In this work we propose several method to protect the computation of the floor function. We provide mathematical proofs of our methods as well as formal security proof. We also discuss their application to the FALCON Signature.
+With the ongoing standardization of new POst-Quantum Cryptography (PQC) primitives by the National Institute of Standards and Technology (NIST), it is important to investigate the robustness of new designs to Side Channel Analysis (SCA). Amongst those future standards is Falcon, a lattice-based signature which relies of rational numbers. It thus requires an implementation using floating point arithmetic, which is harder to design well and secure. While recent work proposed a solution to mask the addition and the multiplication, some roadblocks remains, most noticeably how to protect the floor function. In this work we propose several methods to protect the computation of the floor function. We provide mathematical proofs of our methods as well as formal security proof in the probing model using the Non-Interference concepts. We also discuss their application to the FALCON Signature.
 
 \keywords{Floor Function \and Floating-Point Arithmetic \and Post-Quantum Cryptography \and FALCON \and Side-Channel Analysis \and Masking}
 \end{abstract}
@@ -87,14 +88,21 @@ Finally, we provide some performances of our methods and compare them with the r
 \subsection{FALCON Sign}
 FALCON \cite{prest2020falcon} is a Lattice-Based signature using the GPV framework over the NTRU problem. In this paper we will focus on the Gaussian Sampler used in the signature algorithm. For more details on the key generation or the verification, please refer to the reference paper \cite{prest2020falcon}.
 
-\medskip
+\subsubsection{Signature} The signature follows the Hash-Then-Sign strategy. The message $m$ is salted with a random value $r$ and then hashed into a challenge $c$. The remainder of the signature aims at building an instance of the SIS problem upon $c$ and a public key $h$, \emph{id est} finding $\vec{s} =(s_1,s_2)$ such as $s_1 + s_2 h = c$. To do so, the need to compute $\vec{s} = (\vec{t}-\vec{z})\mathbf{B}$, with $\vec{t}$ a pre-image vector and $\vec{z}$ provided by a Gaussian Sampler. Chen and Chen \cite{Chen_Chen_2024} focuses on masking the pre-image vector computation. In this work we intend to mask the Gaussian Sampler. The signature algorithm is detailled in Algorithm \ref{alg:falconsign}:
 
-\noindent The signature follows the Hash-Then-Sign strategy. The message $m$ is salted with a random value $r$ and then hashed into a challenge $c$. The remainder of the signature aims at building an instance of the SIS problem upon $c$ and a public key $h$, \emph{id est} finding $\vec{s} =(s_1,s_2)$ such as $s_1 + s_2 h = c$. To do so, the need to compute $\vec{s} = (\vec{t}-\vec{z})\mathbf{B}$, with $\vec{t}$ a pre-image vector and $\vec{z}$ provided by a Gaussian Sampler. Chen and Chen \cite{Chen_Chen_2024} focuses on masking the pre-image vector computation. In this work we intend to mask the Gaussian Sampler. The signature algorithm is detailled in Algorithm 
+\begin{algorithm}[H]
+  \caption{FALCON Sign \cite{prest2020falcon}}
+  \label{alg:falconsign}
+\end{algorithm}
 
-
+\subsubsection{Gaussian Sampler}
 
 
 \subsection{Floor Function}
+The floor function is defined as follows:
+\begin{definition}\label{def:floorfunction}
+  $\forall x \in \mathbb{R}$, the floor function of $x$, denoted by $\lfloor x \rfloor$, returns the greatest integer $z$ such as $z\leq x$.
+\end{definition}
 \subsection{Masking}
 
 \section{Masking of the Floor Function}\label{sec:maskfloor}
@@ -102,7 +110,8 @@ FALCON \cite{prest2020falcon} is a Lattice-Based signature using the GPV framewo
 \subsection{The T-Method}
 
 \section{Application to FALCON}\label{sec:appfalcon}
-
+\subsection{Hybrid Method for the Floor Function}
+\subsection{Masking the Gaussian Sampler}
 \section{Performances}\label{sec:perf}
 
 \section{Conclusion}\label{sec:conclusion}
