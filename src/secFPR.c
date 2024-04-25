@@ -69,7 +69,7 @@ void SecFPR(MaskedB x, MaskedB s, MaskedA e, MaskedB z){
     SecAdd(eb,ea,b,(1<<16),4,MASKSIZE);
     RefreshXOR(eb,eb,(1<<16),MASKSIZE);
     RefreshXOR(s,s,1,MASKSIZE);
-    for(size_t i = 0; i < MASKSIZE ;i++) xb[i] = (s[i]&1 << 63) ^ ((eb[i]&(0x7ff))<<52)^((za[i]&0x3ffffffffffff8)>>2);
+    for(size_t i = 0; i < MASKSIZE ;i++) xb[i] = ((uint64_t)(s[i]&1) << 63) ^ ((eb[i]&(0x7ff))<<52)^((za[i]&0x3ffffffffffff8)>>2);
     for(size_t i = 0; i < MASKSIZE; i++) {eb[i] = za[i]&1; b[i] = (za[i]&(1<<2))>>2;}
     RefreshXOR(eb,eb,1,MASKSIZE);
     SecOr(ea,eb,b);
