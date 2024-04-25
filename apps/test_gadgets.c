@@ -168,7 +168,7 @@ int main(int *argc, char **argv){
     A2 = randmod(MODULO);
     MaskA(a2,A2,MODULO);
     //a2[0] = 0; a2[1] = 0; a2[2] = 0;
-    A2B(b2,a2,MODULO,MASKSIZE);
+    A2B(b2,a2,MODULO);
     UnmaskB(&resB,b2,MASKSIZE);
     resB%=MODULO;
 

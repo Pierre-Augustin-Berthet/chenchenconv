@@ -184,7 +184,14 @@ void RefreshMasks(MaskedB out, int size){
 }
 void    Refresh             (); //ATTENTION ON DOIT POUVOIR CHOISIR QUELLES SHARES ON REFRESH
 
-void A2B(uint64_t *out, uint64_t *in, uint64_t mod, int size){
+void A2B(MaskedB out, MaskedA in, uint64_t mod){
+    A2B_rec(out, in, mod, MASKSIZE);
+    for (int i =0; i<MASKSIZE; i++){
+        out[i] = out[i] % mod;
+    }
+}
+
+void A2B_rec(uint64_t *out, uint64_t *in, uint64_t mod, int size){
     if(size==1){
         out[0] = in[0];
         return;
@@ -196,8 +203,8 @@ void A2B(uint64_t *out, uint64_t *in, uint64_t mod, int size){
     for(size_t i = 0; i < size/2; i++){down[i] = in[i];}
     for(size_t i = 0; i < size-size/2; i++){ up[i] = in[i+size/2];}
 
-    A2B(y,down,mod,size/2);
-    A2B(z,up,mod,size-size/2);
+    A2B_rec(y,down,mod,size/2);
+    A2B_rec(z,up,mod,size-size/2);
 
     for(size_t i = size/2; i<size;i++){y[i] = 0;}
     for(size_t i = size-size/2;i<size;i++){z[i] = 0;}

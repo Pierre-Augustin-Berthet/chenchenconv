@@ -52,14 +52,14 @@ int main(int *argc, char **argv){
 
     fprintf(OUTPUT,"\n-----------------FprUrsh-----------------\n");
 
-    uint64_t a, b, i_out;
-    a = 55;
-    b = 19;
+    uint64_t a, b, i_out, res;
+    a = ((uint64_t)1)<<50;
+    b = 5;
 
     MaskedB outb, inb;
     MaskedA ina;
 
-    MaskA(ina, b, ((uint64_t)1<<6));
+    MaskA(ina, b, ((uint64_t)1<<16));
     MaskB(inb, a);
     
 
@@ -78,9 +78,15 @@ int main(int *argc, char **argv){
 
     MaskA(ina, b, ((uint64_t)1<<16));
     
-    inb[0] = 5;
+    inb[0] = (uint64_t)1<<52;
     inb[1] = 0;
     inb[2] = 0;
+
+    UnmaskA(&i_out, ina, ((uint64_t)1<<16));
+
+    printf("in_a = %lu\n", i_out);
+    print_binary_form(i_out);
+    printf("\n");
 
 
     SecFprNorm64(inb, ina, ((uint64_t)1<<16) );
@@ -91,12 +97,6 @@ int main(int *argc, char **argv){
     print_binary_form(i_out);
     printf("\n");
 
-    for (int i = 0; i<MASKSIZE; i++){
-        uint64_t temp = inb[i]>>63;
-        printf("temp = %lu\n", temp);
-        printf("e = %lu\n", ina[i]);
-    }
-
     UnmaskB(&i_out, inb, MASKSIZE);
     printf("i_out = %lu\n", i_out);
     print_binary_form(i_out);
@@ -105,24 +105,57 @@ int main(int *argc, char **argv){
     fprintf(OUTPUT,"\n-----------------FprAdd------------------\n");
 
 
-    inb[0] = 0;
+    inb[0] = 0x422E2F5DC41C0000;//((uint64_t)2<<50) + ((uint64_t)0<<63) + ((uint64_t)1025<<52);
+    print_binary_form(((uint64_t)1026<<52));
+    printf("\ninb[0] = %lu\n", inb[0]);
+    print_binary_form(inb[0]);
+    printf("\n");
     inb[1] = 0;
     inb[2] = 0;
 
     MaskedB inb2;
-    int mod = 2;
+    int mod = (1<<16);
 
-    inb2[0] = ((uint64_t)1<<63)+1;
+    inb2[0] = 0x4014000000000000;//((uint64_t)0<<50) + ((uint64_t)0<<63) + ((uint64_t)1024<<52);
     inb2[1] = 0;
     inb2[2] = 0;
 
     SecFprAdd(outb, inb, inb2, mod); 
 
+    fprintf(OUTPUT,"\n-----------------FprTrunc----------------\n");
+
+    printf("TEST SecFprTrunc(5,5)\n");
+    inb[0] = 0x3FD999999999999A;//((uint64_t)0<<51) + ((uint64_t)0 <<63) + ((uint64_t)1022<<52);
+    printf("inb[0] = %lu\n", inb[0]);
+    print_binary_form(inb[0]);
+    printf("\n");
+    inb[1] = 0;
+    inb[2] = 0;
+
+    SecFprTrunc(inb2, inb);
+    UnmaskB(&res, inb2, MASKSIZE);
+    printf("trunc = %lu\n", res);
+    print_binary_form(res);
+    printf("\n\n\n");
+
+    SecFprFloor(inb2, inb);
+    UnmaskB(&res, inb2, MASKSIZE);
+    printf("floor = %lu\n", res);
+    print_binary_form(res);
+    printf("\n\n\n");
+
+    SecFprRound(inb2, inb);
+    UnmaskB(&res, inb2, MASKSIZE);
+    printf("round = %lu\n", res);
+    print_binary_form(res);
+    printf("\n\n\n");
 
     exit(0);
 }
 //00000 00000 00000 00000 00000 00000 000
 //00000 00000 00000 00000 00000 00000 00
 //00000 00000 00000 00000 00000 00000 01 .... 
+//00011 10100 01100 01110 11000
 //La fonction SecNonZero regarde seulement les 32 premiers bits.
 
+//1 000010111010111010000000000000000000000000000000000000000000000

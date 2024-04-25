@@ -28,7 +28,8 @@ void    SecMult             (MaskedA out, MaskedA ina, MaskedA inb, uint64_t mod
 void    RefreshMasks        (MaskedB out, int size);
 void    Refresh             ();
 
-void    A2B                 (MaskedB out, MaskedA in, uint64_t mod, int size);
+void    A2B                 (MaskedB out, MaskedA in, uint64_t mod);
+void    A2B_rec             (MaskedB out, MaskedA in, uint64_t mod, int size);
 void    B2A                 (MaskedA out, MaskedB in, uint64_t mod, int size);
 void    B2A_bit             (MaskedA A, MaskedB x, uint64_t mod);
 void    B2A_bit_j           (MaskedA C, MaskedA A, uint64_t xn, uint64_t mod, int n);

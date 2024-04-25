@@ -16,4 +16,9 @@ void SecFprMul(MaskedB out, MaskedB x, MaskedB y, uint64_t mod);
 
 void SecFprAdd(MaskedB out, MaskedB in1, MaskedB in2, uint64_t mod);
 
+
+void SecFprTrunc(MaskedB out, MaskedB in);
+void SecFprFloor(MaskedB out, MaskedB in);
+void SecFprRound(MaskedB out, MaskedB in);
+
 #endif
