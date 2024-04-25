@@ -72,7 +72,7 @@ With the rise of quantum computing, mathematical problems which were hard to sol
 The Gaussian sampler is vulnerable to timing attacks, as shown by previous work \cite{10.1007/978-3-662-53140-2_16,10.1145/3133956.3134028,cryptoeprint:2019/478,10.1145/3133956.3134023}. A isochronous design was proposed by Howe et al. \cite{10.1007/978-3-030-44223-1_4}. However, a successful single power analysis (SPA) was proposed by Guerreau et al. \cite{Guerreau_Martinelli_Ricosset_Rossi_2022} and further improved by Zhang et al. \cite{10.1007/978-3-031-30634-1_19}. There is currently no masking countermeasure for FALCON's Gaussian Sampler. Existing work \cite{10.1007/978-3-031-07082-2_9} tends to re-write the Gaussian Sampler to remove the use of floating arithmetic, thus avoiding the challenge of masking the floor function. 
 
 \subsubsection{Our Contribution}
-In this work we further expand the countermeasure from Chen and Chen \cite{Chen_Chen_2024} and apply it to the Gaussian Sampler. We propose two generic methods to arithmetize the computation of the floor function, a necessary step towards its masking. Then we propose a hybrid method to effectively mask the floor function in the case of FALCON.
+In this work we further expand the countermeasure from Chen and Chen \cite{Chen_Chen_2024} and apply it to the Gaussian Sampler. We propose a masking method based on the mantissa truncation to compute the floor function. We also propose a generic method to arithmetize the computation of the floor function. We discuss the application of both methods to masking FALCON.
 
 \medskip
 
@@ -98,19 +98,40 @@ FALCON \cite{prest2020falcon} is a Lattice-Based signature using the GPV framewo
 \subsubsection{Gaussian Sampler}
 
 
-\subsection{Floor Function}
+\subsection{Floor Function}\label{subsec:floorfunction}
 The floor function is defined as follows:
 \begin{definition}\label{def:floorfunction}
   $\forall x \in \mathbb{R}$, the floor function of $x$, denoted by $\lfloor x \rfloor$, returns the greatest integer $z$ such as $z\leq x$.
 \end{definition}
+There are several ways of computing the floor function. The first one relies on floating-point arithmetic. A floating-point is composed of a sign bit, exponent bits and a mantissa \cite{kahan1996ieee}. Computing the floor function on a floating-point is performed by truncating the mantissa according to the value of the exponent and of the sign. However, while this method is fast and efficient, it requires the use of the exponent and the sign. In this work we will present a method to perform this truncation in a secure manner.
+
+\medskip
+
+\noindent Another way of computing the floor function is to use its associated Fourier series:\begin{equation}\label{eq:floorfourier}
+  \forall x \in \mathbb{R}\backsim \mathbb{Z}, \lfloor x\rfloor = x - \frac{1}{2} + \frac{1}{\pi}\sum_{k=1}^n \frac{sin(2\pi kx)}{k},\text{ with }n\rightarrow \infty
+\end{equation}
+However, due to its discontinuities, Equation \ref{eq:floorfourier} suffers from the Gibbs phenomenon \cite{8e44e918-40ae-3857-bb25-dc12ccf9e7c3}, as illustrated in Figure . 
+\begin{figure}[!h]
+  \includegraphics[width=\textwidth]{figure/gibbsphenomenon.png}
+  \label{fig:gibbs}
+  \caption{Gibbs phenomenon for Equation \ref{eq:floorfourier} with $n=$\textcolor{red}{5},\textcolor{blue}{10},\textcolor{green}{50} and floor(x) in black}
+\end{figure}
+It means this series cannot be used as it is to mask the floor function in reasonable time. Indeed, we extrapolate through empirical observations that we would require $n=2.5\times 10^{13}$ to have at least one digit of precision on the floor computation of $1\times 10^{-16}$. Nonetheless, we will see in this work how we can adapt this Fourier series to compute the floor function in a secure way and in reasonable time with the required precision.
 \subsection{Masking}
 
 \section{Masking of the Floor Function}\label{sec:maskfloor}
-\subsection{The B-Method}
-\subsection{The T-Method}
+\subsection{Arithmetization method}
+\subsubsection{Overall Strategy} The floor function can be arithmetized using Equation \ref{eq:floorfourier}. However, as stated in Section \ref{subsec:floorfunction}, this method cannot be performed in reasonable time. We thus elaborate a strategy to optimize this arithmetization.
+
+\medskip
+
+\noindent The first idea relies on constructing the floor of $x\in\mathbb{R}$ rather than computing it. Indeed, if we can compute the floor of $x$ with one decimal of precision, we can then multiply the result by $10$ and then reapply our computation to the new value $y=10\times \lfloor x\rfloor_1$
+\subsubsection{Visual Proof}
+
+\subsection{Truncation method}
 
 \section{Application to FALCON}\label{sec:appfalcon}
-\subsection{Hybrid Method for the Floor Function}
+\subsection{Masked Floor Function For FALCON}
 \subsection{Masking the Gaussian Sampler}
 \section{Performances}\label{sec:perf}
 
