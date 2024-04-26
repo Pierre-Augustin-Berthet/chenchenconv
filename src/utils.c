@@ -17,6 +17,7 @@ uint64_t rand64(void){
  }
 
  uint64_t randmod(uint64_t mod){
+  if(mod == 0) return rand64();
   return rand()%mod;
  }
 
@@ -42,12 +43,12 @@ uint64_t mulq(uint64_t ina, uint64_t inb, uint64_t mod){
 }
 
 
-void Mult128(uint64_t * out, uint64_t* in){
+void Mult128(uint64_t out1, uint64_t out2, uint64_t in1, uint64_t in2){
     uint64_t a1, a2, b1, b2;
-    a1 = in[0]>>32;
-    a2 = in[0]& 0xffffffff;
-    b1 = in[1]>>32;
-    b2 = in[1]& 0xffffffff;
+    a1 = in1>>32;
+    a2 = in1& 0xffffffff;
+    b1 = in2>>32;
+    b2 = in2& 0xffffffff;
 
     uint64_t mult11, mult12, mult21, mult22;
 
@@ -58,14 +59,18 @@ void Mult128(uint64_t * out, uint64_t* in){
 
     uint64_t add1, carry;
 
-    out[0] = mult22 & 0xffffffff;
-    out[1] = mult11 + (mult12>>32) + (mult21>>32);
+    out1 = mult22 & 0xffffffff;
+    out2 = mult11 + (mult12>>32) + (mult21>>32);
 
     add1  = (mult22>>32) + (mult12 & 0xffffffff) + (mult21 & 0xffffffff);
     carry = (add1 >>32);
 
-    out[1] += carry;
+    out1 += carry;
 
-    out[0] += add1 <<32;
+    out2 += add1 <<32;
+
+}
+
+void Add128(uint64_t out1, uint64_t out2, uint64_t in11, uint64_t in12, uint64_t in21, uint64_t in22){
 
 }

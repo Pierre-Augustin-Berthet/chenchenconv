@@ -115,11 +115,42 @@ void SecMult(MaskedA out, MaskedA ina, MaskedA inb, uint64_t mod){
 }
 
 /*------------------------------------------------
+SecMult128   :   Secure multiplication mod a power of 2 at order MASKORDER
+input        :   Arithmetic maskings ina,inb (MaskedA), Modulo mod (uint64_t)
+output       :   Arithmetic maskings out1,out2 (MaskedA)
+------------------------------------------------*/
+void SecMult128(MaskedA out1,MaskedA out2, MaskedA ina, MaskedA inb){
+    uint64_t r[MASKSIZE][MASKSIZE];
+    uint64_t r1[MASKSIZE][MASKSIZE];
+    uint64_t temp,temp1;
+    for(size_t i = 0; i<MASKSIZE; i++)  Mult128(out1[i],out2[i],ina[i],inb[i]);//out[i] = mulq(ina[i],inb[i],mod);
+    for(size_t i = 0; i <MASKSIZE-1; i++){
+        for(size_t j = i+1; j<MASKSIZE;j++){
+            r[i][j] = rand64();
+            r1[i][j] = rand64();
+            Mult128(temp,temp1,ina[i],inb[j]);
+            Add128(r[j][i],r1[j][i],temp,temp1,r[i][j],r1[i][j]);
+            //r[j][i] = addq(r[i][j],mulq(ina[i],inb[j],mod),mod);
+            Mult128(temp,temp1,ina[j],inb[i]);
+            Add128(r[j][i],r1[j][i],temp,temp1,r[j][i],r1[j][i]);
+            //r[j][i] = addq(r[j][i],mulq(ina[j],inb[i],mod),mod);
+            Add128(temp,temp1,~r[i][j],~r1[i][j],0,1); //Negation de r[i][j][2]
+            Add128(out1[i],out2[i],out1[i],out2[i],temp,temp1);
+            //out[i] = subq(out[i],r[i][j],mod);
+            Add128(out1[j],out2[j],out1[j],out2[j],r[j][i],r1[j][i]);
+            //out[j] = addq(out[j],r[j][i],mod);
+        }
+    }
+}
+
+/*------------------------------------------------
 RefreshXOR:   XOR with Refresh for SecAdd at order MASKORDER
 input     :   Boolean masking in (MaskedB), 
               Modulo k2 (uint64_t),
               Size size(int)
 output    :   Boolean masking out (MaskedB)
+IMPORTANT NOTE
+    To refresh all 64 bits, use k2 = 0
 ------------------------------------------------*/
 void RefreshXOR(MaskedB out, MaskedB in, uint64_t k2, int size){
     uint64_t r;

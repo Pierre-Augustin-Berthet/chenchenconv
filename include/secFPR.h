@@ -12,7 +12,7 @@ void SecFprUrsh2(MaskedB out, MaskedB in, MaskedA c);
 void SecFprNorm64(MaskedB x, MaskedA e, uint64_t);
 
 void SecFPR(MaskedB x, MaskedB s, MaskedA e, MaskedB m);
-void SecFprMul(MaskedB out, MaskedB x, MaskedB y, uint64_t mod);
+void SecFprMul(MaskedB out, MaskedB x, MaskedB y);
 
 void SecFprAdd(MaskedB out, MaskedB in1, MaskedB in2, uint64_t mod);
 

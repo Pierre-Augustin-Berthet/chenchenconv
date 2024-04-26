@@ -139,16 +139,42 @@ SecFprNorm64(MaskedB out, MaskedA e, uint64_t mod){
     }
 }
 
-void SecFprMul(MaskedB out, MaskedB x, MaskedB y, uint64_t mod){
-    MaskedB s,sx,sy,e,ex,ey,p,mx,my,b,z,z2,w,bx,by,d;
-    //TO DO Extract sx,ex,mx,sy,ey,my
+void SecFprMul(MaskedB out, MaskedB x, MaskedB y){
+    MaskedB s,sx,sy,p1,p2,b,z,z2,w,bx,by,d,ebx,eby;
+    MaskedA e,ex,ey,wa,p3,p4,mx,my;
+    for(size_t i =0; i < MASKSIZE;i++){
+        sx[i] = (x[i]>>63);
+        sy[i] = (y[i]>>63);
+        ex[i] = ((x[i]<<1)>>53);
+        ey[i] = ((y[i]<<1)>>53);
+        mx[i] = x[i] & 0xfffffffffffff;
+        my[i] = y[i] & 0xfffffffffffff;
+    }
+    
     for(size_t i= 0; i <MASKSIZE; i++) s[i] = sx[i]^sy[i];
     e[0] = ex[0] + ey[0] -2100;
-    for(size_t i=1;i<MASKSIZE;i++) e[i] = ex[i] + ey[i];
-    SecMult(d,mx,my,mod);//ATTENTION 128bits!!!
-    A2B(p,d,mod,MASKSIZE); //ATTENTION 128bits!!!!
-    for(size_t i =0; i<MASKSIZE;i++) w[i] = (p[i] <<(63-51))>>(63-51); //ATTENTION 128bits!!!
+    for(size_t i =1;i < MASKSIZE;i++) e[i] = ex[i] + ey[i];
+    SecMult128(p3,p4,mx,my);//ATTENTION 128bits!!!
+    A2B128(p1,p2,p3,p4,MASKSIZE); //ATTENTION 128bits!!!!
+    for(size_t i =0; i < MASKSIZE;i++) w[i] = p2[i] & 0x7ffffffffffff;
     SecNonZeroB(b,w);
+    for(size_t i =0; i < MASKSIZE;i++) z[i] = (p2[i]>>50)^((p1[i]&0xffffffffff)<<13);
+    for(size_t i =0; i < MASKSIZE;i++) z2[i] = (p2[i]>>51)^((p1[i]&0x1ffffffffff)<<12)^z[i];
+    for(size_t i =0; i < MASKSIZE;i++) w[i] = (p2[i]>>42)&1;
+    for(size_t i =0; i < MASKSIZE;i++) d[i] = -w[i];
+    RefreshXOR(d,d,0,MASKSIZE);
+    SecAnd(z2,z2,d,MASKSIZE);
+    for(size_t i =0; i < MASKSIZE;i++) z[i] ^= z2[i];
+    SecOr(z,z,b);
+    B2A_bit(w,w,(1<<16));
+    A2B(ebx,ex,(1<<16),MASKSIZE);
+    A2B(eby,ey,(1<<16),MASKSIZE);
+    SecNonZeroB(bx,ebx);
+    SecNonZeroB(by,eby);
+    SecAnd(d,bx,by,MASKSIZE);
+    for(size_t i =0; i < MASKSIZE;i++) bx[i] = -(d[i]&1);
+    SecAnd(z,z,bx,MASKSIZE);
+    SecFPR(out,s,e,z);
 }
 
 
@@ -194,7 +220,8 @@ Just one question here : which parameters must I choose for this function.
     SecNonZeroB(b, dp);
 /* Check this part
 Here the result must be 0 or 1 : 0 if in1 = in2, 1 if not.
-*////*
+*///
+/*
     UnmaskB(&res, dp, MASKSIZE);
     printf("dp = %lu ------> ", res);
     print_binary_form(res);
@@ -210,6 +237,7 @@ Here the result must be 0 or 1 : 0 if in1 = in2, 1 if not.
 /* Check this part
 NOT YET : TO DO -- TEST
 */
+/*
     UnmaskB(&res, dp, MASKSIZE);
 
     printf("dp = %lu ------> ", res);
