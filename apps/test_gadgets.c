@@ -203,43 +203,5 @@ int main(int *argc, char **argv){
 
         printf("------------> RES B2A_bit = %lu\n", res);
     }
-
-    fprintf(OUTPUT,"\n-----------------Mult128-----------------\n");
-
-    uint64_t a = (uint64_t)1<<63;
-
-    for (int i = 1 ; i<64; i++){
-        uint64_t b = (uint64_t)1<<i;
-
-        uint64_t intab[2] = {a, b};
-
-        uint64_t out[2] = {0,0};
-
-        Mult128(out, intab);
-
-        printf("out[0] = %lu \n", out[0] );
-        printf("out[1] = %lu \n", out[1] );
-
-    }
-    uint64_t b = (uint64_t)1<<1;
-
-    printf("\n\n\n");
-
-    a = 100654132587456132;
-    b = 156321574565181561;
-
-    uint64_t intab[2] = {a, b};
-
-    uint64_t out[2] = {0,0};
-
-    Mult128(out, intab);
-
-    printf("out[0] = %lu \n", out[0] );
-    printf("out[1] = %lu \n", out[1] );
-
-    fprintf(OUTPUT,"\n-----------------t=t&c-----------------\n");
-
-  
-
     return 0;
 }

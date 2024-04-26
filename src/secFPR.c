@@ -150,12 +150,12 @@ void SecFprMul(MaskedB out, MaskedB x, MaskedB y){
         mx[i] = x[i] & 0xfffffffffffff;
         my[i] = y[i] & 0xfffffffffffff;
     }
-    
+
     for(size_t i= 0; i <MASKSIZE; i++) s[i] = sx[i]^sy[i];
     e[0] = ex[0] + ey[0] -2100;
     for(size_t i =1;i < MASKSIZE;i++) e[i] = ex[i] + ey[i];
     SecMult128(p3,p4,mx,my);//ATTENTION 128bits!!!
-    A2B128(p1,p2,p3,p4,MASKSIZE); //ATTENTION 128bits!!!!
+    //A2B128(p1,p2,p3,p4,MASKSIZE); //ATTENTION 128bits!!!!
     for(size_t i =0; i < MASKSIZE;i++) w[i] = p2[i] & 0x7ffffffffffff;
     SecNonZeroB(b,w);
     for(size_t i =0; i < MASKSIZE;i++) z[i] = (p2[i]>>50)^((p1[i]&0xffffffffff)<<13);

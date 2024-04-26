@@ -16,3 +16,7 @@ target_link_libraries(test_gadgets toto m)
 
 add_executable(test_secfpr apps/test_secfpr.c)
 target_link_libraries(test_secfpr toto m)
+
+
+add_executable(test_utils apps/test_utils.c)
+target_link_libraries(test_utils toto m)
