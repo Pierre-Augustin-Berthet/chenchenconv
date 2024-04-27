@@ -29,11 +29,13 @@ uint64_t rand64(void){
  }
   
 uint64_t addq(uint64_t ina, uint64_t inb, uint64_t mod){
+  if(mod==0) return ina + inb;
   return (ina + inb) % mod;
 }
  
 
 uint64_t subq(uint64_t ina, uint64_t inb, uint64_t mod){
+  if(mod==0) return ina-inb;
   uint64_t res = (ina - inb) % mod;
   return (res<0) ? res + mod : res;
 }
@@ -53,10 +55,24 @@ void Mult128(uint64_t *out1, uint64_t *out2, uint64_t in1, uint64_t in2){
     uint64_t mult11, mult12, mult21, mult22;
 
     mult11 = a1 * b1;
+  //printf("\n%lu *%lu = %lu\n",a1,b1,mult11);
     mult12 = a1 * b2;
     mult21 = a2 * b1;
     mult22 = a2 * b2;
+  //printf("\n%lu *%lu = %lu\n",a2,b2,mult22);
 
+  *out2 = mult11;
+  //printf("\n%lu\n",*out2);
+  *out1 = mult22&0xffffffff;
+  //printf("\n%lu\n",*out1);
+  uint64_t addlow, addup;
+
+  addlow = (mult12&0xffffffff) + (mult21&0xffffffff)+(mult22>>32);
+  //printf("\n%lu\n",mult22>>32);
+  addup = (mult12>>32) + (mult21>>32) + ((addlow>>32)&0x3);
+  *out1 += addlow<<32;
+  *out2 += addup;
+/*
     uint64_t add1, carry;
 
     *out1 = mult22 & 0xffffffff;
@@ -68,7 +84,7 @@ void Mult128(uint64_t *out1, uint64_t *out2, uint64_t in1, uint64_t in2){
     *out1 += carry;
 
     *out2 += add1 <<32;
-
+*/
 }
 
 void Add128(uint64_t *out1, uint64_t *out2, uint64_t in11, uint64_t in12, uint64_t in21, uint64_t in22){

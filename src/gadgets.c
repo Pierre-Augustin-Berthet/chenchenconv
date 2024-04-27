@@ -123,21 +123,21 @@ void SecMult128(MaskedA out1,MaskedA out2, MaskedA ina, MaskedA inb){
     uint64_t r[MASKSIZE][MASKSIZE];
     uint64_t r1[MASKSIZE][MASKSIZE];
     uint64_t temp,temp1;
-    for(size_t i = 0; i<MASKSIZE; i++)  Mult128(out1[i],out2[i],ina[i],inb[i]);//out[i] = mulq(ina[i],inb[i],mod);
+    for(size_t i = 0; i<MASKSIZE; i++)  Mult128(&out2[i],&out1[i],ina[i],inb[i]);//out[i] = mulq(ina[i],inb[i],mod);
     for(size_t i = 0; i <MASKSIZE-1; i++){
         for(size_t j = i+1; j<MASKSIZE;j++){
             r[i][j] = rand64();
             r1[i][j] = rand64();
-            Mult128(temp,temp1,ina[i],inb[j]);
-            Add128(r[j][i],r1[j][i],temp,temp1,r[i][j],r1[i][j]);
+            Mult128(&temp1,&temp,ina[i],inb[j]);
+            Add128(&r[j][i],&r1[j][i],temp,temp1,r[i][j],r1[i][j]);
             //r[j][i] = addq(r[i][j],mulq(ina[i],inb[j],mod),mod);
-            Mult128(temp,temp1,ina[j],inb[i]);
-            Add128(r[j][i],r1[j][i],temp,temp1,r[j][i],r1[j][i]);
+            Mult128(&temp1,&temp,ina[j],inb[i]);
+            Add128(&r[j][i],&r1[j][i],temp,temp1,r[j][i],r1[j][i]);
             //r[j][i] = addq(r[j][i],mulq(ina[j],inb[i],mod),mod);
-            Add128(temp,temp1,~r[i][j],~r1[i][j],0,1); //Negation de r[i][j][2]
-            Add128(out1[i],out2[i],out1[i],out2[i],temp,temp1);
+            Add128(&temp,&temp1,~r[i][j],~r1[i][j],0,1); //Negation de r[i][j][2]
+            Add128(&out1[i],&out2[i],out1[i],out2[i],temp,temp1);
             //out[i] = subq(out[i],r[i][j],mod);
-            Add128(out1[j],out2[j],out1[j],out2[j],r[j][i],r1[j][i]);
+            Add128(&out1[j],&out2[j],out1[j],out2[j],r[j][i],r1[j][i]);
             //out[j] = addq(out[j],r[j][i],mod);
         }
     }
@@ -200,6 +200,59 @@ void SecAdd(uint64_t *out, uint64_t *ina, uint64_t* inb, uint64_t k, uint64_t lo
 }
 
 /*------------------------------------------------
+SecAdd128 :   Secure addition at order MASKORDER
+input     :   Boolean maskings ina1,ina2, inb1,inb2 (MaskedB),
+              Number of shares size (int)
+output    :   Arithmetic masking out (MaskedB)
+------------------------------------------------*/
+void SecAdd128(uint64_t *out1,uint64_t *out, uint64_t *ina1,uint64_t *ina, uint64_t* inb1,uint64_t *inb,int size){
+    uint64_t p[size],g[size],a[size],a2[size];
+    uint64_t p1[size],g1[size],a1[size],a21[size];
+    int pow=1;
+    for(size_t i = 0; i<size; i++){ 
+        p[i] = ina[i] ^ inb[i];
+        p1[i] = ina1[i] ^inb1[i];
+    }
+    SecAnd(g,ina,inb,size);
+    SecAnd(g1,ina1,inb1,size);
+    for(size_t j = 0; j<8-1; j++){
+        for(size_t i = 0; i<size; i++){
+            a[i] = g[i] << pow;
+            a1[i] = (g1[i] << pow)^(g[i]>>(64-pow));
+        }
+        SecAnd(a2,a,p,size);
+        SecAnd(a21,a1,p1,size);
+        for(size_t i =0; i<size; i++) {
+            g[i] ^= a2[i];
+            g1[i] ^= a21[i];
+            a2[i] = p[i] << pow;
+            a21[i] = (p1[i]<<pow)^(p[i]>>(64-pow));
+        }
+        RefreshXOR(a2,a2,0,size);
+        RefreshXOR(a21,a21,0,size);
+        SecAnd(a,p,a2,size);
+        SecAnd(a1,p1,a21,size);
+        for(size_t i = 0; i < size; i++) {
+            p[i] = a[i];
+            p1[i] = a1[i];
+        }
+        pow *= 2;
+    }
+    for(size_t i = 0; i<size; i++) {
+        a[i] = g[i] << pow;
+        a1[i] = (g1[i] << pow)^(g[i]>>(64-pow));
+    }
+    SecAnd(a2,a,p,size);
+    SecAnd(a21,a1,p1,size);
+    for(size_t i = 0; i<size; i++){
+        g[i] ^= a2[i];
+        g1[i] ^= a21[i];
+        out[i] = ina[i]^inb[i]^(g[i]<<1);
+        out1[i] = ina1[i]^inb1[i]^(g1[i]<<1)^(g[i]>>63);
+    }
+}
+
+/*------------------------------------------------
 RefreshMasks :   NI-Refresh at order MASKORDER
 input        :   Boolean masking out (MaskedB),
                  Amount of shares refreshed size (int)
@@ -236,6 +289,39 @@ void A2B(uint64_t *out, uint64_t *in, uint64_t mod, int size){
     RefreshXOR(y,y,mod,size);
     RefreshXOR(z,z,mod,size);
     SecAdd(out,z,y,mod,4,size);
+    }
+}
+
+void A2B128(uint64_t *out1,uint64_t *out2, uint64_t *in1, uint64_t *in2, int size){
+    if(size==1){
+        out1[0] = in1[0];
+        out2[0] = in2[0];
+        return;
+    }
+    else{
+    uint64_t up[size-size/2],down[size/2];
+    uint64_t up1[size-size/2],down1[size/2];
+    uint64_t y[size],z[size];
+    uint64_t y1[size],z1[size];
+
+    for(size_t i = 0; i < size/2; i++){down[i] = in1[i];}
+    for(size_t i = 0; i < size-size/2; i++){ up[i] = in1[i+size/2];}
+    for(size_t i = 0; i < size/2; i++){down1[i] = in2[i];}
+    for(size_t i = 0; i < size-size/2; i++){ up1[i] = in2[i+size/2];}
+
+    A2B128(y,y1,down,down1,size/2);
+    A2B128(z,z1,up,up1,size-size/2);
+
+    for(size_t i = size/2; i<size;i++){y[i] = 0;}
+    for(size_t i = size-size/2;i<size;i++){z[i] = 0;}
+    for(size_t i = size/2; i<size;i++){y1[i] = 0;}
+    for(size_t i = size-size/2;i<size;i++){z1[i] = 0;}
+
+    RefreshXOR(y,y,0,size);
+    RefreshXOR(z,z,0,size);
+    RefreshXOR(y1,y1,0,size);
+    RefreshXOR(z1,z1,0,size);
+    SecAdd128(out1,out2,z,z1,y,y1,size);
     }
 }
 
