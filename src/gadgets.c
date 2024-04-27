@@ -82,6 +82,28 @@ void MaskA(MaskedA out, uint64_t in, uint64_t mod){
     out[MASKORDER] = subq(in,r,mod);
 }
 
+
+/*------------------------------------------------
+MaskA128   :   Arithmetic Masking at order MASKORDER for 128bits
+input   :   sensitive data inup,indown (uint64_t)
+output  :   Arithmetic masking outup,outdown (MaskedA)
+------------------------------------------------*/
+void MaskA128(MaskedA outup,MaskedA outdown, uint64_t inup, uint64_t indown){
+    uint64_t rup=0;
+    uint64_t rdown=0;
+    uint64_t tempup,tempdown;
+    for(size_t i=0; i<MASKORDER; i++){
+        outup[i] = rand64();
+        outdown[i] = rand64();
+        Add128(&tempup,&tempdown,rup,rdown,outup[i],outdown[i]);
+        //r = addq(r,out[i],mod);
+        rup= tempup; rdown = tempdown;
+    }
+    Add128(&tempup,&tempdown,~rup,~rdown,0,1); //Negation de r
+    Add128(&outup[MASKORDER],&outdown[MASKORDER],inup,indown,tempup,tempdown);
+    //out[MASKORDER] = subq(in,r,mod);
+}
+
 /*------------------------------------------------
 UnmaskA   :   Arithmetic unmasking at order MASKORDER
 input     :   Arithmetic masking in (MaskedA), Modulo mod (uint64_t)
@@ -93,6 +115,24 @@ void UnmaskA(uint64_t *out, MaskedA in, uint64_t mod){
         r = addq(r,in[i],mod);
     }
     *out = addq(in[MASKORDER],r,mod)%mod;
+}
+
+/*------------------------------------------------
+UnmaskA128   :   Arithmetic unmasking at order MASKORDER with 128bits
+input     :   Arithmetic masking inup,indown (MaskedA)
+output    :   sensitive data outup,outdown (uint64_t)
+------------------------------------------------*/
+void UnmaskA128(uint64_t *outup,uint64_t *outdown, MaskedA inup,MaskedA indown){
+    uint64_t rup=0;
+    uint64_t rdown=0;
+    uint64_t tempup,tempdown;
+    for(size_t i=0; i<MASKORDER; i++){
+        Add128(&tempup,&tempdown,rup,rdown,inup[i],indown[i]);
+        rup=tempup;rdown=tempdown;
+        //r = addq(r,in[i],mod);
+    }
+    Add128(outup,outdown,rup,rdown,inup[MASKORDER],indown[MASKORDER]);
+    //*out = addq(in[MASKORDER],r,mod)%mod;
 }
 
 /*------------------------------------------------
@@ -119,27 +159,33 @@ SecMult128   :   Secure multiplication mod a power of 2 at order MASKORDER
 input        :   Arithmetic maskings ina,inb (MaskedA), Modulo mod (uint64_t)
 output       :   Arithmetic maskings out1,out2 (MaskedA)
 ------------------------------------------------*/
-void SecMult128(MaskedA out1,MaskedA out2, MaskedA ina, MaskedA inb){
-    uint64_t r[MASKSIZE][MASKSIZE];
-    uint64_t r1[MASKSIZE][MASKSIZE];
-    uint64_t temp,temp1;
-    for(size_t i = 0; i<MASKSIZE; i++)  Mult128(&out2[i],&out1[i],ina[i],inb[i]);//out[i] = mulq(ina[i],inb[i],mod);
+void SecMult128(MaskedA outup,MaskedA outdown, MaskedA ina, MaskedA inb){
+    uint64_t rup[MASKSIZE][MASKSIZE];
+    uint64_t rdown[MASKSIZE][MASKSIZE];
+    uint64_t tempup,tempdown,toutup,toutdown;
+    for(size_t i = 0; i<MASKSIZE; i++)  Mult128(&outup[i],&outdown[i],ina[i],inb[i]);//out[i] = mulq(ina[i],inb[i],mod);
     for(size_t i = 0; i <MASKSIZE-1; i++){
         for(size_t j = i+1; j<MASKSIZE;j++){
-            r[i][j] = rand64();
-            r1[i][j] = rand64();
-            Mult128(&temp1,&temp,ina[i],inb[j]);
-            Add128(&r[j][i],&r1[j][i],temp,temp1,r[i][j],r1[i][j]);
+            rup[i][j] = rand64();
+            rdown[i][j] = rand64();
+            Mult128(&tempup,&tempdown,ina[i],inb[j]);
+            Add128(&toutup,&toutdown,tempup,tempdown,rup[i][j],rdown[i][j]);
+            rup[j][i]=toutup;rdown[j][i] = toutdown;
             //r[j][i] = addq(r[i][j],mulq(ina[i],inb[j],mod),mod);
-            Mult128(&temp1,&temp,ina[j],inb[i]);
-            Add128(&r[j][i],&r1[j][i],temp,temp1,r[j][i],r1[j][i]);
+            Mult128(&tempup,&tempdown,ina[j],inb[i]);
+            Add128(&toutup,&toutdown,tempup,tempdown,rup[j][i],rdown[j][i]);
+            rup[j][i]=toutup;
+            rdown[j][i]=toutdown;
             //r[j][i] = addq(r[j][i],mulq(ina[j],inb[i],mod),mod);
-            Add128(&temp,&temp1,~r[i][j],~r1[i][j],0,1); //Negation de r[i][j][2]
-            Add128(&out1[i],&out2[i],out1[i],out2[i],temp,temp1);
+            Add128(&tempup,&tempdown,~rup[i][j],~rdown[i][j],0,1); //Negation de r[i][j][2]
+            //Add128(&outup,&outdown,r[i][j],r1[i][j],temp,temp1);
+            //printf("\n%lu - %lu vs %lu - %lu\n",outup,outdown,r[i][j],r1[i][j]);
+            Add128(&toutup,&toutdown,outup[i],outdown[i],tempup,tempdown);
             //out[i] = subq(out[i],r[i][j],mod);
-            Add128(&out1[j],&out2[j],out1[j],out2[j],r[j][i],r1[j][i]);
+            Add128(&outup[j],&outdown[j],toutup,toutdown,rup[j][i],rdown[j][i]);
             //out[j] = addq(out[j],r[j][i],mod);
         }
+        printf("\n%lu - %lu \n",outup[i],outdown[i]);
     }
 }
 

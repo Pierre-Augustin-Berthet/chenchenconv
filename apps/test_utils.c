@@ -44,11 +44,11 @@ int main(int *argc, char **argv){
 
         Mult128(&resA,&resB, A1,A2);
 
-        if(resA!=0 | resB^(A2>>1)){
+        if(resB!=0 | resA^(A2>>1)){
             fprintf(OUTPUT,"Mult128 failed!\n");
-            print_binary_form(resB);
-            fprintf(OUTPUT,"\n");
             print_binary_form(resA);
+            fprintf(OUTPUT,"\n");
+            print_binary_form(resB);
             fprintf(OUTPUT,"\n!=\n");
             print_binary_form(A1);
             fprintf(OUTPUT,"\n*\n");
@@ -60,7 +60,7 @@ int main(int *argc, char **argv){
 
     A1 = rand64();
     A2 = rand64();
-    Mult128(&resA,&resB,A1,A2);
+    Mult128(&resB,&resA,A1,A2);
     fprintf(OUTPUT,"%lu * %lu = %lu * 2^64 + %lu\n",A1,A2,resB,resA);
     fprintf(OUTPUT,"Mult128 succeeded!\n");   
     return 0;

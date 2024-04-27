@@ -22,15 +22,17 @@ void    SecAdd              (uint64_t *out, uint64_t *ina, uint64_t *inb, uint64
 void    SecAdd128           (uint64_t *out1,uint64_t *out2, uint64_t *ina1, uint64_t *ina2, uint64_t *inb1,uint64_t *inb2, int size);
 
 void    MaskA               (MaskedA out, uint64_t in, uint64_t mod);
+void    MaskA128            (MaskedA outup, MaskedA outdown, uint64_t inup, uint64_t indown);
 void    UnmaskA             (uint64_t *out, MaskedA in, uint64_t mod);
+void    UnmaskA128          (uint64_t *outup,uint64_t *outdown, MaskedA inup,MaskedA indown);
 
 void    SecMult             (MaskedA out, MaskedA ina, MaskedA inb, uint64_t mod);
-void    SecMult128          (MaskedA out1,MaskedA out2, MaskedA ina, MaskedA inb);
+void    SecMult128          (MaskedA outup,MaskedA outdown, MaskedA ina, MaskedA inb);
 
 void    RefreshMasks        (MaskedB out, int size);
 
 void    A2B                 (MaskedB out, MaskedA in, uint64_t mod, int size);
-void    A2B128              (MaskedB out1,MaskedB out2, MaskedA in1, MaskedA in2, int size);
+void    A2B128              (MaskedB outup,MaskedB outdown, MaskedA inup, MaskedA indown, int size);
 void    B2A                 (MaskedA out, MaskedB in, uint64_t mod, int size);
 void    B2A_bit             (MaskedA A, MaskedB x, uint64_t mod);
 void    B2A_bit_j           (MaskedA C, MaskedA A, uint64_t xn, uint64_t mod, int n);

@@ -45,33 +45,33 @@ uint64_t mulq(uint64_t ina, uint64_t inb, uint64_t mod){
 }
 
 
-void Mult128(uint64_t *out1, uint64_t *out2, uint64_t in1, uint64_t in2){
-    uint64_t a1, a2, b1, b2;
-    a1 = in1>>32;
-    a2 = in1& 0xffffffff;
-    b1 = in2>>32;
-    b2 = in2& 0xffffffff;
+void Mult128(uint64_t *outup, uint64_t *outdown, uint64_t in1, uint64_t in2){
+    uint64_t au, ad, bu, bd;
+    au = in1>>32;
+    ad = in1& 0xffffffff;
+    bu = in2>>32;
+    bd = in2& 0xffffffff;
 
-    uint64_t mult11, mult12, mult21, mult22;
+    uint64_t multuu, multud, multdu, multdd;
 
-    mult11 = a1 * b1;
+    multuu = au * bu;
   //printf("\n%lu *%lu = %lu\n",a1,b1,mult11);
-    mult12 = a1 * b2;
-    mult21 = a2 * b1;
-    mult22 = a2 * b2;
+    multud = au * bd;
+    multdu = ad * bu;
+    multdd = ad * bd;
   //printf("\n%lu *%lu = %lu\n",a2,b2,mult22);
 
-  *out2 = mult11;
+  *outup = multuu;
   //printf("\n%lu\n",*out2);
-  *out1 = mult22&0xffffffff;
+  *outdown = multdd&0xffffffff;
   //printf("\n%lu\n",*out1);
   uint64_t addlow, addup;
 
-  addlow = (mult12&0xffffffff) + (mult21&0xffffffff)+(mult22>>32);
+  addlow = (multud&0xffffffff) + (multdu&0xffffffff)+(multdd>>32);
   //printf("\n%lu\n",mult22>>32);
-  addup = (mult12>>32) + (mult21>>32) + ((addlow>>32)&0x3);
-  *out1 += addlow<<32;
-  *out2 += addup;
+  addup = (multud>>32) + (multdu>>32) + ((addlow>>32)&0x3);
+  *outdown += addlow<<32;
+  *outup += addup;
 /*
     uint64_t add1, carry;
 
@@ -87,19 +87,19 @@ void Mult128(uint64_t *out1, uint64_t *out2, uint64_t in1, uint64_t in2){
 */
 }
 
-void Add128(uint64_t *out1, uint64_t *out2, uint64_t in11, uint64_t in12, uint64_t in21, uint64_t in22){
+void Add128(uint64_t *outup, uint64_t *outdown, uint64_t in1up, uint64_t in1down, uint64_t in2up, uint64_t in2down){
   uint64_t in12_A, in12_B, in22_A, in22_B;
 
-  in12_A = in12>>32;
-  in12_B = in12&0xffffffff;
-  in22_A = in22>>32;
-  in22_B = in22&0xffffffff;
+  in12_A = in1down>>32;
+  in12_B = in1down&0xffffffff;
+  in22_A = in2down>>32;
+  in22_B = in2down&0xffffffff;
 
   in12_B += in22_B;
   in12_A += in22_A + ((in12_B>>32)&1);
 
-  *out2 = (in12_B&0xffffffff)^((in12_A&0xffffffff)<<32);
+  *outdown = (in12_B&0xffffffff)^((in12_A&0xffffffff)<<32);
 
-  *out1 = in11 + in21 + ((in12_A>>32)&0x3);
+  *outup = in1up + in2up + ((in12_A>>32)&0x3);
 
 }
