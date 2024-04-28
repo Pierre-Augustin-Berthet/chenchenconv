@@ -159,33 +159,28 @@ SecMult128   :   Secure multiplication mod a power of 2 at order MASKORDER
 input        :   Arithmetic maskings ina,inb (MaskedA), Modulo mod (uint64_t)
 output       :   Arithmetic maskings out1,out2 (MaskedA)
 ------------------------------------------------*/
-void SecMult128(MaskedA outup,MaskedA outdown, MaskedA ina, MaskedA inb){
+void SecMult128(MaskedA outup,MaskedA outdown, MaskedA inaup, MaskedA inadown,MaskedA inbup,MaskedA inbdown){
     uint64_t rup[MASKSIZE][MASKSIZE];
     uint64_t rdown[MASKSIZE][MASKSIZE];
     uint64_t tempup,tempdown,toutup,toutdown;
-    for(size_t i = 0; i<MASKSIZE; i++)  Mult128(&outup[i],&outdown[i],ina[i],inb[i]);//out[i] = mulq(ina[i],inb[i],mod);
+    for(size_t i = 0; i<MASKSIZE; i++)  Mult128Bi(&outup[i],&outdown[i],inaup[i],inadown[i],inbup[i],inbdown[i]);
     for(size_t i = 0; i <MASKSIZE-1; i++){
         for(size_t j = i+1; j<MASKSIZE;j++){
             rup[i][j] = rand64();
             rdown[i][j] = rand64();
-            Mult128(&tempup,&tempdown,ina[i],inb[j]);
+            Mult128Bi(&tempup,&tempdown,inaup[i],inadown[i],inbup[j],inbdown[j]);
             Add128(&toutup,&toutdown,tempup,tempdown,rup[i][j],rdown[i][j]);
             rup[j][i]=toutup;rdown[j][i] = toutdown;
-            //r[j][i] = addq(r[i][j],mulq(ina[i],inb[j],mod),mod);
-            Mult128(&tempup,&tempdown,ina[j],inb[i]);
+            Mult128Bi(&tempup,&tempdown,inaup[j],inadown[j],inbup[i],inbdown[i]);
             Add128(&toutup,&toutdown,tempup,tempdown,rup[j][i],rdown[j][i]);
             rup[j][i]=toutup;
             rdown[j][i]=toutdown;
-            //r[j][i] = addq(r[j][i],mulq(ina[j],inb[i],mod),mod);
-            Add128(&tempup,&tempdown,~rup[i][j],~rdown[i][j],0,1); //Negation de r[i][j][2]
-            //Add128(&outup,&outdown,r[i][j],r1[i][j],temp,temp1);
-            //printf("\n%lu - %lu vs %lu - %lu\n",outup,outdown,r[i][j],r1[i][j]);
+            Add128(&tempup,&tempdown,~rup[i][j],~rdown[i][j],0,1); //Negation de r[i][j]
             Add128(&toutup,&toutdown,outup[i],outdown[i],tempup,tempdown);
-            //out[i] = subq(out[i],r[i][j],mod);
-            Add128(&outup[j],&outdown[j],toutup,toutdown,rup[j][i],rdown[j][i]);
-            //out[j] = addq(out[j],r[j][i],mod);
-        }
-        printf("\n%lu - %lu \n",outup[i],outdown[i]);
+            outup[i] = toutup;outdown[i]=toutdown;
+            Add128(&toutup,&toutdown,outup[j],outdown[j],rup[j][i],rdown[j][i]);
+            outup[j] = toutup;outdown[j]=toutdown;
+            }
     }
 }
 

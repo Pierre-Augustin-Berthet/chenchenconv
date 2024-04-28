@@ -255,13 +255,13 @@ int main(int *argc, char **argv){
     A2 = rand64();
     MaskedA a3up,a1up,a2up,a3down;
     uint64_t resAup,resAdown;
-    MaskA(a1,A1,0);
-    MaskA(a2,A2,0);
-    SecMult128(a3up,a3down,a1,a2);
+    MaskA128(a1up,a1,0,A1);
+    MaskA128(a2up,a2,0,A2);
+    SecMult128(a3up,a3down,a1up,a1,a2up,a2);
     UnmaskA128(&resAup,&resAdown,a3up,a3down);
 
     Mult128(&comp,&comp1,A1,A2);
-/*
+
     if(comp1^resAdown|comp^resAup){
         fprintf(OUTPUT,"SecMult128 failed!\n");
         fprintf(OUTPUT,"%lu",A2);
@@ -275,7 +275,7 @@ int main(int *argc, char **argv){
         exit(1);
     }
     fprintf(OUTPUT,"SecMult128 Succeeded!\n");
-*/
+
     A1 = rand64();
     A2 = rand64();
     MaskedB b3up,b3down;

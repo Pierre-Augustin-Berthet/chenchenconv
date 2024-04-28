@@ -103,3 +103,22 @@ void Add128(uint64_t *outup, uint64_t *outdown, uint64_t in1up, uint64_t in1down
   *outup = in1up + in2up + ((in12_A>>32)&0x3);
 
 }
+
+void Mult128Bi(uint64_t *outup, uint64_t *outdown, uint64_t in1up, uint64_t in1down, uint64_t in2up, uint64_t in2down){
+  /*
+  (u1*2^64 + d1)*(u2*2^64 + d2) = u1u2*2^128 + d1d2 + (d1u2+d2u1)*2^64 = d1d2 + (d1u2+d2u1)<<64 mod 2^128
+  */
+  uint64_t d1d2u,d1d2d,d1u2u,d1u2d,d2u1u,d2u1d;
+
+  Mult128(&d1d2u,&d1d2d,in1down,in2down);
+  Mult128(&d1u2u,&d1u2d,in1down,in2up);
+  Mult128(&d2u1u,&d2u1d,in1up,in2down);
+
+  *outup = d1d2u;
+  *outdown = d1d2d;
+
+  Add128(&d1d2u,&d1d2d,d1u2u,d1u2d,d2u1u,d2u1d); // A = d1u2 +d2u1
+  d2u1u = *outup;
+  d2u1d = * outdown;
+  Add128(outup,outdown,d2u1u,d2u1d,d1d2d,0); //out = d1d2 + A<<64 = {d1d2u + Ad pour up; d1d2d pour down}
+}

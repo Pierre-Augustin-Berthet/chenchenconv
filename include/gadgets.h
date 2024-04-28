@@ -27,7 +27,7 @@ void    UnmaskA             (uint64_t *out, MaskedA in, uint64_t mod);
 void    UnmaskA128          (uint64_t *outup,uint64_t *outdown, MaskedA inup,MaskedA indown);
 
 void    SecMult             (MaskedA out, MaskedA ina, MaskedA inb, uint64_t mod);
-void    SecMult128          (MaskedA outup,MaskedA outdown, MaskedA ina, MaskedA inb);
+void    SecMult128          (MaskedA outup,MaskedA outdown, MaskedA inaup, MaskedA inadown, MaskedA inbup, MaskedA inbdown);
 
 void    RefreshMasks        (MaskedB out, int size);
 
