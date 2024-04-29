@@ -19,6 +19,8 @@
 %
 \usepackage[vlined,algoruled,linesnumbered]{algorithm2e}
 \usepackage{amsmath,amssymb,nccmath,mathtools}
+\usepackage{tabularx}
+\usepackage{siunitx}
 % If you use the hyperref package, please uncomment the following two lines
 % to display URLs in blue roman font according to Springer's eBook style:
 \usepackage{xcolor}
@@ -88,9 +90,10 @@ Finally, we provide some performances of our methods and compare them with the r
 \subsection{Notation}
 \begin{itemize}
   \item We denote by $\mathbb{R}\backsim \mathbb{Z}$ any real number which is not an integer. For $x\in\mathbb{R}$, we denote the floor function of $x$ by $\lfloor x \rfloor$.
-  \item We denote the floor function of $x$ with $n$ decimals of absolute precision by $\lfloor x \rfloor_n$. Absolute precision implies $\lfloor x\rfloor_n = \lfloor x \rfloor + 0,\{0\}^n\|[0;9]^*$. This also implies that $0 \leq \lfloor x \rfloor_n - \lfloor x \rfloor < 1\times 10^{-n}$.
-  \item We denote the floor function of $x$ with $n$ decimals of relative precision $\alpha\in[0,1;1)$ by $\lfloor x \rfloor_n^\alpha$. Relative precision implies $-\alpha\times 10^{-n} < \lfloor x \rfloor_n^\alpha - \lfloor x \rfloor < \alpha\times 10^{-n}$.
-  \item Let $a,b\in\mathbb{R}^2$. Let $k\in\mathbb{N}$. We say that $a\equiv_k b$ if $\lfloor a\rfloor = \lfloor b \rfloor$ and they have the same number of $0$ at least for the first $k$ decimals: $\lfloor a \rfloor + 0,\{0\}^k\|[0;9]^*$. For instance, $4,05 \equiv_k 4,09$ at precisions $k=0$ and $k=1$ but not at precision $k=2$.
+  \item We will use the dot $.$ as the separator between the integer part $i$ and the fractional part $f$ of a real number $x=i.f$.
+  \item We denote the floor function of $x$ with $n$ decimals of absolute precision by $\lfloor x \rfloor_n$. Absolute precision implies $\lfloor x\rfloor_n = \lfloor x \rfloor + 0.\{0\}^n\|[0;9]^*$. This also implies that $0 \leq \lfloor x \rfloor_n - \lfloor x \rfloor < 1\times 10^{-n}$.
+  \item We denote the floor function of $x$ with $n$ decimals of relative precision $\alpha\in[\num{0.1};1)$ by $\lfloor x \rfloor_n^\alpha$. Relative precision implies $-\alpha\times 10^{-n} < \lfloor x \rfloor_n^\alpha - \lfloor x \rfloor < \alpha\times 10^{-n}$.
+  \item Let $a,b\in\mathbb{R}^2$. Let $k\in\mathbb{N}$. We say that $a\equiv_k b$ if $\lfloor a\rfloor = \lfloor b \rfloor$ and they have the same number of $0$ at least for the first $k$ decimals: $\lfloor a \rfloor + 0.\{0\}^k\|[0;9]^*$. For instance, $\num{4.05} \equiv_k \num{4.09}$ at precisions $k=0$ and $k=1$ but not at precision $k=2$.
 \end{itemize}
 % 
 \subsection{FALCON Sign}
@@ -124,7 +127,7 @@ However, due to its discontinuities, Equation \ref{eq:floorfourier} suffers from
   \label{fig:gibbs}
   \caption{Gibbs phenomenon for Equation \ref{eq:floorfourier} with $n=$\textcolor{red}{5},\textcolor{blue}{10},\textcolor{green}{50} and floor(x) in black}
 \end{figure}
-It means this series cannot be used as it is to mask the floor function in reasonable time. Indeed, we extrapolate through empirical observations that we would require $n=2.5\times 10^{13}$ to have at least one decimal of absolute precision on the floor computation of $1\times 10^{-16}$. Nonetheless, we will see in this work how we can adapt this Fourier series to compute the floor function in a secure way and in reasonable time with the required precision.
+It means this series cannot be used as it is to mask the floor function in reasonable time. Indeed, we extrapolate through empirical observations that we would require $n=\num{2.5}\times 10^{13}$ to have at least one decimal of absolute precision on the floor computation of $1\times 10^{-16}$. Nonetheless, we will see in this work how we can adapt this Fourier series to compute the floor function in a secure way and in reasonable time with the required precision.
 \subsection{Masking}
 
 \section{Masking of the Floor Function}\label{sec:maskfloor}
@@ -137,12 +140,12 @@ The first idea relies on constructing the floor of $x\in\mathbb{R}$ rather than 
   Let $x\in\mathbb{R}$. Let $y = 10\times\lfloor x\rfloor_1$. Then $\lfloor y \rfloor_1 /10 \equiv_2 \lfloor x \rfloor_2$.
 \end{proposition}
 \begin{proof}
-  Let recall that $\lfloor x \rfloor_1 = \lfloor x \rfloor + 0,0 \|[0;9]^*$. Thus, $y=10\times\lfloor x \rfloor_1=\lfloor x\rfloor\|0+0,[0;9]^*$ as multiplying by $10$ can be seen as a left-shift in base $10$. By computing the floor of $y$ with absolute precision $1$ we have $y_1=\lfloor y \rfloor_1 = \lfloor x \rfloor\|0 + 0,0\|[0;9]^*$. Finally, $ y_1/10 = \lfloor x \rfloor + 0,00\|[0;9]^*\equiv_2 \lfloor x \rfloor_2$ as dividing by $10$ can be seen as a right-shift in base $10$.  
+  Let recall that $\lfloor x \rfloor_1 = \lfloor x \rfloor + 0.0 \|[0;9]^*$. Thus, $y=10\times\lfloor x \rfloor_1=\lfloor x\rfloor\|0+0.[0;9]^*$ as multiplying by $10$ can be seen as a left-shift in base $10$. By computing the floor of $y$ with absolute precision $1$ we have $y_1=\lfloor y \rfloor_1 = \lfloor x \rfloor\|0 + 0.0\|[0;9]^*$. Finally, $ y_1/10 = \lfloor x \rfloor + 0.00\|[0;9]^*\equiv_2 \lfloor x \rfloor_2$ as dividing by $10$ can be seen as a right-shift in base $10$.  
 \end{proof}
 Thus, we can use Proposition \ref{prop:floorprec} to construct the floor of $x$ with the following Algorithm \ref{alg:floorconstruct}:
 
 \begin{algorithm}[H]
-  \caption{ConstructFloor(x,prec)}
+  \caption{ConstructFloor($x,prec$)}
   \label{alg:floorconstruct}
   \KwData{$x\in\mathbb{R}$ and the precision $prec\in\mathbb{N}$}
   \KwResult{$\lfloor x\rfloor_{prec}$}
@@ -156,12 +159,12 @@ Thus, we can use Proposition \ref{prop:floorprec} to construct the floor of $x$ 
   Let $x\in\mathbb{R}$. Algorithm \ref{alg:floorconstruct} returns $\lfloor x \rfloor_{prec}$ for precision $prec$.
 \end{theorem}
 \begin{proof}
-  We use a recursive proof. The initial state is proven by Proposition \ref{prop:floorprec}. Let Theorem \ref{thm:floorprec} be true for precision $prec-1$. We have $X=\lfloor x \rfloor_{prec-1}$ the output of Algorithm \ref{alg:floorconstruct}. We reapply Algorithm \ref{alg:floorconstruct} to $X\times 10^{prec-1}$ but with precision $1$ and then divide by $10^{prec-1}$. This is stricly equal to applying Algorithm \ref{alg:floorconstruct} with precision $prec$. Algorithm \ref{alg:floorconstruct} with precision $1$ is proven by Proposition \ref{prop:floorprec}. Thus, we have $\lfloor X \rfloor_1 = \lfloor x\rfloor \| {0}^{prec-1} + 0,0\|[0;9]^*$. By dividing by $10^{prec-1}$, we shift all the zeros stored in the integer part of $X$ into the fractional part. Thus we have $\lfloor X \rfloor_1 /10^{prec-1} = \lfloor x \rfloor + 0,{0}^{prec}\|[0;9]^* \equiv_{prec} \lfloor x \rfloor_{prec}$. We thus proved Theorem \ref{thm:floorprec}.
+  We use a recursive proof. The initial state is proven by Proposition \ref{prop:floorprec}. Let Theorem \ref{thm:floorprec} be true for precision $prec-1$. We have $X=\lfloor x \rfloor_{prec-1}$ the output of Algorithm \ref{alg:floorconstruct}. We reapply Algorithm \ref{alg:floorconstruct} to $X\times 10^{prec-1}$ but with precision $1$ and then divide by $10^{prec-1}$. This is stricly equal to applying Algorithm \ref{alg:floorconstruct} with precision $prec$. Algorithm \ref{alg:floorconstruct} with precision $1$ is proven by Proposition \ref{prop:floorprec}. Thus, we have $\lfloor X \rfloor_1 = \lfloor x\rfloor \| \{0\}^{prec-1} + 0.0\|[0;9]^*$. By dividing by $10^{prec-1}$, we shift all the zeros stored in the integer part of $X$ into the fractional part. Thus we have $\lfloor X \rfloor_1 /10^{prec-1} = \lfloor x \rfloor + 0.\{0\}^{prec}\|[0;9]^* \equiv_{prec} \lfloor x \rfloor_{prec}$. We thus proved Theorem \ref{thm:floorprec}.
 \end{proof}
 
 %All we need now is a function able of computing $\lfloor x \rfloor_1$ in reasonable time. 
 \subsubsection{Relative Precision}
-We discuss how to achieve absolute precision from relative precision. In relative precision, we have the possibility that the error from the result can be negative. This results in $\lfloor x \rfloor_n^\alpha = \lfloor x \rfloor - 0,\{0\}^{n}\|[0;9]^*=\lfloor x \rfloor-1 + 0,\{9\}^{n}\|[0;9]^* $. Thus, we cannot construct the floor function using directly $\lfloor x \rfloor_n^\alpha$, as in Algorithm \ref{alg:floorconstruct}. We introduce a second idea: controlled bias.
+We discuss how to achieve absolute precision from relative precision. In relative precision, we have the possibility that the error from the result can be negative. This results in $\lfloor x \rfloor_n^\alpha = \lfloor x \rfloor - 0.\{0\}^{n}\|[0;9]^*=\lfloor x \rfloor-1 + 0.\{9\}^{n}\|[0;9]^* $. Thus, we cannot construct the floor function using directly $\lfloor x \rfloor_n^\alpha$, as in Algorithm \ref{alg:floorconstruct}. We introduce a second idea: controlled bias.
 
 \medskip
 
@@ -178,29 +181,29 @@ We discuss how to achieve absolute precision from relative precision. In relativ
 \end{proof}
 
 However, we can improve upon Proposition \ref{prop:floorbias} by limiting the maximum value of $\alpha$. We have the following proposition:\begin{proposition}\label{prop:floorbiasopt}
-  Let $x\in\mathbb{R}$ and $\alpha<0.5$. Then $\lfloor x\rfloor_1 \equiv_1 \lfloor x \rfloor_1^\alpha + \alpha\times10^{-1}$.
+  Let $x\in\mathbb{R}$ and $\alpha<\num{0.5}$. Then $\lfloor x\rfloor_1 \equiv_1 \lfloor x \rfloor_1^\alpha + \alpha\times10^{-1}$.
 \end{proposition}
 \begin{proof}
-  We have already proven in Proposition \ref{prop:floorbias} that for the negative bias, $\lfloor x \rfloor_1^\alpha + \alpha\times 10^{-1} - \lfloor x \rfloor \leq \alpha\times 10^{-1}$. As $\alpha<0.5$, we have $\lfloor x \rfloor_1 \equiv_1 \lfloor x \rfloor_1^\alpha$. For the postive bias, according to Proposition \ref{prop:floorbias} we have $\alpha\times10^{-1} \leq \lfloor x \rfloor_1^\alpha + \alpha\times 10^{-1} - \lfloor x \rfloor \leq 2\alpha\times 10^{-1}$. As $\alpha<0.5$, $2\alpha\times 10^{-1}<1\times 10^{-1}$. We have $\lfloor x \rfloor_1 \equiv_1 \lfloor x \rfloor_1^\alpha$.
+  We have already proven in Proposition \ref{prop:floorbias} that for the negative bias, $\lfloor x \rfloor_1^\alpha + \alpha\times 10^{-1} - \lfloor x \rfloor \leq \alpha\times 10^{-1}$. As $\alpha<0.5$, we have $\lfloor x \rfloor_1 \equiv_1 \lfloor x \rfloor_1^\alpha$. For the postive bias, according to Proposition \ref{prop:floorbias} we have $\alpha\times10^{-1} \leq \lfloor x \rfloor_1^\alpha + \alpha\times 10^{-1} - \lfloor x \rfloor \leq 2\alpha\times 10^{-1}$. As $\alpha<\num{0.5}$, $2\alpha\times 10^{-1}<1\times 10^{-1}$. We have $\lfloor x \rfloor_1 \equiv_1 \lfloor x \rfloor_1^\alpha$.
 \end{proof}
 
 \subsubsection{Fourier Series}
 We now need a way of computing the floor function with a relative precision of at least $2$ in reasonable time. Our final idea revolves around aborting Equation \ref{eq:floorfourier} early for a small value of $n$. Then, we reapply Equation \ref{eq:floorfourier} on the new value, with a small twist:
 
 \begin{algorithm}[H]
-  \caption{ArFloorStep1(x,n,iter)}
+  \caption{ArFloorStep($x,n,iter$)}
   \label{alg:floorstep1}
-  \KwData{$x\in\mathbb{R}$, the series limiter $n\in\mathbb{N}$ and the number of iterations $iter\in\mathbb{N}$}
+  \KwData{$x\in\mathbb{R}\backsim\mathbb{Z}$, the series limiter $n\in\mathbb{N}$ and the number of iterations $iter\in\mathbb{N}$}
   \KwResult{$\lfloor x \rfloor_2^\alpha+\frac{1}{2}$}
   \For{\texttt{i from 0 to iter-1}}{
     $x \leftarrow x + \frac{1}{\pi}\sum_{k=1}^{n}\frac{sin(2\pi k x)}{k}$\;
   }
   \Return{$x$}
 \end{algorithm}
-Instead of computing the floor function, Algorithm \ref{alg:floorstep1} gives the floor function with a positive bias of $\frac{1}{2}$. Indeed, applying Equation \ref{eq:floorfourier} and aborting without this bias does not unsure correctness. For instance, for a value close to $0$, using Equation \ref{eq:floorfourier} with a small $n$ results in $-\frac{1}{2} + e$, with $e$ small. Reapplying Equation \ref{eq:floorfourier} will give $-\frac{1}{2}+e-\frac{1}{2}+e_2 \approx -1$ as a result, which is not correct. Thus, it is important to remove $-\frac{1}{2}$ and only apply it after the successive early aborts and reapplications. As an example, Algorithm \ref{alg:floorstep1} return is proven by Theorem \ref{thm:floorstep1} for a specific set of parameters:
+Instead of computing the floor function, Algorithm \ref{alg:floorstep1} gives the floor function with a positive bias of $\frac{1}{2}$. Indeed, applying Equation \ref{eq:floorfourier} and aborting without this bias does not unsure correctness. For instance, for a value close to $0$, using Equation \ref{eq:floorfourier} with a small $n$ results in $-\frac{1}{2} + e$, with $e$ small. Reapplying Equation \ref{eq:floorfourier} will give $-\frac{1}{2}+e-\frac{1}{2}+e_2 \approx -1$ as a result, which is not correct. Thus, it is important to remove $-\frac{1}{2}$ and only apply it after the successive early aborts and reapplications. As an example, Algorithm \ref{alg:floorstep1} is proven by Theorem \ref{thm:floorstep1} for a specific set of parameters:
 
 \begin{theorem}\label{thm:floorstep1}
-  Let $x\in(0;1)\subset\mathbb{R}\backsim \mathbb{Z}$ with up to $19$ decimals, \emph{id est} $x= 0,[0;9]^{19}\|{0}^*$. We set $n=3$ and $\alpha=0.4$. Algorithm \ref{alg:floorstep1} returns $\lfloor x \rfloor_1^\alpha+\frac{1}{2}$ in $24$ iterations.
+  Let $x\in(0;1)\subset\mathbb{R}\backsim \mathbb{Z}$ with up to $19$ decimals, \emph{id est} $x= 0.[0;9]^{19}\|{0}^*$. We set $n=3$ and $\alpha=0.4$. Algorithm \ref{alg:floorstep1} returns $\lfloor x \rfloor_1^\alpha+\frac{1}{2}$ in $24$ iterations.
 \end{theorem}
 \begin{proof}
   We denote $x + \frac{1}{\pi}\sum_{k=1}^{3}\frac{sin(2\pi k x)}{k}$ by $f(x)$. Let set $(U_n)_{n\in\mathbb{N}}$ such as $U_{n+1} = f(U_n)$. First, we will prove the convergence of $(U_n)_{n\in\mathbb{N}}$. Then, we use the Newton method and a visual proof to demonstrate Theorem \ref{thm:floorstep1}.
@@ -209,30 +212,48 @@ Instead of computing the floor function, Algorithm \ref{alg:floorstep1} gives th
 
   \noindent \textbf{PREUVE DE LA CONVERGENCE A FAIRE!!!!!!}
 
-  \medskip
+  \begin{figure}[h!]
+    \includegraphics[width =\textwidth]{figure/eqn7Newton.png}
+    \caption{Equation \ref{eq:floorfourier} with $n=3$}
+    \label{fig:newton3}
+  \end{figure}
 
-  For the second part of the proof, we use the Newton method on a graphical representation of $f(x)$(\textcolor{blue}{labeled Eq}). The Newton method, in \textcolor{gray}{grey arrows} in Figure , allows to graphically compute the next term $U_{n+1}$ from $U_n$. We start at the point $(U_n,0)$ ($0.15$ in this example) and find the point $(U_n,f(U_n))$ (\textcolor{gray}{arrow labeled u}). We then find the point of \textcolor{red}{$c(x)=x$} with ordinate $f(U_n)$ (\textcolor{gray}{arrow labeled v}) and look at its abscissa (\textcolor{gray}{arrow labeled w}), which gives us $U_{n+1}$. Thanks to this method, we can visually compute the number of iterations of Algorithm \ref{alg:floorstep1} required to have $0.46\leq U_{n+1}\leq 0.54$(\textcolor{green}{green area}). We have the following Table \ref{tab:n3}:
+  For the second part of the proof, we use the Newton method on a graphical representation of $f(x)$(\textcolor{blue}{labeled Eq}). The Newton method, in \textcolor{gray}{grey arrows} in Figure , allows to graphically compute the next term $U_{n+1}$ from $U_n$. We start at the point $(U_n,0)$ ($\num{0.15}$ in this example) and find the point $(U_n,f(U_n))$ (\textcolor{gray}{arrow labeled u}). We then find the point of \textcolor{red}{$c(x)=x$} with ordinate $f(U_n)$ (\textcolor{gray}{arrow labeled v}) and look at its abscissa (\textcolor{gray}{arrow labeled w}), which gives us $U_{n+1}$. Thanks to this method, we can visually compute the number of iterations of Algorithm \ref{alg:floorstep1} required to have $\num{0.46}\leq U_{n+1}\leq \num{0.54}$(\textcolor{green}{green area}). The amount of iterations is shown in Table \ref{tab:n3} (due to the symetric nature of $sin(x)$, we restrict the study on $(0;\num{0.5}]$).
 
   \begin{table}[!h]
-    \caption{Subsets of $(0;1)$ and number of iterations to reach $[0.46;0.54]$}
+    \caption{Subsets of $(0;\num{0.5}]$ and number of iterations to reach $[\num{0.46};\num{0.54}]$}
     \label{tab:n3}
-    \begin{tabular}{lr}
+    \begin{tabularx}{\textwidth}{lcX}
       \toprule
-      Number of iterations & Subsets \\
+      Number of iterations & &Subsets \\
       \midrule
-      1 & \\
-      At most 2 & \\
-      At most 3 & \\
-      4 or more & \\
+      1 & &$U_1=[\num{0.0767};\num{0.1002}]\vee[\num{0.1962};\num{0.2522}]\vee[\num{0.3213};\num{0.4060}]\vee [\num{0.4514};\num{0.5}]$\\
+      At most 2 & & $U_2=U_1\vee[\num{0.0110};\num{0.0143}]\vee[\num{0.0287};\num{0.0373}]\vee[\num{0.0488};\num{0.0648}]\vee[\num{0.0746};\num{0.263}]\vee[\num{0.3095};\num{0.5}]$\\
+      At most 3 & & $U_3=U_2\vee[\num{0.0016};\num{0.002}]\vee[\num{0.0041};\num{0.0052}]\vee[\num{0.007};\num{0.0092}]\vee[\num{0.0107};\num{0.0391}]\vee[\num{0.0469};\num{0.5}]$\\
       \bottomrule
-    \end{tabular}
+    \end{tabularx}
   \end{table}
-
 \end{proof}
-\begin{remark}
-  The choice of setting $\alpha=0.4$ in Theorem \ref{thm:floorstep1} is not the most optimal as taking $\alpha=0.5$ is more advantageous as shown in Proposition \ref{prop:floorbiasopt}. However, by taking $\alpha = 0.4$, we have that Algorithm \ref{alg:floorstep1} returns $\lfloor x \rfloor + err$ such as $0.46\leq err \leq 0.54$. Thus, by retrieving to this result $0.45$, we have $0.01 \leq err - 0.45 \leq 0.09$. By multiplying by $10$, we have $0.1 \leq 10*(err-0.45) \leq 0.9$. As a result, when applying Algorithm \ref{alg:floorconstruct} we avoid some extreme points and reduce the number of iterations required by Algorithm \ref{alg:floorstep1}. This strategy is not specific to the current set of parameters and will always benefit our method.
+
+\begin{remark}\label{rem:alpha04}
+  The choice of setting $\alpha=\num{0.4}$ in Theorem \ref{thm:floorstep1} is not the most optimal as taking $\alpha=\num{0.5}$ is more advantageous as shown in Proposition \ref{prop:floorbiasopt}. However, by taking $\alpha = \num{0.4}$, we have that Algorithm \ref{alg:floorstep1} returns $\lfloor x \rfloor + err$ such as $\num{0.46}\leq err \leq \num{0.54}$. Thus, by retrieving to this result $0.45$, we have $\num{0.01} \leq err - \num{0.45} \leq \num{0.09}$. By multiplying by $10$, we have $\num{0.1} \leq 10*(err-\num{0.45}) \leq \num{0.9}$. As a result, when applying Algorithm \ref{alg:floorconstruct} we avoid some extreme points and reduce the number of iterations required by Algorithm \ref{alg:floorstep1}. This strategy is not specific to the current set of parameters and will always benefit our method. 
 \end{remark}
 
+According to Table \ref{tab:n3}, all values of $x\in[\num{0.1};\num{0.9}]$ converge towards $[\num{0.46};\num{0.54}]$ in less than $3$ iterations. Thus, in accordance with Remark \ref{rem:alpha04} we can limit the number of iterations in the following steps of our floor compuation to only $3$. We can use Algorithm \ref{alg:arfloor} to compute the floor function of $x\in\mathbb{R}\backsim\mathbb{Z}$ in reasonable times.
+
+\begin{algorithm}[H]
+  \caption{ArFloor($x,prec$)}
+  \label{alg:arfloor}
+  \KwData{$x\in\mathbb{R}\backsim\mathbb{Z}$ and the precision $prec\in\mathbb{N}$}
+  \KwResult{$\lfloor x \rfloor_prec$}
+  $x\leftarrow \emph{ArFloorStep}(x,3,24) -\num{0.45}$\;
+  $x \leftarrow 10 \times x$\;
+  \For{\texttt{i from 1 to prec-1}}{
+    $x \leftarrow \emph{ArFloorStep}(x,3,3) - \num{0.45}$\;
+    $x \leftarrow 10 \times x$\;
+  }
+  \Return{$x \times 10^{-prec}$}
+\end{algorithm}
 
 \subsection{Truncation method}
 
