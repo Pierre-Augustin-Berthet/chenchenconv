@@ -378,15 +378,15 @@ uint64_t Psi0(uint64_t x, uint64_t y,int n)
   return Psi(x,y) ^ ((~n & 1) * x);
 }
 
-static void B2Aext(MaskedA out, MaskedB extended, uint64_t mod, int size);
-void B2A(MaskedA out, MaskedB in, uint64_t mod, int size){
+static void B2Aext(uint64_t *out, uint64_t *extended, uint64_t mod, int size);
+void B2A(uint64_t *out, uint64_t *in, uint64_t mod, int size){
     uint64_t extended[size+1];
     extended[size]= 0;
     for(size_t i = 0; i<size; i++) extended[i] = in[i];
     B2Aext(out,extended,mod,size);
 }
 
-void B2Aext(MaskedA out, MaskedB x, uint64_t mod, int size){
+void B2Aext(uint64_t *out, uint64_t *x, uint64_t mod, int size){
     if(size==2){
         uint64_t r1 = rand64();
         uint64_t r2 = rand64();
@@ -424,6 +424,69 @@ void B2Aext(MaskedA out, MaskedB x, uint64_t mod, int size){
   out[size-1]=B[size-2];
 }
 
+
+//For B2A128
+void Psi128(uint64_t *outup,uint64_t *outdown, uint64_t xu,uint64_t xd,uint64_t yu, uint64_t yd)
+{
+    uint64_t tempup, tempdown;
+    Add128(&tempup,&tempdown,~yu,~yd,0,1);
+    Add128(outup,outdown,tempup,tempdown,xu^yu,xd^yd);
+  //return (x ^ y)-y;
+}
+
+//For B2A128
+void Psi0128(uint64_t *outup, uint64_t *outdown,uint64_t xu,uint64_t xd, uint64_t yu, uint64_t yd,int n)
+{
+    uint64_t tempup,tempdown;
+    Psi128(outup,outdown,xu,xd,yu,yd);
+    Mult128Bi(&tempup,&tempdown,xu,xd,0,(~n&1));
+    *outup ^= tempup;
+    *outdown ^= tempdown;
+  //return Psi(x,y) ^ ((~n & 1) * x);
+}
+
+static void B2Aext128(MaskedA outup,MaskedA outdown, MaskedB extendedup, MaskedB extendeddown, int size);
+void B2A128(MaskedA outup, MaskedA outdown, MaskedB inup, MaskedB indown, int size){
+    uint64_t extendedup[size+1],extendeddown[size+1];
+    extendedup[size]= 0;extendeddown[size]=0;
+    for(size_t i = 0; i<size; i++) {
+        extendedup[i] = inup[i];
+        extendeddown[i] = indown[i];
+        }
+    B2Aext128(outup,outdown,extendedup,extendeddown,size);
+}
+
+void B2Aext128(MaskedA outup, MaskedA outdown, MaskedB xu,MaskedB xd, int size){
+    if(size==1){
+        outdown[0] = xd[0]^xd[1];
+        outup[0] = xu[0]^xu[1];
+        return;
+    }
+
+    uint64_t yu[size+1],yd[size+1];
+    for(size_t i = 0; i < size +1;i++){
+        yd[i] = xd[i];
+        yu[i] = xu[i];
+    }
+
+  RefreshMasks(yd,size+1);
+  RefreshMasks(yu,size+1);
+ 
+  uint64_t zu[size],zd[size];
+ 
+  Psi0128(&zu[0],&zd[0],yu[0],yd[0],yu[1],yd[1],size);
+  for(int i=1;i<size;i++) Psi128(&zu[i],&zd[i],yu[0],yd[0],yu[i+1],yd[i+1]);
+ 
+  uint64_t Au[size-1],Ad[size-1],Bu[size-1],Bd[size-1];
+  B2Aext128(Au,Ad,yu+1,yd+1,size-1);
+  B2Aext128(Bu,Bd,zu,zd,size-1);
+  
+  for(int i=0;i<size-2;i++)
+    Add128(&outup[i],&outdown[i],Au[i],Ad[i],Bu[i],Bd[i]);
+ 
+  outup[size-2]=Au[size-2];outdown[size-2]=Ad[size-2];
+  outup[size-1]=Bu[size-2];outdown[size-1]=Bd[size-2];
+}
 
 
 //First one : a right rotation

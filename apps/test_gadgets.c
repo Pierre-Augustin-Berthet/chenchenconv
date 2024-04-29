@@ -294,5 +294,21 @@ int main(int *argc, char **argv){
         exit(1);
     }
     fprintf(OUTPUT,"A2B128 Succeeded!\n");
+
+     
+    B1 = rand64();
+    MaskB(b1,B1);
+    MaskB(b2,0);
+    B2A128(a3up,a3down,b2,b1,MASKSIZE);
+    UnmaskA128(&resB1,&resB,a3up,a3down);
+    if(B1^resB|resB1){
+        fprintf(OUTPUT,"B2A128 failed!\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",(uint64_t)0,B1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resB1,resB);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+    fprintf(OUTPUT,"B2A128 Succeeded!\n");
     return 0;
 }
