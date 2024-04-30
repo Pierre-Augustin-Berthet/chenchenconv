@@ -140,21 +140,28 @@ SecFprNorm64(MaskedB out, MaskedA e, uint64_t mod){
 }
 
 void SecFprMul(MaskedB out, MaskedB x, MaskedB y){
-    MaskedB s,sx,sy,p1,p2,b,z,z2,w,bx,by,d,ebx,eby;
-    MaskedA e,ex,ey,wa,p3,p4,mx,my;
+    MaskedB s,sbx,sby,p1,p2,b,z,z2,w,bx,by,d,ebx,eby,mbxu,mbxd,mbyu,mbyd;
+    MaskedA e,ex,ey,wa,p3,p4,mxu,mxd,myu,myd,sx,sy;
+    //EXTRACTION
     for(size_t i =0; i < MASKSIZE;i++){
-        sx[i] = (x[i]>>63);
-        sy[i] = (y[i]>>63);
-        ex[i] = ((x[i]<<1)>>53);
-        ey[i] = ((y[i]<<1)>>53);
-        mx[i] = x[i] & 0xfffffffffffff;
-        my[i] = y[i] & 0xfffffffffffff;
+        sbx[i] = (x[i]>>63);
+        sby[i] = (y[i]>>63);
+        ebx[i] = ((x[i]<<1)>>53);
+        eby[i] = ((y[i]<<1)>>53);
+        mbxd[i] = x[i] & 0xfffffffffffff;
+        mbxu[i]=0;
+        mbyd[i] = y[i] & 0xfffffffffffff;
+        mbyu[i]=0;
     }
-
+    B2A(ex,ebx,(1<<16),MASKSIZE);
+    B2A128(mxu,mxd,mbxu,mbxd,MASKSIZE);
+    B2A(ey,eby,(1<<16),MASKSIZE);
+    B2A128(myu,myd,mbyu,mbyd,MASKSIZE);
+    //FIN EXTRACTION
     for(size_t i= 0; i <MASKSIZE; i++) s[i] = sx[i]^sy[i];
     e[0] = ex[0] + ey[0] -2100;
     for(size_t i =1;i < MASKSIZE;i++) e[i] = ex[i] + ey[i];
-    //SecMult128(p3,p4,mx,my);
+    SecMult128(p3,p4,mxu,mxd,myu,myd);
     A2B128(p1,p2,p3,p4,MASKSIZE);
     for(size_t i =0; i < MASKSIZE;i++) w[i] = p2[i] & 0x7ffffffffffff;
     SecNonZeroB(b,w);

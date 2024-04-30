@@ -117,10 +117,110 @@ int main(int *argc, char **argv){
     inb2[1] = 0;
     inb2[2] = 0;
 
-    SecFprAdd(outb, inb, inb2, mod); 
+    SecFprAdd(outb, inb, inb2, mod);
 
+    fprintf(OUTPUT,"---------------SecFprMult---------------\n");
+    uint64_t sx,sy,ex,ey,mx,my;
+    MaskedB sbx,sby,mbx,mby;
+    MaskedA eax,eay;
+    sx=0;
+    ex=0;
+    mx=0;
+    sy=randmod(2);
+    ey=randmod((1<<11));
+    my=randmod((((uint64_t)1)<<52));
+    MaskB(sbx,sx);
+    MaskA(eax,ex,(1<<16));
+    MaskB(mbx,mx);
+    MaskB(sby,sy);
+    MaskA(eay,ey,(1<<16));
+    MaskB(mby,my);
+    for(size_t i =0; i<MASKSIZE;i++){
+        sbx[i]&=1;
+        sby[i]&=1;
+        mbx[i]=((mbx[i]<<8)>>8);
+        mby[i]=((mby[i]<<8)>>8);
+    }
+    SecFPR(b1,sbx,eax,mbx);
+    SecFPR(b2,sby,eay,mby);
+    
+    SecFprMul(b3,b1,b2);
+    UnmaskB(&resB,b3,MASKSIZE);
+    if(resB){
+        fprintf(OUTPUT,"SecFprMult anything by 0 failed!\n");
+        print_binary_form(resB);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+    fprintf(OUTPUT,"SecFprMult anything by 0 Succeeded!\n");
 
-    exit(0);
+    sx=randmod(2);
+    ex=1076;
+    mx=randmod((((uint64_t)1)<<52));
+    sy=randmod(2);
+    ey=1076;
+    my=randmod((((uint64_t)1)<<52));
+    MaskB(sbx,sx);
+    MaskA(eax,ex,(1<<16));
+    MaskB(mbx,mx);
+    MaskB(sby,sy);
+    MaskA(eay,ey,(1<<16));
+    MaskB(mby,my);
+    for(size_t i =0; i<MASKSIZE;i++){
+        sbx[i]&=1;
+        sby[i]&=1;
+        mbx[i]=((mbx[i]<<8)>>8);
+        mby[i]=((mby[i]<<8)>>8);
+    }
+    SecFPR(b1,sbx,eax,mbx);
+    SecFPR(b2,sby,eay,mby);
+    
+    SecFprMul(b3,b1,b1);
+    UnmaskB(&resB,b3,MASKSIZE);
+    uint64_t resb1,resb2;
+    UnmaskB(&resb1,b1,MASKSIZE);
+    UnmaskB(&resb2,b2,MASKSIZE);
+    if(resB==0){
+        fprintf(OUTPUT,"SecFprMult integer by integer failed!\n");
+        print_binary_form(resb1);        
+        fprintf(OUTPUT,"\n*\n");
+        print_binary_form(resb2);
+        fprintf(OUTPUT,"\n!=\n");
+        print_binary_form(resB);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+    fprintf(OUTPUT,"SecFprMult integer by integer Succeeded!\n");
+/*
+    B1 = rand64();
+    MaskB(b1,B1);
+    SecNonZeroB(b2,b1);
+    UnmaskB(&resB,b2,MASKSIZE);
+    if(((B1!=0) & (resB == 0))||((B1==0) & (resB!=0))){
+        fprintf(OUTPUT,"SecFprMult negative by anything failed!\n");
+        print_binary_form(B1);
+        fprintf(OUTPUT,"\n!=\n");
+        print_binary_form(resB);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+    fprintf(OUTPUT,"SecFprMult negative by anything Succeeded!\n");
+
+    B1 = rand64();
+    MaskB(b1,B1);
+    SecNonZeroB(b2,b1);
+    UnmaskB(&resB,b2,MASKSIZE);
+    if(((B1!=0) & (resB == 0))||((B1==0) & (resB!=0))){
+        fprintf(OUTPUT,"SecFprMult anything by anything failed!\n");
+        print_binary_form(B1);
+        fprintf(OUTPUT,"\n!=\n");
+        print_binary_form(resB);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+    fprintf(OUTPUT,"SecFprMult anything by anything Succeeded!\n");*/
+
+    return 0;
 }
 //00000 00000 00000 00000 00000 00000 000
 //00000 00000 00000 00000 00000 00000 00
