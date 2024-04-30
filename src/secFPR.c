@@ -43,7 +43,7 @@ void SecNonZeroB(MaskedB out, MaskedB in){
         for(size_t i=0; i<MASKSIZE;i++){
             t2[i] = (t[i]>>(len)) & mask;
         } 
-        RefreshXOR(l,t2,((uin64_t)1<<len),MASKSIZE);
+        RefreshXOR(l,t2,((uint64_t)1<<len),MASKSIZE);
         for(size_t i=0; i<MASKSIZE;i++){
             r[i] = t[i] & mask;
         }
@@ -64,7 +64,7 @@ void SecFPR(MaskedB x, MaskedB s, MaskedA e, MaskedB z){
     print_binary_form(test);
     printf("\n");
     e[0] += 1076;
-    A2B(eb,e,(1<<16),MASKSIZE);
+    A2B(eb,e,(1<<16));
     for(size_t i = 0; i <MASKSIZE; i++) b[i] = -((e[i]>>15)&1);
     b[0] = ~(b[0]);
 

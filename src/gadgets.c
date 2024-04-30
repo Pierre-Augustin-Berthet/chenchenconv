@@ -118,6 +118,27 @@ void UnmaskA(uint64_t *out, MaskedA in, uint64_t mod){
 }
 
 /*------------------------------------------------
+RefreshAM :   Refresh t-SNI at order MASKORDER
+input     :   Arithemtic masking in (MaskedA), 
+              Modulo mod (uint64_t),
+              Size size(int)
+output    :   Arithmetic masking out (MaskedA)
+IMPORTANT NOTE
+    To refresh all 64 bits, use mod = 0
+------------------------------------------------*/
+void RefreshAM(MaskedA out, MaskedA in, uint64_t mod, int size){
+    uint64_t r;
+    for(size_t i = 0; i<size; i++) out[i] = in[i];
+    for(size_t i = 0; i<size-1; i++){
+        for(size_t j = i+1; j<size; j++){
+            r = randmod(mod);
+            out[i] = addq(out[i],r,mod);//out[i] ^= r;
+            out[j] = subq(out[j],r,mod);//out[j] ^= r;
+        }
+    }
+}
+
+/*------------------------------------------------
 UnmaskA128   :   Arithmetic unmasking at order MASKORDER with 128bits
 input     :   Arithmetic masking inup,indown (MaskedA)
 output    :   sensitive data outup,outdown (uint64_t)
@@ -307,7 +328,6 @@ void RefreshMasks(MaskedB out, int size){
         out[i] ^= r;
     }
 }
-void    Refresh             (); //ATTENTION ON DOIT POUVOIR CHOISIR QUELLES SHARES ON REFRESH
 
 void A2B(MaskedB out, MaskedA in, uint64_t mod){
     A2B_rec(out, in, mod, MASKSIZE);

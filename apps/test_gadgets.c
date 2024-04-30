@@ -131,6 +131,22 @@ int main(int *argc, char **argv){
     }
     fprintf(OUTPUT,"Arithmetic Masking-Demasking Succeeded!\n");
 
+    
+    A1 = randmod(MODULO);
+    MaskA(a1,A1,MODULO);
+    RefreshAM(a1,a1,MODULO,MASKSIZE);
+    UnmaskA(&resA,a1,MODULO);
+
+    if(subq(A1,resA,MODULO)){
+        fprintf(OUTPUT,"Arithmetic Refresh failed!\n");
+        fprintf(OUTPUT,"%lu",A1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu",resA);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+    fprintf(OUTPUT,"Arithmetic Refresh Succeeded!\n");
+
     A2 = randmod(MODULO);
     MaskA(a2,A2,MODULO);
     SecMult(a3,a1,a2,MODULO);
