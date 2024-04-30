@@ -17,6 +17,7 @@ uint64_t rand64(void){
  }
 
  uint64_t randmod(uint64_t mod){
+  if (mod == 0) return rand64();
   return rand()%mod;
  }
 

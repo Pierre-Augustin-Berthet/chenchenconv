@@ -102,6 +102,7 @@ void SecFprUrsh(MaskedB out, MaskedB in, MaskedA c){
     }
     MaskedB temp;
     SecAnd(temp, in, m,MASKSIZE);
+
     for (int i = 0; i<MASKSIZE; i++){
         out[i] = temp[i] ^ in[i];
         out[i]^= temp[i] & 1;
@@ -109,8 +110,60 @@ void SecFprUrsh(MaskedB out, MaskedB in, MaskedA c){
     MaskedB b;
     SecNonZeroB(b, out);
     for (int i = 0; i<MASKSIZE; i++){
-        out[i] = (temp[i] - (temp[i] & (uint64_t)1)) | b[i];
+        out[i] = (temp[i] - (temp[i] & (uint64_t)1)); //| b[i];
     }
+}
+
+void SecFprUrsh2(MaskedB out, MaskedB in, MaskedA c){
+    MaskedB m, inp;
+
+    for (int i = 0; i<MASKSIZE; i++) {
+        m[i] = 0;
+        inp[i] = in[i];
+    }
+    m[0] = ((uint64_t)1)<<63;
+    for (int j =0; j< MASKSIZE; j++){
+        vecRightRotate(inp, c[j]);
+        RefreshMasks(inp, MASKSIZE);
+        vecRightRotate(m, c[j]);
+        RefreshMasks(m, MASKSIZE);
+    }
+    uint64_t len = 1;
+    while(len<=32){
+        for (int i = 0; i < MASKSIZE; i++){
+            m[i] = m[i] ^ (m[i]>>len);
+        }
+        len = len << 1;
+    }
+    SecAnd(out, inp, m,MASKSIZE);
+}
+
+void SecFprUrsh3(MaskedB out, MaskedB out2, MaskedB in, MaskedA c){
+    MaskedB m, inp;
+
+    for (int i = 0; i<MASKSIZE; i++) {
+        m[i] = 0;
+        inp[i] = in[i];
+    }
+    m[0] = ((uint64_t)1)<<63;
+    for (int j =0; j< MASKSIZE; j++){
+        vecRightRotate(inp, c[j]);
+        RefreshMasks(inp, MASKSIZE);
+        vecRightRotate(m, c[j]);
+        RefreshMasks(m, MASKSIZE);
+    }
+    uint64_t len = 1;
+    while(len<=32){
+        for (int i = 0; i < MASKSIZE; i++){
+            m[i] = m[i] ^ (m[i]>>len);
+        }
+        len = len << 1;
+    }
+    SecAnd(out, inp, m,MASKSIZE);
+    for (int i = 0; i < MASKSIZE; i++){
+            m[i] = ~m[i];
+    }
+    SecAnd(out2, inp, m, MASKSIZE);
 }
 
 void 
@@ -153,25 +206,23 @@ void SecFprMul(MaskedB out, MaskedB x, MaskedB y, uint64_t mod){
     SecNonZeroB(b,w);
 }
 
-
-
 void SecFprAdd(MaskedB out, MaskedB in1, MaskedB in2, uint64_t mod){
     //PART 1 : BEFORE EXTRACTING (S,E,M)
     MaskedB in1m, in2m, d, b, bp, cs, m, x_63, dp;
-    uint64_t res;
 
     for (int i = 0; i<MASKSIZE; i++){
-        in1m[i] = (in1[i]>>1);
-        in2m[i] = (in2[i]>>1);
+        in1m[i] = (in1[i]<<1)>>1;
+        in2m[i] = (in2[i]<<1)>>1;
     }
     in2m[0] = ~in2m[0];
 
-    SecAdd(d, in1m, in2m, ((uint64_t)1<<63), 64, MASKSIZE);      //d=xm-ym-1
+    SecAdd(d, in1m, in2m, 0, 8, MASKSIZE);      //d=xm-ym-1
 
     for (int i = 1; i<MASKSIZE; i++){
         dp[i] = d[i];
     }
     dp[0] = ~d[0];
+    
     SecNonZeroB(b, dp);
 
     dp[0] = ~(d[0] ^ ((uint64_t)1<<63));
@@ -181,6 +232,7 @@ void SecFprAdd(MaskedB out, MaskedB in1, MaskedB in2, uint64_t mod){
     for (int i = 1; i<MASKSIZE; i++){
         dp[i] = b[i];
     }
+
     dp[0] = ~b[0];
     for (int i = 0; i<MASKSIZE; i++){
         x_63[i] = in1[i]>>63;
@@ -191,14 +243,14 @@ void SecFprAdd(MaskedB out, MaskedB in1, MaskedB in2, uint64_t mod){
     for (int i = 0; i<MASKSIZE; i++){
         x_63[i] = (d[i]>>63) ^ b[i] ^ bp[i];
     }
+
     SecOr(cs, cs, x_63);
 
     for (int i = 0; i<MASKSIZE; i++){
         x_63[i] = in1[i] ^ in2[i];
     }
-
-// OPERATION : -cs. when cs = 0 ----> cps = 0
-//                  when cs = 1 ----> cps = 0xff..ff
+    // OPERATION : -cs. when cs = 0 ----> cps = 0
+    //                  when cs = 1 ----> cps = 0xff..ff
     MaskedB csp;
     for (int j = 0; j<MASKSIZE; j++){
         csp[j] = 0;
@@ -208,13 +260,14 @@ void SecFprAdd(MaskedB out, MaskedB in1, MaskedB in2, uint64_t mod){
     }
     RefreshMasks(csp,MASKSIZE);
 
+    RefreshMasks(csp,MASKSIZE);
+
     SecAnd(m, x_63, csp,MASKSIZE);
 
     for (int i = 0; i<MASKSIZE; i++){
         in1[i] = in1[i] ^ m[i];
         in2[i] = in2[i] ^ m[i];
     }
-
 
     //PART 2 : EXTRACTING (S,E,M)
     MaskedB mx, my, sx, sy, exp, eyp;
@@ -233,36 +286,6 @@ void SecFprAdd(MaskedB out, MaskedB in1, MaskedB in2, uint64_t mod){
         sy[i] = in2[i]>>63;
     }
 
-    //Print value
-///*
-    UnmaskB(&res, mx, MASKSIZE);
-    printf("mx = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-    UnmaskB(&res, my, MASKSIZE);
-    printf("my = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskB(&res, exp, MASKSIZE);
-    printf("exp= %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-    UnmaskB(&res, eyp, MASKSIZE);
-    printf("eyp= %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskB(&res, sx, MASKSIZE);
-    printf("sx = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-    UnmaskB(&res, sy, MASKSIZE);
-    printf("sy = %lu\n", res);
-    print_binary_form(res);
-    printf("\n\n\n\n");
-
-//*/
     //PART 3 : OPERATION ON (S,E,M)
     MaskedA c, temp, s;
     MaskedB cp, myp, tempb, un, z;
@@ -272,60 +295,15 @@ void SecFprAdd(MaskedB out, MaskedB in1, MaskedB in2, uint64_t mod){
     my[0] += (uint64_t)1 << 52;
     RefreshMasks(my, MASKSIZE);
 
-    UnmaskB(&res, mx, MASKSIZE);
-    printf("mx = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-    UnmaskB(&res, my, MASKSIZE);
-    printf("my = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-
     for (int i = 0; i<MASKSIZE; i++){
         mx[i]<<=3;
         my[i]<<=3;
     }
-/*
-    UnmaskB(&res, mx, MASKSIZE);
-    printf("mx = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-    UnmaskB(&res, my, MASKSIZE);
-    printf("my = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-//*/
 
     B2A(ex, exp, (1<<16), MASKSIZE);
     B2A(ey, eyp, (1<<16), MASKSIZE);
-
-/* Check this part
-    
-*//*
-    UnmaskA(&res, ex , mod);
-    printf("ex = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-    UnmaskA(&res, ey , mod);
-    printf("ey = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-//*/
     ex[0] -=1078;
     ey[0] -=1078;
-
-/* Check this part
-    Exponent decode
-*////*
-    UnmaskA(&res, ex , (1<<16));
-    printf("ex = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-    UnmaskA(&res, ey , (1<<16));
-    printf("ey = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-//*/
 
     for (int i = 0; i < MASKSIZE; i++){
         c[i] = ex[i] - ey[i];
@@ -333,29 +311,10 @@ void SecFprAdd(MaskedB out, MaskedB in1, MaskedB in2, uint64_t mod){
     }
     temp[0] -= 60;
 
- /* Check this part
-    
-*///*
-    UnmaskA(&res, c , (1<<16));
-    printf("c  = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-    UnmaskA(&res, temp , (1<<16));
-    printf("temp= %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-//*/
-
     A2B(cp, temp, (1<<16));
-     /* Check this part
-*//*
-    UnmaskB(&res, cp , MASKSIZE);
-    printf("cp = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-//*/
+
     for (int i = 0; i<MASKSIZE; i++){
-        tempb[i] = -(((cp[i]>>15)&1)); 
+        tempb[i] = -((cp[i]>>15)&1); 
         //si        cp[i](16)    = 0 
         //---> not(cp[i](16))    = 0b111...1111
         //---> not(cp[i](16)) +1 = 0b000...0000 (+ 1b000...0000)
@@ -365,39 +324,12 @@ void SecFprAdd(MaskedB out, MaskedB in1, MaskedB in2, uint64_t mod){
         //---> not(cp[i](16)) +1 = 0b111...1111
         // and ---> my = my
     }
-    /* Check this part
-*//*
-    UnmaskB(&res, tempb , MASKSIZE);
-    printf("tempb= %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-//*/
+
     SecAnd(my, my, tempb,MASKSIZE);
-/* Check this part
-*////*
-    UnmaskB(&res, my , MASKSIZE);
-    printf("my = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-//*/
 
-//Here we have something strange, but this work and compute the good rotation
-    A2B(tempb, c, 1<<16);
-    for (int i = 0; i<MASKSIZE; i++) tempb[i] = tempb[i]&0b111111;
-    B2A(temp, tempb, 1<<16, MASKSIZE);
-
-    SecFprUrsh(my, my, temp);
-    /* Check this part
-*////*
-    UnmaskA(&res, temp ,(1<<16) );
-    printf("temp = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-    UnmaskB(&res, my , MASKSIZE);
-    printf("my = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-//*/
+    MaskedA tempA;
+    for (int i =0; i<MASKSIZE; i++) tempA[i] = c[i]& 0b111111;
+    SecFprUrsh(my, my, tempA);
 
     for (int i = 1; i<MASKSIZE; i++) {
         myp[i] = my[i];
@@ -406,20 +338,7 @@ void SecFprAdd(MaskedB out, MaskedB in1, MaskedB in2, uint64_t mod){
     un[0] = 1;
     myp[0] = ~my[0];
     
-    SecAdd(tempb, myp, un,((uint64_t)1<<63), 64,MASKSIZE);
-
-    /* Check this part
-*////*
-    UnmaskB(&res, tempb ,MASKSIZE);
-    printf("temp = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-    UnmaskB(&res, my , MASKSIZE);
-    printf("my  = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-//*/
-
+    SecAdd(myp, myp, un,0, 8,MASKSIZE);
 
     for (int i = 0; i<MASKSIZE; i++) s[i] = (-(sx[i] ^ sy[i]));
     RefreshMasks(my, MASKSIZE);
@@ -428,87 +347,38 @@ void SecFprAdd(MaskedB out, MaskedB in1, MaskedB in2, uint64_t mod){
 
     SecAnd(myp, tempb, s,MASKSIZE);
 
-    /* Check this part
-*////*
-    UnmaskB(&res, tempb ,MASKSIZE);
-    printf("tempb= %lu\n", res);
-    print_binary_form(res);
-    printf("\nAND\n");
-    UnmaskB(&res, s , MASKSIZE);
-    printf("s   = %lu\n", res);
-    print_binary_form(res);
-    printf("\n= \n");
-    UnmaskB(&res, myp , MASKSIZE);
-    printf("myp = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-//*/
-
     for (int i = 0; i<MASKSIZE; i++) my[i] = my[i] ^ myp[i];
 
-    /* Check this part
-*////*
-    UnmaskB(&res, tempb ,MASKSIZE);
-    printf("temp = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-    UnmaskB(&res, my , MASKSIZE);
-    printf("myp = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-//*/
-
-
-    SecAdd(z, mx, my,((uint64_t)1<<63), 64,MASKSIZE);
-
-   /* Check this part
-*////*
-    UnmaskB(&res, mx ,MASKSIZE);
-    printf("mx   = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-    UnmaskB(&res, my , MASKSIZE);
-    printf("my   = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-    UnmaskB(&res, z , MASKSIZE);
-    printf("z    = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-//*/
+    SecAdd(z, mx, my,0, 8,MASKSIZE);
 
     SecFprNorm64(z,ex, mod);
 
-    UnmaskB(&res, z , MASKSIZE);
-    printf("z    = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-    UnmaskA(&res, ex , 1<<16);
-    printf("ex   = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    for (int i = 0; i<MASKSIZE; i++) b[i] = z[i]&0b111111111;
+    for (int i = 0; i<MASKSIZE; i++) b[i] = z[i]&0b1111111111;
     SecNonZeroB(b,b);
-    uint64_t mask = (~((uint64_t)0))>>12;
     for (int i = 0; i<MASKSIZE; i++) {
         z[i] = z[i]>>11;
-        z[i] -= z[i]&1;
-        z[i] += b[i]; //Attention ici pour le remplacement de ce bit. 
-
-        z[i] &= mask;
+        z[i] = z[i] - (z[i]&1) + b[i];
     }
-    ex[0]+= 8;
-    ex[0] = ex[0] +1078; //1079
+    ex[0]+= 10;
 
-    UnmaskB(&res, z , MASKSIZE);
-    printf("z    = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-    UnmaskA(&res, ex , 1<<16);
-    printf("ex   = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
+    //PART 6 : SEC FPR
+
+    ex[0] += 1076;
+
+    MaskedB e, bi, zi;
+
+    A2B(e,ex,1<<16);
+
+    for (int i = 0; i<MASKSIZE; i++) bi[i] = -((e[i]>>15)&1);
+    bi[0] = ~bi[0];
+
+    SecAnd(z, z, bi, MASKSIZE);
+
+    for (int i = 0; i<MASKSIZE; i++) zi[i] = -((z[i]>>52)&1);
+
+    SecAnd(e, e, zi, MASKSIZE);
+
+    for (int i = 0; i<MASKSIZE; i++) out[i] = (((z[i]- (z[i]&0b11))<<12)>>12) + ((e[i]&0b11111111111)<<52) + (sx[i]<<63);
 }
 
 
@@ -597,7 +467,7 @@ SecFprTrunc(MaskedB out, MaskedB in){
 
     B2A(cd, c, 1<<16, MASKSIZE);
 
-    SecFprUrsh(mout, mout, cd);
+    SecFprUrsh2(mout, mout, cd);
 
     for (int i = 0; i<MASKSIZE; i++) eout[i] += cd[i];
 
@@ -607,7 +477,7 @@ SecFprTrunc(MaskedB out, MaskedB in){
 
     for (int i = 0; i<MASKSIZE; i++){
         mout[i] = mout[i]>>11;
-        mout[i] = mout[i] - ((uint64_t)1<<52);
+        //mout[i] = mout[i] - ((uint64_t)1<<52);
     }
     
     eout[0] = eout[0] +11;
@@ -622,99 +492,12 @@ SecFprTrunc(MaskedB out, MaskedB in){
     for (int i = 0; i<MASKSIZE; i++) out[i] = ((mout[i]<<12)>>12) + (eoutp[i]<<52) + (sout[i]<<63);
 
 
-   /*printf("\n\n\n============================== VALUE ==============================\n\n\n");
-    uint64_t res;
-
-    UnmaskB(&res, mx, MASKSIZE);
-    printf("mx = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskB(&res, mout, MASKSIZE);
-    printf("mo = %lu\n", res);
-    print_binary_form(res);
-    printf("\n\n");
-
-    UnmaskB(&res, exp, MASKSIZE);
-    printf("exp= %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskA(&res, ex, 1<<16);
-    printf("ex = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskA(&res, eout, 1<<16);
-    printf("eo = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskB(&res, eoutp, MASKSIZE);
-    printf("eop= %lu\n", res);
-    print_binary_form(res);
-    printf("\n\n\n");
-
-    UnmaskB(&res, c, MASKSIZE);
-    printf("c  = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskA(&res, cx, 1<<16);
-    printf("cx = %lu mod 1<<16\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskA(&res, cx, 1<<6);
-    printf("cx = %lu mod 1<<6\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskA(&res, cd, 1<<16);
-    printf("cd = %lu mod 1<<16\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskA(&res, cd, 1<<6);
-    printf("cd = %lu mod 1<<6\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskB(&res, cp, MASKSIZE);
-    printf("cp = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskB(&res, c0, MASKSIZE);
-    printf("c0 = %lu\n", res);
-    print_binary_form(res);
-    printf("\n\n\n");
-
-    UnmaskB(&res, sx, MASKSIZE);
-    printf("sx = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskB(&res, sout, MASKSIZE);
-    printf("so = %lu\n", res);
-    print_binary_form(res);
-    printf("\n\n\n");
-
-    UnmaskB(&res, out, MASKSIZE);
-    printf("out= %lu\n", res);
-    print_binary_form(res);
-    printf("\n\n\n");
-
-    printf("============================ END VALUE ============================\n");
-
-    printf("\n\n\n\n");*/
-
-
 }
 
 
 void 
 SecFprFloor(MaskedB out, MaskedB in){
+uint64_t res;
 
 //PART 1 : Extract mx, ex, sx
 
@@ -729,7 +512,6 @@ SecFprFloor(MaskedB out, MaskedB in){
         //1 top bit.
         sx[i] = in[i]>>63;
     }
-
     //Ajout du bit implicite
     mx[0] += (uint64_t)1 << 52;
     RefreshMasks(mx, MASKSIZE);
@@ -768,11 +550,11 @@ SecFprFloor(MaskedB out, MaskedB in){
     for(int i = 0; i<MASKSIZE; i++) c[i] = (c[i]>>15)&1;
     SecNonZeroB(c,c);
 
+    MaskedB cs;
+
     for (int j = 0; j<MASKSIZE; j++){
-        cp[j] = 0;
-        for (int i = 0; i<64; i++){
-            cp[j] ^= ((c[j])<<i);
-        }
+        cp[j] = -c[j];
+        cs[j] = c[j]; 
     }
     RefreshMasks(cp,MASKSIZE);
     A2B(c, cx, 1<<16);
@@ -781,16 +563,16 @@ SecFprFloor(MaskedB out, MaskedB in){
 //PART 4 : SecFprUrsh
     for (int i = 0; i<MASKSIZE; i++) cd[i] = (-(cx[i]));
 
-    SecFprUrsh(mout, mout, cd);
+    MaskedB Int_test;
 
-    
-// ICI POUR AVOIR LA PARTIE ENTIERE. 
+    SecFprUrsh3(mout,Int_test, mout, cd);
     MaskedB b;
-    SecNonZeroB(b, mout);
+    SecNonZeroB(b, Int_test);
 
-    SecAdd(mout, mout, sout,64,6,  MASKSIZE);
+    //SecAnd(cs, cs, sout, MASKSIZE);
+    SecAnd(cs, b, sout, MASKSIZE);
 
-//FIN PARTIE ENTIERE
+    SecAdd(mout, mout, cs,0,8,  MASKSIZE);
 
     for (int i = 0; i<MASKSIZE; i++) eout[i] += cd[i];
 
@@ -800,13 +582,14 @@ SecFprFloor(MaskedB out, MaskedB in){
 
     for (int i = 0; i<MASKSIZE; i++){
         mout[i] = mout[i]>>11;
-        mout[i] = mout[i] - ((uint64_t)1<<52);
+        //mout[i] = mout[i] - ((uint64_t)1<<52);
     }
     
     eout[0] = eout[0] +11;
 
     MaskedB eoutp; 
     A2B(eoutp, eout, 1<<16);
+
 
     MaskedB bd;
     for (int i = 0; i<MASKSIZE; i++) bd[i] = -sout[i];
@@ -818,99 +601,6 @@ SecFprFloor(MaskedB out, MaskedB in){
 
 
     for (int i = 0; i<MASKSIZE; i++) out[i] = ((mout[i]<<12)>>12) + (eoutp[i]<<52) + (sout[i]<<63);
-
-
-    /*printf("\n\n\n============================== VALUE ==============================\n\n\n");
-    uint64_t res;
-
-    UnmaskB(&res, mx, MASKSIZE);
-    printf("mx = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskB(&res, mout, MASKSIZE);
-    printf("mo = %lu\n", res);
-    print_binary_form(res);
-    printf("\n\n");
-
-    UnmaskB(&res, exp, MASKSIZE);
-    printf("exp= %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskA(&res, ex, 1<<16);
-    printf("ex = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskA(&res, eout, 1<<16);
-    printf("eo = %lu\n", res);
-    print_binary_form(res);
-    printf("\n\n\n");
-
-    UnmaskB(&res, c, MASKSIZE);
-    printf("c  = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskA(&res, cx, 1<<16);
-    printf("cx = %lu mod 1<<16\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskA(&res, cx, 1<<6);
-    printf("cx = %lu mod 1<<6\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskA(&res, cd, 1<<16);
-    printf("cd = %lu mod 1<<16\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskA(&res, cd, 1<<6);
-    printf("cd = %lu mod 1<<6\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskB(&res, cp, MASKSIZE);
-    printf("cp = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskB(&res, c0, MASKSIZE);
-    printf("c0 = %lu\n", res);
-    print_binary_form(res);
-    printf("\n\n\n");
-
-    UnmaskB(&res, sx, MASKSIZE);
-    printf("sx = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskB(&res, sout, MASKSIZE);
-    printf("so = %lu\n", res);
-    print_binary_form(res);
-    printf("\n\n\n");
-
-    UnmaskB(&res, b, MASKSIZE);
-    printf("b  = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-    UnmaskB(&res, bd, MASKSIZE);
-    printf("bd = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskB(&res, out, MASKSIZE);
-    printf("out= %lu\n", res);
-    print_binary_form(res);
-    printf("\n\n\n");
-
-    printf("\n\n\n============================ END VALUE ============================\n");
-
-    printf("\n\n\n\n");*/
-
 
 }
 
@@ -969,6 +659,12 @@ SecFprRound(MaskedB out, MaskedB in){
     for(int i = 0; i<MASKSIZE; i++) c[i] = (c[i]>>15)&1;
     SecNonZeroB(c,c);
 
+    MaskedB rshORnot;
+
+    for (int i = 0; i<MASKSIZE; i++) rshORnot[i] = -c[i];
+
+    uint64_t res;
+
     for (int j = 0; j<MASKSIZE; j++){
         cp[j] = 0;
         for (int i = 0; i<64; i++){
@@ -978,6 +674,8 @@ SecFprRound(MaskedB out, MaskedB in){
     RefreshMasks(cp,MASKSIZE);
 
     cx[0] = cx[0] + 52;
+    
+    cx[0] = cx[0] - 51 ;
 
     A2B(c, cx, 1<<16);
 
@@ -989,33 +687,52 @@ SecFprRound(MaskedB out, MaskedB in){
 
 //PART 4 : SecFprUrsh
 
-    cx[0] = cx[0] - 50 ;
-
     for (int i = 0; i<MASKSIZE; i++) cd[i] = (-(cx[i]));
 
-    //A2B(c, cd, 1<<16);
-
-    //SecAnd(c, c, cp, MASKSIZE);
-
-    //B2A(cd, c, 1<<16, MASKSIZE);
-
-    SecFprUrsh(mout, mout, cd);
+    SecFprUrsh2(mout, mout, cd);
     
 // ICI POUR AVOIR LA PARTIE ENTIERE. 
     MaskedB b;
-    for (int i = 0; i<MASKSIZE; i++) b[i] = mout[i]&10;
+    for (int i = 0; i<MASKSIZE; i++) b[i] = mout[i]&1;
     SecNonZeroB(b, b);
 
-    for (int i = 0; i<MASKSIZE; i++) mout[i] = mout[i]>>2;
+    SecAnd(b, b, rshORnot, MASKSIZE);
+
+    MaskedB moutp1, moutp2;
+    MaskedB e1, e2;
+    MaskedA etemp;
+
+    for (int i = 0; i<MASKSIZE; i++){
+        eout[i] += cd[i];
+        e1[i] = 0;
+        e2[i] = 0;
+    } 
+    e1[0] = 1;
+
+    for (int i = 0; i<MASKSIZE; i++) {
+        moutp1[i] = mout[i]>>1;
+        moutp2[i] = mout[i];
+    }
+    SecAnd(moutp1, moutp1, rshORnot, MASKSIZE);
+    SecAnd(e1, e1, rshORnot, MASKSIZE);
+    for (int i = 0; i<MASKSIZE; i++) rshORnot[i] = ~rshORnot[i];
+    SecAnd(moutp2, moutp2, rshORnot, MASKSIZE);
+    SecAnd(e2, e2, rshORnot, MASKSIZE);
+
+    SecOr(mout, moutp1, moutp2);
+    SecOr(e1, e1, e2);
 
     SecAdd(mout, mout, b ,64,6,  MASKSIZE);
 
+    B2A(etemp, e1, 1<<16, MASKSIZE);
     //SecAdd(mout, mout, sout ,64,6,  MASKSIZE);
 
 //FIN PARTIE ENTIERE
 
-    for (int i = 0; i<MASKSIZE; i++) eout[i] += cd[i];
-    eout[0] +=2;
+    for (int i = 0; i<MASKSIZE; i++){
+        eout[i] += etemp[i];
+    }
+    
 
 //PART 5 : Normalization
 
@@ -1023,7 +740,7 @@ SecFprRound(MaskedB out, MaskedB in){
 
     for (int i = 0; i<MASKSIZE; i++){
         mout[i] = mout[i]>>11;
-        mout[i] = mout[i] - ((uint64_t)1<<52);
+        //mout[i] = mout[i] - ((uint64_t)1<<52);
     }
     
     eout[0] = eout[0] +11;
@@ -1032,103 +749,14 @@ SecFprRound(MaskedB out, MaskedB in){
     A2B(eoutp, eout, 1<<16);
 
     MaskedB bp;
-    for (int i =0; i<MASKSIZE; i++) bp[i] = -b[i];
+    for (int i =0; i<MASKSIZE; i++) bp[i] = b[i];
+
     SecOr(bp, c0, bp);
 
     SecAnd(eoutp,eoutp, bp, MASKSIZE);
+
     SecAnd(sout, sout, bp, MASKSIZE);
 
 
     for (int i = 0; i<MASKSIZE; i++) out[i] = ((mout[i]<<12)>>12) + (eoutp[i]<<52) + (sout[i]<<63);
-
-
-
-   /* printf("\n\n\n============================== VALUE ==============================\n\n\n");
-    uint64_t res;
-
-    UnmaskB(&res, mx, MASKSIZE);
-    printf("mx = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskB(&res, mout, MASKSIZE);
-    printf("mo = %lu\n", res);
-    print_binary_form(res);
-    printf("\n\n");
-
-    UnmaskB(&res, exp, MASKSIZE);
-    printf("exp= %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskA(&res, ex, 1<<16);
-    printf("ex = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskA(&res, eout, 1<<16);
-    printf("eo = %lu\n", res);
-    print_binary_form(res);
-    printf("\n\n\n");
-
-    UnmaskB(&res, c, MASKSIZE);
-    printf("c  = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskA(&res, cx, 1<<16);
-    printf("cx = %lu mod 1<<16\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskA(&res, cx, 1<<6);
-    printf("cx = %lu mod 1<<6\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskA(&res, cd, 1<<16);
-    printf("cd = %lu mod 1<<16\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskA(&res, cd, 1<<6);
-    printf("cd = %lu mod 1<<6\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskB(&res, cp, MASKSIZE);
-    printf("cp = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskB(&res, c0, MASKSIZE);
-    printf("c0 = %lu\n", res);
-    print_binary_form(res);
-    printf("\n\n\n");
-
-    UnmaskB(&res, sx, MASKSIZE);
-    printf("sx = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskB(&res, sout, MASKSIZE);
-    printf("so = %lu\n", res);
-    print_binary_form(res);
-    printf("\n\n\n");
-
-    UnmaskB(&res, b, MASKSIZE);
-    printf("b  = %lu\n", res);
-    print_binary_form(res);
-    printf("\n");
-
-    UnmaskB(&res, out, MASKSIZE);
-    printf("out= %lu\n", res);
-    print_binary_form(res);
-    printf("\n\n\n");
-
-    printf("\n\n\n============================ END VALUE ============================\n");
-
-    printf("\n\n\n\n");*/
-
-
 }

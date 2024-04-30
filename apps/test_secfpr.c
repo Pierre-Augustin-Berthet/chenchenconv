@@ -106,27 +106,35 @@ int main(int *argc, char **argv){
     fprintf(OUTPUT,"\n-----------------FprAdd------------------\n");
 
 
-    inb[0] = 0x422E2F5DC41C0000;//((uint64_t)2<<50) + ((uint64_t)0<<63) + ((uint64_t)1025<<52);
-    print_binary_form(((uint64_t)1026<<52));
-    printf("\ninb[0] = %lu\n", inb[0]);
-    print_binary_form(inb[0]);
-    printf("\n");
+    inb[0] = 0x4014000000000000;//((uint64_t)2<<50) + ((uint64_t)0<<63) + ((uint64_t)1025<<52);
     inb[1] = 0;
     inb[2] = 0;
 
     MaskedB inb2;
     int mod = (1<<16);
 
-    inb2[0] = 0x4014000000000000;//((uint64_t)0<<50) + ((uint64_t)0<<63) + ((uint64_t)1024<<52);
+    inb2[0] = 0x43A0A741A4627800;//0xC014000000000000;//((uint64_t)0) + ((uint64_t)0<<63) + ((uint64_t)1075<<52);
     inb2[1] = 0;
     inb2[2] = 0;
 
+    //-5--> 0xC014000000000000
+    //5--> 0x4014000000000000
+    //6--> 0x4018000000000000
+
     SecFprAdd(outb, inb, inb2, mod); 
+
+    UnmaskB(&res, outb, MASKSIZE);
+    printf("outb = %lu\n", res);
+    print_binary_form(res);
+    printf("\n\n\n");
+
+    //for(int i = 1; i<1023; i++){
+    //for(uint64_t j = 1; j< ((uint64_t)1<<52); j<<=1){
 
     fprintf(OUTPUT,"\n-----------------FprTrunc----------------\n");
 
     printf("TEST SecFprTrunc(5,5)\n");
-    inb[0] = 0x3FD999999999999A;//((uint64_t)0<<51) + ((uint64_t)0 <<63) + ((uint64_t)1022<<52);
+    inb[0] = ((uint64_t)1) + ((uint64_t)1<<63) + ((uint64_t)1000<<52);//0x3FD999999999999A;//((uint64_t)0<<51) + ((uint64_t)0 <<63) + ((uint64_t)1022<<52);
     printf("inb[0] = %lu\n", inb[0]);
     print_binary_form(inb[0]);
     printf("\n");
@@ -143,13 +151,18 @@ int main(int *argc, char **argv){
     UnmaskB(&res, inb2, MASKSIZE);
     printf("floor = %lu\n", res);
     print_binary_form(res);
+    uint64_t e = (res<<1)>>53;
+    printf("\ne = %lu\n", e);
     printf("\n\n\n");
+    
 
-    SecFprRound(inb2, inb);
+    SecFprRound(inb2, inb);     
     UnmaskB(&res, inb2, MASKSIZE);
     printf("round = %lu\n", res);
     print_binary_form(res);
     printf("\n\n\n");
+
+    //}}
 
     exit(0);
 }
