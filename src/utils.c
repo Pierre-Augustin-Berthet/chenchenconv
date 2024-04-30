@@ -23,7 +23,7 @@ uint64_t rand64(void){
 
  void print_binary_form(uint64_t in){
   fprintf(OUTPUT,"0b");
-  for(int i = 0; i<64;i++){
+  for(int i = 63; i>=0;i--){
     fprintf(OUTPUT,"%ld",(in>>i)&1);
   }
  }
@@ -121,4 +121,46 @@ void Mult128Bi(uint64_t *outup, uint64_t *outdown, uint64_t in1up, uint64_t in1d
   d2u1u = *outup;
   d2u1d = * outdown;
   Add128(outup,outdown,d2u1u,d2u1d,d1d2d,0); //out = d1d2 + A<<64 = {d1d2u + Ad pour up; d1d2d pour down}
+}
+
+uint64_t FPR(int s,int e, uint64_t m){
+  uint64_t x;
+	uint32_t t;
+	unsigned f;
+
+	/*
+	 * If e >= -1076, then the value is "normal"; otherwise, it
+	 * should be a subnormal, which we clamp down to zero.
+	 */
+	e += 1076;
+	t = (uint32_t)e >> 31;
+	m &= (uint64_t)t - 1;
+
+	/*
+	 * If m = 0 then we want a zero; make e = 0 too, but conserve
+	 * the sign.
+	 */
+	t = (uint32_t)(m >> 54);
+	e &= -(int)t;
+
+	/*
+	 * The 52 mantissa bits come from m. Value m has its top bit set
+	 * (unless it is a zero); we leave it "as is": the top bit will
+	 * increment the exponent by 1, except when m = 0, which is
+	 * exactly what we want.
+	 */
+	x = (((uint64_t)s << 63) | (m >> 2)) + ((uint64_t)(uint32_t)e << 52);
+
+	/*
+	 * Rounding: if the low three bits of m are 011, 110 or 111,
+	 * then the value should be incremented to get the next
+	 * representable value. This implements the usual
+	 * round-to-nearest rule (with preference to even values in case
+	 * of a tie). Note that the increment may make a carry spill
+	 * into the exponent field, which is again exactly what we want
+	 * in that case.
+	 */
+	f = (unsigned)m & 7U;
+	x += (0xC8U >> f) & 1;
+	return x;
 }

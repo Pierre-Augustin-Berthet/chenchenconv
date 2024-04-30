@@ -119,16 +119,46 @@ int main(int *argc, char **argv){
 
     SecFprAdd(outb, inb, inb2, mod);
 
-    fprintf(OUTPUT,"---------------SecFprMult---------------\n");
+    fprintf(OUTPUT,"---------------SecFpr---------------\n");
     uint64_t sx,sy,ex,ey,mx,my;
-    MaskedB sbx,sby,mbx,mby;
+    MaskedB sbx,sby,mbx,mby,x,y;
     MaskedA eax,eay;
-    sx=0;
+    sy=randmod(2);
+    ey=randmod((1<<11));
+    my=randmod((((uint64_t)1)<<54))^(((uint64_t)1)<<55);
+    printf("\n%ld sy %ld ey %ld my\n",sy,ey,my);
+    MaskB(sby,sy);
+    MaskA(eay,ey,(1<<16));
+    MaskB(mby,my);
+    for(size_t i =0; i<MASKSIZE;i++){
+        sby[i]&=1;
+        mby[i]=((mby[i]<<8)>>8);
+    }
+    UnmaskB(&resB,sby,MASKSIZE);
+    printf("%ld msk sy ",resB);
+    UnmaskA(&resA, eay,(1<<16));
+    printf("%ld msk ey ",resA);
+    UnmaskB(&resB,mby,MASKSIZE);
+    printf("%ld msk my\n",resB);
+
+    SecFPR(b2,sby,eay,mby);
+    B2 = FPR((int)sy,(int)ey,my);
+    UnmaskB(&resB,b2,MASKSIZE);
+
+    printf("\n Expected result :\n");
+    print_binary_form(B2);
+    printf("\n SecFpr : \n");
+    print_binary_form(resB);
+    printf("\n");
+/**/
+
+    fprintf(OUTPUT,"---------------SecFprMult---------------\n");
+    /*sx=0;
     ex=0;
     mx=0;
     sy=randmod(2);
-    ey=randmod((1<<11));
-    my=randmod((((uint64_t)1)<<52));
+    ey=(1<<10);//randmod((1<<11));
+    my=randmod((((uint64_t)1)<<55));
     MaskB(sbx,sx);
     MaskA(eax,ex,(1<<16));
     MaskB(mbx,mx);
@@ -141,56 +171,105 @@ int main(int *argc, char **argv){
         mbx[i]=((mbx[i]<<8)>>8);
         mby[i]=((mby[i]<<8)>>8);
     }
-    SecFPR(b1,sbx,eax,mbx);
-    SecFPR(b2,sby,eay,mby);
-    
-    SecFprMul(b3,b1,b2);
-    UnmaskB(&resB,b3,MASKSIZE);
-    if(resB){
-        fprintf(OUTPUT,"SecFprMult anything by 0 failed!\n");
-        print_binary_form(resB);
-        fprintf(OUTPUT,"\n");
-        exit(1);
-    }
-    fprintf(OUTPUT,"SecFprMult anything by 0 Succeeded!\n");
 
-    sx=randmod(2);
-    ex=1076;
-    mx=randmod((((uint64_t)1)<<52));
-    sy=randmod(2);
-    ey=1076;
-    my=randmod((((uint64_t)1)<<52));
-    MaskB(sbx,sx);
-    MaskA(eax,ex,(1<<16));
-    MaskB(mbx,mx);
-    MaskB(sby,sy);
-    MaskA(eay,ey,(1<<16));
-    MaskB(mby,my);
-    for(size_t i =0; i<MASKSIZE;i++){
-        sbx[i]&=1;
-        sby[i]&=1;
-        mbx[i]=((mbx[i]<<8)>>8);
-        mby[i]=((mby[i]<<8)>>8);
-    }
+    UnmaskB(&resB,sbx,MASKSIZE);
+    printf("%ld msk sx ",resB);
+    UnmaskA(&resA, eax,(1<<16));
+    printf("%ld msk ex ",resA);
+    UnmaskB(&resB,mbx,MASKSIZE);
+    printf("%ld msk mx\n",resB);
+
+    UnmaskB(&resB,sby,MASKSIZE);
+    printf("%ld msk sy ",resB);
+    UnmaskA(&resA, eay,(1<<16));
+    printf("%ld msk ey ",resA);
+    UnmaskB(&resB,mby,MASKSIZE);
+    printf("%ld msk my\n",resB);
     SecFPR(b1,sbx,eax,mbx);
     SecFPR(b2,sby,eay,mby);
-    
-    SecFprMul(b3,b1,b1);
-    UnmaskB(&resB,b3,MASKSIZE);
     uint64_t resb1,resb2;
-    UnmaskB(&resb1,b1,MASKSIZE);
-    UnmaskB(&resb2,b2,MASKSIZE);
-    if(resB==0){
-        fprintf(OUTPUT,"SecFprMult integer by integer failed!\n");
+    UnmaskB(&resb1,x,MASKSIZE);
+    UnmaskB(&resb2,y,MASKSIZE);*/
+    uint64_t fpr_one = 4607182418800017408;
+    uint64_t fpr_zero = 0;
+    uint64_t fpr_two = 4611686018427387904;
+    MaskB(b1,fpr_one);
+    MaskB(b2,fpr_two);
+    SecFprMul(b3,b1,b2);
+    
+    UnmaskB(&resB,b3,MASKSIZE);
+    printf("\n");print_binary_form(fpr_one);printf("\n");print_binary_form(fpr_two);printf("\n");print_binary_form(resB);printf("\n");
+    /*
+    if(1){
+        fprintf(OUTPUT,"Displaying SecFprMult anything by 0 \n");
         print_binary_form(resb1);        
         fprintf(OUTPUT,"\n*\n");
         print_binary_form(resb2);
-        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"\n?=\n");
         print_binary_form(resB);
         fprintf(OUTPUT,"\n");
-        exit(1);
+        //exit(1);
     }
-    fprintf(OUTPUT,"SecFprMult integer by integer Succeeded!\n");
+    //fprintf(OUTPUT,"SecFprMult anything by 0 Succeeded!\n");
+
+    sx=randmod(2);
+    printf("\n%ld sx ",sx);
+    ex=1076;
+    printf("%ld ex ",ex);
+    mx=randmod((((uint64_t)1)<<52));
+    printf("%ld mx\n",mx);
+    sy=randmod(2);
+    printf("%ld sy ", sy);
+    ey=1076;
+    printf("%ld ey ",ey);
+    my=randmod((((uint64_t)1)<<52));
+    printf("%ld my\n",my);
+    MaskB(sbx,sx);
+    MaskA(eax,ex,(1<<16));
+    MaskB(mbx,mx);
+    MaskB(sby,sy);
+    MaskA(eay,ey,(1<<16));
+    MaskB(mby,my);
+    for(size_t i =0; i<MASKSIZE;i++){
+        sbx[i]&=1;
+        sby[i]&=1;
+        mbx[i]=((mbx[i]<<8)>>8);
+        mby[i]=((mby[i]<<8)>>8);
+    }
+    
+    UnmaskB(&resB,sbx,MASKSIZE);
+    printf("%ld msk sx ",resB);
+    UnmaskA(&resA, eax,(1<<16));
+    printf("%ld msk ex ",resA);
+    UnmaskB(&resB,mbx,MASKSIZE);
+    printf("%ld msk mx\n",resB);
+
+    UnmaskB(&resB,sby,MASKSIZE);
+    printf("%ld msk sy ",resB);
+    UnmaskA(&resA, eay,(1<<16));
+    printf("%ld msk ey ",resA);
+    UnmaskB(&resB,mby,MASKSIZE);
+    printf("%ld msk my\n",resB);
+
+    SecFPR(x,sbx,eax,mbx);
+    SecFPR(y,sby,eay,mby);
+    
+    UnmaskB(&resb1,x,MASKSIZE);
+    UnmaskB(&resb2,y,MASKSIZE);
+    SecFprMul(b3,x,y);
+    UnmaskB(&resB,b3,MASKSIZE);
+    
+    if(1){
+        fprintf(OUTPUT,"Dipslaying SecFprMult integer by integer\n");
+        print_binary_form(resb1);        
+        fprintf(OUTPUT,"\n*\n");
+        print_binary_form(resb2);
+        fprintf(OUTPUT,"\n?=\n");
+        print_binary_form(resB);
+        fprintf(OUTPUT,"\n");
+        //exit(1);
+    }
+    //fprintf(OUTPUT,"SecFprMult integer by integer Succeeded!\n");
 /*
     B1 = rand64();
     MaskB(b1,B1);
