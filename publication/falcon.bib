@@ -181,23 +181,6 @@ isbn="978-3-031-07082-2"
 
 @article{Chen_Chen_2024, title={Masking Floating-Point Number Multiplication and Addition of Falcon: First- and Higher-order Implementations and Evaluations}, volume={2024}, url={https://tches.iacr.org/index.php/TCHES/article/view/11428}, DOI={10.46586/tches.v2024.i2.276-303}, abstractNote={&amp;lt;p&amp;gt;In this paper, we provide the first masking scheme for floating-point number multiplication and addition to defend against recent side-channel attacks on Falcon’s pre-image vector computation. Our approach involves a masked nonzero check gadget that securely identifies whether a shared value is zero. This gadget can be utilized for various computations such as rounding the mantissa, computing the sticky bit, checking the equality of two values, and normalizing a number. To support the masked floating-point number addition, we also developed a masked shift and a masked normalization gadget. Our masking design provides both first- and higherorder mask protection, and we demonstrate the theoretical security by proving the (Strong)-Non-Interference properties in the probing model. To evaluate the performance of our approach, we implemented unmasked, first-order, and second-order algorithms on an Arm Cortex-M4 processor, providing cycle counts and the number of random bytes used. We also report the time for one complete signing process with our countermeasure on an Intel-Core CPU. In addition, we assessed the practical security of our approach by conducting the test vector leakage assessment (TVLA) to validate the effectiveness of our protection. Specifically, our TVLA experiment results for second-order masking passed the test in 100,000 measured traces.&amp;lt;/p&amp;gt;}, number={2}, journal={IACR Transactions on Cryptographic Hardware and Embedded Systems}, author={Chen, Keng-Yu and Chen, Jiun-Peng}, year={2024}, month={Mar.}, pages={276–303} }
 
-@inproceedings{10.1145/2976749.2978427,
-author = {Barthe, Gilles and Bela\"{\i}d, Sonia and Dupressoir, Fran\c{c}ois and Fouque, Pierre-Alain and Gr\'{e}goire, Benjamin and Strub, Pierre-Yves and Zucchini, R\'{e}becca},
-title = {Strong Non-Interference and Type-Directed Higher-Order Masking},
-year = {2016},
-isbn = {9781450341394},
-publisher = {Association for Computing Machinery},
-address = {New York, NY, USA},
-url = {https://doi.org/10.1145/2976749.2978427},
-doi = {10.1145/2976749.2978427},
-abstract = {Differential power analysis (DPA) is a side-channel attack in which an adversary retrieves cryptographic material by measuring and analyzing the power consumption of the device on which the cryptographic algorithm under attack executes. An effective countermeasure against DPA is to mask secrets by probabilistically encoding them over a set of shares, and to run masked algorithms that compute on these encodings. Masked algorithms are often expected to provide, at least, a certain level of probing security. Leveraging the deep connections between probabilistic information flow and probing security, we develop a precise, scalable, and fully automated methodology to verify the probing security of masked algorithms, and generate them from unprotected descriptions of the algorithm. Our methodology relies on several contributions of independent interest, including a stronger notion of probing security that supports compositional reasoning, and a type system for enforcing an expressive class of probing policies. Finally, we validate our methodology on examples that go significantly beyond the state-of-the-art.},
-booktitle = {Proceedings of the 2016 ACM SIGSAC Conference on Computer and Communications Security},
-pages = {116–129},
-numpages = {14},
-keywords = {formal verification, higher-order masking, non-interference, probing security},
-location = {Vienna, Austria},
-series = {CCS '16}
-}
 
 @InProceedings{10.1007/978-3-662-53140-2_16,
 author="Groot Bruinderink, Leon
@@ -300,5 +283,89 @@ isbn="978-3-030-44223-1"
  year = {1906}
 }
 
+@InProceedings{ishai2003private,
+author="Ishai, Yuval
+and Sahai, Amit
+and Wagner, David",
+editor="Boneh, Dan",
+title="Private Circuits: Securing Hardware against Probing Attacks",
+booktitle="Advances in Cryptology - CRYPTO 2003",
+year="2003",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="463--481",
+abstract="Can you guarantee secrecy even if an adversary can eavesdrop on your brain? We consider the problem of protecting privacy in circuits, when faced with an adversary that can access a bounded number of wires in the circuit. This question is motivated by side channel attacks, which allow an adversary to gain partial access to the inner workings of hardware. Recent work has shown that side channel attacks pose a serious threat to cryptosystems implemented in embedded devices. In this paper, we develop theoretical foundations for security against side channels. In particular, we propose several efficient techniques for building private circuits resisting this type of attacks. We initiate a systematic study of the complexity of such private circuits, and in contrast to most prior work in this area provide a formal threat model and give proofs of security for our constructions.",
+isbn="978-3-540-45146-4"
+}
 
+@inproceedings{barthe2016strong,
+author = {Barthe, Gilles and Bela\"{\i}d, Sonia and Dupressoir, Fran\c{c}ois and Fouque, Pierre-Alain and Gr\'{e}goire, Benjamin and Strub, Pierre-Yves and Zucchini, R\'{e}becca},
+title = {Strong Non-Interference and Type-Directed Higher-Order Masking},
+year = {2016},
+isbn = {9781450341394},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/2976749.2978427},
+doi = {10.1145/2976749.2978427},
+abstract = {Differential power analysis (DPA) is a side-channel attack in which an adversary retrieves cryptographic material by measuring and analyzing the power consumption of the device on which the cryptographic algorithm under attack executes. An effective countermeasure against DPA is to mask secrets by probabilistically encoding them over a set of shares, and to run masked algorithms that compute on these encodings. Masked algorithms are often expected to provide, at least, a certain level of probing security. Leveraging the deep connections between probabilistic information flow and probing security, we develop a precise, scalable, and fully automated methodology to verify the probing security of masked algorithms, and generate them from unprotected descriptions of the algorithm. Our methodology relies on several contributions of independent interest, including a stronger notion of probing security that supports compositional reasoning, and a type system for enforcing an expressive class of probing policies. Finally, we validate our methodology on examples that go significantly beyond the state-of-the-art.},
+booktitle = {Proceedings of the 2016 ACM SIGSAC Conference on Computer and Communications Security},
+pages = {116–129},
+numpages = {14},
+keywords = {formal verification, higher-order masking, non-interference, probing security},
+location = {Vienna, Austria},
+series = {CCS '16}
+}
+@InProceedings{barthe2018masking,
+author="Barthe, Gilles
+and Bela{\"i}d, Sonia
+and Espitau, Thomas
+and Fouque, Pierre-Alain
+and Gr{\'e}goire, Benjamin
+and Rossi, M{\'e}lissa
+and Tibouchi, Mehdi",
+editor="Nielsen, Jesper Buus
+and Rijmen, Vincent",
+title="Masking the GLP Lattice-Based Signature Scheme at Any Order",
+booktitle="Advances in Cryptology -- EUROCRYPT 2018 ",
+year="2018",
+publisher="Springer International Publishing",
+address="Cham",
+pages="354--384",
+abstract="Recently, numerous physical attacks have been demonstrated against lattice-based schemes, often exploiting their unique properties such as the reliance on Gaussian distributions, rejection sampling and FFT-based polynomial multiplication. As the call for concrete implementations and deployment of postquantum cryptography becomes more pressing, protecting against those attacks is an important problem. However, few countermeasures have been proposed so far. In particular, masking has been applied to the decryption procedure of some lattice-based encryption schemes, but the much more difficult case of signatures (which are highly non-linear and typically involve randomness) has not been considered until now.",
+isbn="978-3-319-78375-8"
+}
 
+@InProceedings{coron2015conversion,
+author="Coron, Jean-S{\'e}bastien
+and Gro{\ss}sch{\"a}dl, Johann
+and Tibouchi, Mehdi
+and Vadnala, Praveen Kumar",
+editor="Leander, Gregor",
+title="Conversion from Arithmetic to Boolean Masking with Logarithmic Complexity",
+booktitle="Fast Software Encryption",
+year="2015",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="130--149",
+abstract="A general technique to protect a cryptographic algorithm against side-channel attacks consists in masking all intermediate variables with a random value. For cryptographic algorithms combining Boolean operations with arithmetic operations, one must then perform conversions between Boolean masking and arithmetic masking. At CHES 2001, Goubin described a very elegant algorithm for converting from Boolean masking to arithmetic masking, with only a constant number of operations. Goubin also described an algorithm for converting from arithmetic to Boolean masking, but with {\$}{\$}{\backslash}mathcal{\{}O{\}}(k){\$}{\$}O(k)operations where k is the addition bit size. In this paper we describe an improved algorithm with time complexity {\$}{\$}{\backslash}mathcal{\{}O{\}}({\backslash}log k){\$}{\$}O(logk)only. Our new algorithm is based on the Kogge-Stone carry look-ahead adder, which computes the carry signal in {\$}{\$}{\backslash}mathcal{\{}O{\}}({\backslash}log k){\$}{\$}O(logk)instead of {\$}{\$}{\backslash}mathcal{\{}O{\}}(k){\$}{\$}O(k)for the classical ripple carry adder. We also describe an algorithm for performing arithmetic addition modulo {\$}{\$}2^k{\$}{\$}2kdirectly on Boolean shares, with the same complexity {\$}{\$}{\backslash}mathcal{\{}O{\}}({\backslash}log k){\$}{\$}O(logk)instead of {\$}{\$}{\backslash}mathcal{\{}O{\}}(k){\$}{\$}O(k). We prove the security of our new algorithm against first-order attacks. Our algorithm performs well in practice, as for {\$}{\$}k=64{\$}{\$}k=64we obtain a {\$}{\$}23{\backslash},{\backslash}{\%}{\$}{\$}23{\%}improvement compared to Goubin's algorithm.",
+isbn="978-3-662-48116-5"
+}
+
+@InProceedings{schneider2019efficiently,
+author="Schneider, Tobias
+and Paglialonga, Clara
+and Oder, Tobias
+and G{\"u}neysu, Tim",
+editor="Lin, Dongdai
+and Sako, Kazue",
+title="Efficiently Masking Binomial Sampling at Arbitrary Orders for Lattice-Based Crypto",
+booktitle="Public-Key Cryptography -- PKC 2019",
+year="2019",
+publisher="Springer International Publishing",
+address="Cham",
+pages="534--564",
+abstract="With the rising popularity of lattice-based cryptography, the Learning with Errors (LWE) problem has emerged as a fundamental core of numerous encryption and key exchange schemes. Many LWE-based schemes have in common that they require sampling from a discrete Gaussian distribution which comes with a number of challenges for the practical instantiation of those schemes. One of these is the inclusion of countermeasures against a physical side-channel adversary. While several works discuss the protection of samplers against timing leaks, only few publications explore resistance against other side-channels, e.g., power. The most recent example of a protected binomial sampler (as used in key encapsulation mechanisms to sufficiently approximate Gaussian distributions) from CHES 2018 is restricted to a first-order adversary and cannot be easily extended to higher protection orders.",
+isbn="978-3-030-17259-6"
+}
+
+@article{bettale2018improved, title={Improved High-Order Conversion From Boolean to Arithmetic Masking}, volume={2018}, url={https://tches.iacr.org/index.php/TCHES/article/view/873}, DOI={10.13154/tches.v2018.i2.22-45}, abstractNote={&amp;lt;p&amp;gt;Masking is a very common countermeasure against side channel attacks. When combining Boolean and arithmetic masking, one must be able to convert between the two types of masking, and the conversion algorithm itself must be secure against side-channel attacks. An efficient high-order Boolean to arithmetic conversion scheme was recently described at CHES 2017, with complexity independent of the register size. In this paper we describe a simplified variant with fewer mask refreshing, and still with a proof of security in the ISW probing model. In practical implementations, our variant is roughly 25% faster.&amp;lt;/p&amp;gt;}, number={2}, journal={IACR Transactions on Cryptographic Hardware and Embedded Systems}, author={Bettale, Luk and Coron, Jean-Sébastien and Zeitoun, Rina}, year={2018}, month={May}, pages={22–45} }
