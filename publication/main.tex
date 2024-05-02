@@ -372,21 +372,36 @@ According to Table \ref{tab:n3}, all values of $x\in[\num{0.1};\num{0.9}]$ conve
   \Return{$x \times 10^{-prec}$}
 \end{algorithm}
 
+\subsection{Complexity}
+A COMPLETER
+
 \section{Truncation method : Masked Floor Function}
-In this part we will consider $f$ as one of these three funtions : floor, truncature and round. There's some little differences between those functions and we will explain it in times.
+In this part we denote by f as one of these three funtions : floor, truncature and round. Differences will be discussed when necessary.
 
 \subsection{Overview}
   %\paragraph[short]{Binary64 -- IEEE 754.} 
-  Recall that we're working with floating point in a specific representation, the standardized\footnote{Binary64 -- IEEE 754} one \cite{kahan1996ieee},
-    it's really important to understand the encoding method because all operation algorithms using floating point are based on. We can define this encoding as follow : 
-    let $x \in \mathbb{R}$, $x$ is represented by a tupple of three elements $(s,e,m)$, where $s$, $e$ and $m$ are respectively 1-bit length, 11-bit length and 52-bit length, such as $$x= (-1)^s \times 2^{e-1023} \times (1+m\times 2^{-52})$$
-    We call $s$ the sign bit, $e$ the exponent and $m$ the mantissa.% which we must not forget to add an implicit bit. 
-    The most important element we will use to construct $f$ between those three is the exponent $e$. Just by analyzing it, we can distinguish three different cases :
+  Recall that we're working with floating-point using the Binary64 -- IEEE 754 \cite{kahan1996ieee} standard representation. Its encoding is defined as follows:
+    Let $x \in \mathbb{R}$. $x$ is represented by a tuple of three elements $(s,e,m)$, where $s$ is a 1-bit sign, $e$ a 11-bit exponent and $m$ a 52-bit mantissa such as:\begin{equation}\label{eq:ieee754}x= (-1)^s \times 2^{e-1023} \times (1+m\times 2^{-52})\end{equation}. We have the following Lemma:
+    \begin{lemma}
+      \label{lemma:function}
+      Let f be floor or truncate or rounding.Computing f mainly depends on the exponent $e$, with three different cases:
     \begin{enumerate}
-        \item If $e-1023<0$, the result will be $0$. However, it exists a subtlety if $f$ = round. In this case we must take care of the rounding and test if $e-1022<0$. It's only by not rejecting the case of $e=1022$ that we can compute the correct rounding;
-        \item If $e-1075\geq0$, the input $x$ is already an integer, so the output $y$ will be equal to $x$;
-        \item If $0\leq e-1023 \leq 51$,the result must be computed by removing the $52-(e-1023)$ decimals, and adjusting the result if $f$ = round. 
+        \item If $e-Zero_\text{f}<0$, then $\text{f}(x)=0$. $Zero_\text{f}$ depends on f. For f= floor or truncate, we take $Zero_\text{f}=1023$. For f=rounding we take $Zero_\text{f}=1022$.
+        \item If $e-1075\geq0$, then $\text{f}(x)=x$;
+        \item If $0\leq e-Zero_\text{f} \leq 51$,the result must be computed by removing the $52-(e-Zero_{f})$ decimals from $x$ depending on f. 
     \end{enumerate}
+    \end{lemma}
+    \begin{proof}
+      \begin{enumerate}
+        \item \textbf{$e-Zero_\text{f}<0$}. This case covers $x\in(-1;1)$ According to Equation \ref{eq:ieee754} we have for $Zero_\text{f}=1023$:\begin{equation}\label{eq:zerof1023}|x|=  2^{e-1023} \times (1+m\times 2^{-52})\leq 2^{-1}\times (1+m\times 2^{-52})<1.\end{equation} Hence $\text{floor}(x)=\text{truncate}(x)=0$. For $Zero_\text{f}=1022$, we have: \begin{equation}\label{eq:zerof1022}|x|=  2^{e-1023} \times (1+m\times 2^{-52})\leq 2^{-2}\times (1+m\times 2^{-52})<0.5.\end{equation} Hence $\text{rounding}(x)=0$.
+        \item \textbf{$e-1075\geq0$}. This case covers $x\in\mathbb{Z}$According to Equation \ref{eq:ieee754} we have:\begin{equation}\label{eq:1075}|x|= 2^{e-1023} \times (1+m\times 2^{-52})\geq 2^{52}\times (1+m\times 2^{-52})\geq 2^{52} + m \in\mathbb{N}.\end{equation}Hence $\text{f}(x)=x\in\mathbb{Z}$.
+        \item The last case is function specific but covers $x\in\mathbb{R}\backsim(-1;1)\backsim\mathbb{Z}$.
+      \end{enumerate}
+    \end{proof}
+
+    
+
+
     These three distinguished cases provide a fixed structure shown in \autoref{algo:SecFprBaseInt} for $f$. The main difficulty here is to compute securly all the checks on masked values, and to change in consequence our mantissa, exponent and eventually our sign bit. 
 
     \subsection{Masked Floor Function}
@@ -428,32 +443,33 @@ In this part we will consider $f$ as one of these three funtions : floor, trunca
         \end{center}
     \end{figure}
 
-    \begin{algorithm}
-        \caption{SecFprBaseInt(x, f)}
+    
+      \subsubsection{SecFprBaseInt$_\text{f}$ -- \autoref{algo:SecFprBaseInt}}
+      We present a global structure for all three functions f = floor/round/truncate.
+
+      \begin{algorithm}[H]
+        \caption{SecFprBaseInt$_\text{f}$(x)}
         \label{algo:SecFprBaseInt}
-        \KwData{64-bit boolean shares $(x_i)_{1\leq i \leq n}$ for value x \\
-        A function f : floor, round or trunc.}
-        \KwResult{64-bit boolean shares $(y_i)_{1\leq i \leq n}$ for mantissa value y = floor(x)/round(x)/trunc(x).} 
+        \KwData{64-bit boolean shares $(x_i)_{1\leq i \leq n}$ for value x }%\\
+        %A function f : floor, round or trunc.}
+        \KwResult{64-bit boolean shares $(y_i)_{1\leq i \leq n}$ for mantissa value y = f(x).} 
         $((my_i), (ey_i), (sy_i)) \leftarrow$ SecFprExtract($(x_i)$)\;%\tcp*{extract mantissa, exponent and sign}
         $(cx_i) \leftarrow (ey_i)$\;
         $cx_1 \leftarrow ey_1 - \text{Zero}_f$\;%\tcp*{$\text{Zero}_f$ = 1023 for floor }%and trunc, $\text{Zero}_f$ = 1022 for round}
         $(c_i) \leftarrow$ A2B($(cx_i^{(16)})$)\; 
-        $(c_i) \leftarrow$ SecNonZero($(c_i)$)\tcp*{check if the exponent is negative}
-        $(b_i) \leftarrow (\neg(-c_i))$\;
         Refresh($(cx_i)$)\;
-        $(my_i) \leftarrow$ SecAnd($(my_i), (b_i)$)\;%\tcp*{if c = 0,  my = mx and if c = 1, my = 0 }
+        $(my_i) \leftarrow$ SecAnd($(my_i), (\neg(-c_i))$)\;%\tcp*{if c = 0,  my = mx and if c = 1, my = 0 }
         $(my_i), (ey_i), (Rnd_i) \leftarrow$ RemoveDecimal$_f((my_i), (ey_i), (sy_i), (cx_i)$)\;% \tcp*{depends on f}
         $(my_i), (ey_i) \leftarrow$ SecFprNorm64($(my_i),(ey_i)$)\;
         $(my_i) \leftarrow (my_i >> 11)$\;
         $(my_i) \leftarrow$ $(my_i^{[52:1]}) $\;
         $ey_1 \leftarrow ey_1 + 11$\;
-        $(ey_i), (sy_i) \leftarrow$ SetExponentZero$_f((ey_i), (b_i), (s_i), (Rnd_i))$\;%\tcp*{set ey at 0 if f(x)=0}
+        $(ey_i), (sy_i) \leftarrow$ SetExponentZero$_f((ey_i), (\neg(-c_i)), (s_i), (Rnd_i))$\;%\tcp*{set ey at 0 if f(x)=0}
         $(y_i^{(64)}) \leftarrow (sy_i) $\;
         $(y_i^{[63:53]}) \leftarrow (ey_i) $\;
         $(y_i^{[53:1]}) \leftarrow (my_i) $\;
       \Return{$(y_i)$}\;
       \end{algorithm}
-      \subsubsection{SetFprBaseInt$_\text{floor}$ -- \autoref{algo:SecFprBaseInt}}
       As explained in overview, these three functions can be summarised in a global structure. 
       What will differentiate the three functions will in fact be the gadgets and the Zero$_f$ parameter.
       To perform the floor function, we first extract the data from the encoding and place it in three variables $s_y, e_y$ and $m_y$, which will be linked directly to the output of the algorithm. 
@@ -544,18 +560,20 @@ In this part we will consider $f$ as one of these three funtions : floor, trunca
     We therefore decided to invert the mask in order to retain the suppressed information. If this information has zero Hamming weight
     then $x$ is an integer. We can then use the SecNonZero gadget on this information, which will return $0$ if $x$ is an integer, and 1 if not.
     We denote this result $b=$ SecNonZero(($my_i^{[52 - c_x:1]}$)). 
-    In the following truth table (\autoref{figure:flooradjust}) if the result $cp = $ $s$ AND $b$ is $1$, the mantissa must be changed.
+    In the following truth table (\autoref{figure:flooradjust}) if the result $cp = $ $s\wedge b$ is $1$, the mantissa must be changed.
     \begin{figure}
         \begin{center}
             \begin{tabular}{C{0.5cm} C{0.5cm} || C{3 cm} L{3cm}}
-                \hline $sy$ & $b$ &$cp$ = $sy$ AND $b$ & Interpretation\\
-                \hline 
+              \toprule
+                 $sy$ & $b$ &$cp$ = $sy \wedge b$ & Interpretation\\
+              \midrule 
                 0 & $b$ & 0 & Positive number\\
                 1 & 0  & 0 & $x$ is an integer\\
-                1 & 1  & 1 & Negative real\\ \hline
+                1 & 1  & 1 & Negative real\\
+              \bottomrule
             \end{tabular}
         \end{center}
-        \caption{Do we need to subtract $s$: Truth table}
+        \caption{$cp$ = $sy\wedge b$ truth table and interpretation}
         \label{figure:flooradjust}
     \end{figure}
     Another question is now : how to subtract $s$ from the mantissa if the mantissa is always positive? 
@@ -623,11 +641,13 @@ In this part we will consider $f$ as one of these three funtions : floor, trunca
       \begin{figure}
         \begin{center}
             \begin{tabular}{C{1.2cm} C{1.2cm} || C{2 cm} C{7.5cm}}
-                \hline $-sy$ & $b$ &$-sy$ OR $b$ & Interpretation\\
-                \hline 
+                \toprule
+                 $-sy$ & $b$ &$-sy \vee b$ & Interpretation\\
+                \midrule
                 $0\cdots0$ & $0\cdots0$ & $0\cdots0$ & "Small" positive number : $ey = 0$ and $sy = 0$  \\
                 $1\cdots1$ & $0\cdots0$ & $1\cdots1$ & "Small" negative number : $ey = 1023$ and $sy = 1$\\ 
-                $-sy$ & $1\cdots1$ & $01\cdots1$ & Non zero number : $ey = ey$ and $sy=sy$\\\hline
+                $-sy$ & $1\cdots1$ & $01\cdots1$ & Non zero number : $ey = ey$ and $sy=sy$\\
+                \bottomrule
             \end{tabular}
         \end{center}
         \caption{Encoding 0, minus 1 or others: Truth table}
