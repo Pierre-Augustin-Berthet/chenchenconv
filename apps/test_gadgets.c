@@ -131,6 +131,22 @@ int main(int *argc, char **argv){
     }
     fprintf(OUTPUT,"Arithmetic Masking-Demasking Succeeded!\n");
 
+    
+    A1 = randmod(MODULO);
+    MaskA(a1,A1,MODULO);
+    RefreshAM(a1,a1,MODULO,MASKSIZE);
+    UnmaskA(&resA,a1,MODULO);
+
+    if(subq(A1,resA,MODULO)){
+        fprintf(OUTPUT,"Arithmetic Refresh failed!\n");
+        fprintf(OUTPUT,"%lu",A1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu",resA);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+    fprintf(OUTPUT,"Arithmetic Refresh Succeeded!\n");
+
     A2 = randmod(MODULO);
     MaskA(a2,A2,MODULO);
     SecMult(a3,a1,a2,MODULO);
@@ -243,6 +259,172 @@ int main(int *argc, char **argv){
     MaskA128(a1,a2,A1,A2);
     UnmaskA128(&resB,&resA,a1,a2);
 
+    if(A1^resB|A2^resA){
+        fprintf(OUTPUT,"MaskA128-DemaskA128 failed!\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",A2,A1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resB,resA);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+    A1 = 0;
+    A2 = rand64();
+    MaskA128(a1,a2,A1,A2);
+    UnmaskA128(&resB,&resA,a1,a2);
+
+    if(A1^resB|A2^resA){
+        fprintf(OUTPUT,"MaskA128-DemaskA128 failed!\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",A2,A1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resB,resA);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    A1 = rand64();
+    A2 = 0;
+    MaskA128(a1,a2,A1,A2);
+    UnmaskA128(&resB,&resA,a1,a2);
+
+    if(A1^resB|A2^resA){
+        fprintf(OUTPUT,"MaskA128-DemaskA128 failed!\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",A2,A1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resB,resA);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    A1 = 0;
+    A2 = 0;
+    MaskA128(a1,a2,A1,A2);
+    UnmaskA128(&resB,&resA,a1,a2);
+
+    if(A1^resB|A2^resA){
+        fprintf(OUTPUT,"MaskA128-DemaskA128 failed!\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",A2,A1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resB,resA);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    A1 = ~((uint64_t)0);
+    A2 = 0;
+    MaskA128(a1,a2,A1,A2);
+    UnmaskA128(&resB,&resA,a1,a2);
+
+    if(A1^resB|A2^resA){
+        fprintf(OUTPUT,"MaskA128-DemaskA128 failed!\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",A2,A1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resB,resA);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+    
+    A2 = ~((uint64_t)0);
+    A1 = 0;
+    MaskA128(a1,a2,A1,A2);
+    UnmaskA128(&resB,&resA,a1,a2);
+
+    if(A1^resB|A2^resA){
+        fprintf(OUTPUT,"MaskA128-DemaskA128 failed!\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",A2,A1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resB,resA);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    A1 = ~((uint64_t)0);
+    A2 = ~((uint64_t)0);
+    MaskA128(a1,a2,A1,A2);
+    UnmaskA128(&resB,&resA,a1,a2);
+
+    if(A1^resB|A2^resA){
+        fprintf(OUTPUT,"MaskA128-DemaskA128 failed!\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",A2,A1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resB,resA);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+    A1 = 0;
+    A2 = rand64();
+    MaskA128(a1,a2,A1,A2);
+    UnmaskA128(&resB,&resA,a1,a2);
+
+    if(A1^resB|A2^resA){
+        fprintf(OUTPUT,"MaskA128-DemaskA128 failed!\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",A2,A1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resB,resA);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    A1 = rand64();
+    A2 = 0;
+    MaskA128(a1,a2,A1,A2);
+    UnmaskA128(&resB,&resA,a1,a2);
+
+    if(A1^resB|A2^resA){
+        fprintf(OUTPUT,"MaskA128-DemaskA128 failed!\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",A2,A1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resB,resA);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    A1 = 0;
+    A2 = 0;
+    MaskA128(a1,a2,A1,A2);
+    UnmaskA128(&resB,&resA,a1,a2);
+
+    if(A1^resB|A2^resA){
+        fprintf(OUTPUT,"MaskA128-DemaskA128 failed!\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",A2,A1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resB,resA);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    A1 = ~((uint64_t)0);
+    A2 = 0;
+    MaskA128(a1,a2,A1,A2);
+    UnmaskA128(&resB,&resA,a1,a2);
+
+    if(A1^resB|A2^resA){
+        fprintf(OUTPUT,"MaskA128-DemaskA128 failed!\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",A2,A1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resB,resA);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+    
+    A2 = ~((uint64_t)0);
+    A1 = 0;
+    MaskA128(a1,a2,A1,A2);
+    UnmaskA128(&resB,&resA,a1,a2);
+
+    if(A1^resB|A2^resA){
+        fprintf(OUTPUT,"MaskA128-DemaskA128 failed!\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",A2,A1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resB,resA);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    A1 = ~((uint64_t)0);
+    A2 = ~((uint64_t)0);
+    MaskA128(a1,a2,A1,A2);
+    UnmaskA128(&resB,&resA,a1,a2);
+
     if((A1^resB)|(A2^resA)){
         fprintf(OUTPUT,"MaskA128-DemaskA128 failed!\n");
         fprintf(OUTPUT,"%lu * 2^64 + %lu",A2,A1);
@@ -253,6 +435,9 @@ int main(int *argc, char **argv){
     }
     fprintf(OUTPUT,"MaskA128-DemaskA128 Succeeded!\n");
 
+//============================================================
+// TESTS FOR A2B128
+//============================================================
     A1 = rand64();
     A2 = rand64();
     MaskedA a3up,a1up,a2up,a3down;
@@ -276,7 +461,218 @@ int main(int *argc, char **argv){
         fprintf(OUTPUT,"\n");
         exit(1);
     }
+
+    A1 = rand64();
+    A2 = 0;
+    MaskA128(a1up,a1,0,A1);
+    MaskA128(a2up,a2,0,A2);
+    SecMult128(a3up,a3down,a1up,a1,a2up,a2);
+    UnmaskA128(&resAup,&resAdown,a3up,a3down);
+
+    Mult128(&comp,&comp1,A1,A2);
+
+    if(comp1^resAdown|comp^resAup){
+        fprintf(OUTPUT,"SecMult128 failed!\n");
+        fprintf(OUTPUT,"%lu",A2);
+        fprintf(OUTPUT,"\n*\n");
+        fprintf(OUTPUT,"%lu",A1);
+        fprintf(OUTPUT,"\n=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",comp,comp1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resAup,resAdown);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    A1 = rand64();
+    A2 = 0;
+    MaskA128(a1up,a1,0,A1);
+    MaskA128(a2up,a2,0,A2);
+    SecMult128(a3up,a3down,a1up,a1,a2up,a2);
+    UnmaskA128(&resAup,&resAdown,a3up,a3down);
+
+    Mult128(&comp,&comp1,A1,A2);
+
+    if(comp1^resAdown|comp^resAup){
+        fprintf(OUTPUT,"SecMult128 failed!\n");
+        fprintf(OUTPUT,"%lu",A2);
+        fprintf(OUTPUT,"\n*\n");
+        fprintf(OUTPUT,"%lu",A1);
+        fprintf(OUTPUT,"\n=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",comp,comp1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resAup,resAdown);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    A1 = 0;
+    A2 = 0;
+    MaskA128(a1up,a1,0,A1);
+    MaskA128(a2up,a2,0,A2);
+    SecMult128(a3up,a3down,a1up,a1,a2up,a2);
+    UnmaskA128(&resAup,&resAdown,a3up,a3down);
+
+    Mult128(&comp,&comp1,A1,A2);
+
+    if(comp1^resAdown|comp^resAup){
+        fprintf(OUTPUT,"SecMult128 failed!\n");
+        fprintf(OUTPUT,"%lu",A2);
+        fprintf(OUTPUT,"\n*\n");
+        fprintf(OUTPUT,"%lu",A1);
+        fprintf(OUTPUT,"\n=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",comp,comp1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resAup,resAdown);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    A1 = rand64();
+    A2 = 0;
+    MaskA128(a1up,a1,0,A1);
+    MaskA128(a2up,a2,0,A2);
+    SecMult128(a3up,a3down,a1up,a1,a2up,a2);
+    UnmaskA128(&resAup,&resAdown,a3up,a3down);
+
+    Mult128(&comp,&comp1,A1,A2);
+
+    if(comp1^resAdown|comp^resAup){
+        fprintf(OUTPUT,"SecMult128 failed!\n");
+        fprintf(OUTPUT,"%lu",A2);
+        fprintf(OUTPUT,"\n*\n");
+        fprintf(OUTPUT,"%lu",A1);
+        fprintf(OUTPUT,"\n=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",comp,comp1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resAup,resAdown);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    A1 = rand64();
+    A2 = rand64();
+    B1 = rand64();
+    B2 = rand64();
+    MaskA128(a1up,a1,B1,A1);
+    MaskA128(a2up,a2,B2,A2);
+    SecMult128(a3up,a3down,a1up,a1,a2up,a2);
+    UnmaskA128(&resAup,&resAdown,a3up,a3down);
+
+    Mult128Bi(&comp,&comp1,B1,A1,B2,A2);
+
+    if(comp1^resAdown|comp^resAup){
+        fprintf(OUTPUT,"SecMult128 failed!\n");
+        fprintf(OUTPUT,"%lu",A2);
+        fprintf(OUTPUT,"\n*\n");
+        fprintf(OUTPUT,"%lu",A1);
+        fprintf(OUTPUT,"\n=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",comp,comp1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resAup,resAdown);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    A1 = 0;
+    A2 = rand64();
+    B1 = rand64();
+    B2 = rand64();
+    MaskA128(a1up,a1,B1,A1);
+    MaskA128(a2up,a2,B2,A2);
+    SecMult128(a3up,a3down,a1up,a1,a2up,a2);
+    UnmaskA128(&resAup,&resAdown,a3up,a3down);
+
+    Mult128Bi(&comp,&comp1,B1,A1,B2,A2);
+
+    if(comp1^resAdown|comp^resAup){
+        fprintf(OUTPUT,"SecMult128 failed!\n");
+        fprintf(OUTPUT,"%lu",A2);
+        fprintf(OUTPUT,"\n*\n");
+        fprintf(OUTPUT,"%lu",A1);
+        fprintf(OUTPUT,"\n=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",comp,comp1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resAup,resAdown);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+    A1 = 0;
+    A2 = 0;
+    B1 = rand64();
+    B2 = rand64();
+    MaskA128(a1up,a1,B1,A1);
+    MaskA128(a2up,a2,B2,A2);
+    SecMult128(a3up,a3down,a1up,a1,a2up,a2);
+    UnmaskA128(&resAup,&resAdown,a3up,a3down);
+
+    Mult128Bi(&comp,&comp1,B1,A1,B2,A2);
+
+    if(comp1^resAdown|comp^resAup){
+        fprintf(OUTPUT,"SecMult128 failed!\n");
+        fprintf(OUTPUT,"%lu",A2);
+        fprintf(OUTPUT,"\n*\n");
+        fprintf(OUTPUT,"%lu",A1);
+        fprintf(OUTPUT,"\n=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",comp,comp1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resAup,resAdown);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    A1 = 0;
+    A2 = rand64();
+    B1 = rand64();
+    B2 = 0;
+    MaskA128(a1up,a1,B1,A1);
+    MaskA128(a2up,a2,B2,A2);
+    SecMult128(a3up,a3down,a1up,a1,a2up,a2);
+    UnmaskA128(&resAup,&resAdown,a3up,a3down);
+
+    Mult128Bi(&comp,&comp1,B1,A1,B2,A2);
+
+    if(comp1^resAdown|comp^resAup){
+        fprintf(OUTPUT,"SecMult128 failed!\n");
+        fprintf(OUTPUT,"%lu",A2);
+        fprintf(OUTPUT,"\n*\n");
+        fprintf(OUTPUT,"%lu",A1);
+        fprintf(OUTPUT,"\n=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",comp,comp1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resAup,resAdown);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    A2 = 0;
+    A2 = rand64();
+    B1 = 0;
+    B2 = rand64();
+    MaskA128(a1up,a1,B1,A1);
+    MaskA128(a2up,a2,B2,A2);
+    SecMult128(a3up,a3down,a1up,a1,a2up,a2);
+    UnmaskA128(&resAup,&resAdown,a3up,a3down);
+
+    Mult128Bi(&comp,&comp1,B1,A1,B2,A2);
+
+    if(comp1^resAdown|comp^resAup){
+        fprintf(OUTPUT,"SecMult128 failed!\n");
+        fprintf(OUTPUT,"%lu",A2);
+        fprintf(OUTPUT,"\n*\n");
+        fprintf(OUTPUT,"%lu",A1);
+        fprintf(OUTPUT,"\n=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",comp,comp1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resAup,resAdown);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
     fprintf(OUTPUT,"SecMult128 Succeeded!\n");
+
+//============================================================
+// TESTS FOR A2B128
+//============================================================
 
     A1 = rand64();
     A2 = rand64();
@@ -295,18 +691,206 @@ int main(int *argc, char **argv){
         fprintf(OUTPUT,"\n");
         exit(1);
     }
+
+    A1 = 0;
+    A2 = rand64();
+    MaskA128(a1up,a1down,A2,A1);
+    A2B128(b3up,b3down,a1up,a1down,MASKSIZE);
+    UnmaskB(&resB,b3up,MASKSIZE);
+    UnmaskB(&resA,b3down,MASKSIZE);
+
+    if(A2^resB|A1^resA){
+        fprintf(OUTPUT,"A2B128 failed!\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",A2,A1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resB,resA);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    A1 = rand64();
+    A2 = 0;
+    MaskA128(a1up,a1down,A2,A1);
+    A2B128(b3up,b3down,a1up,a1down,MASKSIZE);
+    UnmaskB(&resB,b3up,MASKSIZE);
+    UnmaskB(&resA,b3down,MASKSIZE);
+
+    if(A2^resB|A1^resA){
+        fprintf(OUTPUT,"A2B128 failed!\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",A2,A1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resB,resA);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    A1 = 0;
+    A2 = 0;
+    MaskA128(a1up,a1down,A2,A1);
+    A2B128(b3up,b3down,a1up,a1down,MASKSIZE);
+    UnmaskB(&resB,b3up,MASKSIZE);
+    UnmaskB(&resA,b3down,MASKSIZE);
+
+    if(A2^resB|A1^resA){
+        fprintf(OUTPUT,"A2B128 failed!\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",A2,A1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resB,resA);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    A1 = ~((uint64_t)0);
+    A2 = ~((uint64_t)0);
+    MaskA128(a1up,a1down,A2,A1);
+    A2B128(b3up,b3down,a1up,a1down,MASKSIZE);
+    UnmaskB(&resB,b3up,MASKSIZE);
+    UnmaskB(&resA,b3down,MASKSIZE);
+
+    if(A2^resB|A1^resA){
+        fprintf(OUTPUT,"A2B128 failed!\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",A2,A1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resB,resA);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    A1 = ~((uint64_t)0);
+    A2 = ((uint64_t)0);
+    MaskA128(a1up,a1down,A2,A1);
+    A2B128(b3up,b3down,a1up,a1down,MASKSIZE);
+    UnmaskB(&resB,b3up,MASKSIZE);
+    UnmaskB(&resA,b3down,MASKSIZE);
+
+    if(A2^resB|A1^resA){
+        fprintf(OUTPUT,"A2B128 failed!\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",A2,A1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resB,resA);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    A1 = ((uint64_t)0);
+    A2 = ~((uint64_t)0);
+    MaskA128(a1up,a1down,A2,A1);
+    A2B128(b3up,b3down,a1up,a1down,MASKSIZE);
+    UnmaskB(&resB,b3up,MASKSIZE);
+    UnmaskB(&resA,b3down,MASKSIZE);
+
+    if(A2^resB|A1^resA){
+        fprintf(OUTPUT,"A2B128 failed!\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",A2,A1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resB,resA);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
     fprintf(OUTPUT,"A2B128 Succeeded!\n");
 
-     
+//============================================================
+// TESTS FOR B2A128
+//============================================================
     B1 = rand64();
+    B2 = rand64();
     MaskB(b1,B1);
-    MaskB(b2,2);
+    MaskB(b2,B2);
     B2A128(a3up,a3down,b2,b1,MASKSIZE);
     UnmaskA128(&resB1,&resB,a3up,a3down);
-    printf("test chelou : %lu\n",B1^resB|(resB1^2));
-    if(B1^resB|(resB1^2)){
+    if(B1^resB|resB1^B2){
         fprintf(OUTPUT,"B2A128 failed!\n");
-        fprintf(OUTPUT,"%lu * 2^64 + %lu",(uint64_t)0,B1);
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",B2,B1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resB1,resB);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    B1 = 0;
+    B2 = rand64();
+    MaskB(b1,B1);
+    MaskB(b2,B2);
+    B2A128(a3up,a3down,b2,b1,MASKSIZE);
+    UnmaskA128(&resB1,&resB,a3up,a3down);
+    if(B1^resB|resB1^B2){
+        fprintf(OUTPUT,"B2A128 failed!\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",B2,B1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resB1,resB);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    B1 = rand64();
+    B2 = 0;
+    MaskB(b1,B1);
+    MaskB(b2,B2);
+    B2A128(a3up,a3down,b2,b1,MASKSIZE);
+    UnmaskA128(&resB1,&resB,a3up,a3down);
+    if(B1^resB|resB1^B2){
+        fprintf(OUTPUT,"B2A128 failed!\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",B2,B1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resB1,resB);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    B1 = 0;
+    B2 = 0;
+    MaskB(b1,B1);
+    MaskB(b2,B2);
+    B2A128(a3up,a3down,b2,b1,MASKSIZE);
+    UnmaskA128(&resB1,&resB,a3up,a3down);
+    if(B1^resB|resB1^B2){
+        fprintf(OUTPUT,"B2A128 failed!\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",B2,B1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resB1,resB);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    B1 = ~((uint64_t)0);
+    B2 = 0;
+    MaskB(b1,B1);
+    MaskB(b2,B2);
+    B2A128(a3up,a3down,b2,b1,MASKSIZE);
+    UnmaskA128(&resB1,&resB,a3up,a3down);
+    if(B1^resB|resB1^B2){
+        fprintf(OUTPUT,"B2A128 failed!\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",B2,B1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resB1,resB);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    B2 = ~((uint64_t)0);
+    B1 = 0;
+    MaskB(b1,B1);
+    MaskB(b2,B2);
+    B2A128(a3up,a3down,b2,b1,MASKSIZE);
+    UnmaskA128(&resB1,&resB,a3up,a3down);
+    if(B1^resB|resB1^B2){
+        fprintf(OUTPUT,"B2A128 failed!\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",B2,B1);
+        fprintf(OUTPUT,"\n!=\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",resB1,resB);
+        fprintf(OUTPUT,"\n");
+        exit(1);
+    }
+
+    B1 = ~((uint64_t)0);
+    B2 = ~((uint64_t)0);
+    MaskB(b1,B1);
+    MaskB(b2,B2);
+    B2A128(a3up,a3down,b2,b1,MASKSIZE);
+    UnmaskA128(&resB1,&resB,a3up,a3down);
+    if(B1^resB|resB1^B2){
+        fprintf(OUTPUT,"B2A128 failed!\n");
+        fprintf(OUTPUT,"%lu * 2^64 + %lu",B2,B1);
         fprintf(OUTPUT,"\n!=\n");
         fprintf(OUTPUT,"%lu * 2^64 + %lu",resB1,resB);
         fprintf(OUTPUT,"\n");

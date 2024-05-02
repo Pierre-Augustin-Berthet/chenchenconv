@@ -3,4 +3,6 @@
 
 #include "secFPR.h"
 
+
+void SecArFloor(MaskedB, MaskedB);
 #endif

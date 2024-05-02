@@ -17,6 +17,7 @@
 \usepackage[english]{babel}
 \usepackage{booktabs}
 \usepackage{hyperref}
+\usepackage{multicol}
 \usepackage{graphicx}
 % Used for displaying a sample figure. If possible, figure files should
 % be included in EPS format.
@@ -104,7 +105,7 @@ In this work we further expand the countermeasure from Chen and Chen \cite{Chen_
 
 \medskip
 
-Relying on the previous work of Chen and Chen \cite{Chen_Chen_2024}, we also verify the higher-order security of our method in the probing model. Our formal proofs rely on the Non-Interference (NI) security model first introduced by Barthe et al. \cite{10.1145/2976749.2978427}.
+Relying on the previous work of Chen and Chen \cite{Chen_Chen_2024}, we also verify the higher-order security of our method in the probing model. Our formal proofs rely on the Non-Interference (NI) security model first introduced by Barthe et al. \cite{barthe2016strong}.
 
 \medskip
 
@@ -115,13 +116,19 @@ Finally, we provide some performances of our methods and compare them with the r
 \begin{itemize}
   \item We denote by $\mathbb{R}\backsim \mathbb{Z}$ any real number which is not an integer. For $x\in\mathbb{R}$, we denote the floor function of $x$ by $\lfloor x \rfloor$.
   \item We will use the dot $.$ as the separator between the integer part $i$ and the fractional part $f$ of a real number $x=i.f$.
-  \item We denote the floor function of $x$ with $n$ decimals of absolute precision by $\lfloor x \rfloor_n$. Absolute precision implies $\lfloor x\rfloor_n = \lfloor x \rfloor + 0.\{0\}^n\|[0;9]^*$. This also implies that $0 \leq \lfloor x \rfloor_n - \lfloor x \rfloor < 1\times 10^{-n}$.
+  \item We denote the floor function of $x$ with $n$ decimals of absolute precision by $\lfloor x \rfloor_n$. Absolute precision implies $\lfloor x\rfloor_n = \lfloor x \rfloor + 0.\{0\}^n\|\llbracket0;9\rrbracket^*$. This also implies that $0 \leq \lfloor x \rfloor_n - \lfloor x \rfloor < 1\times 10^{-n}$.
   \item We denote the floor function of $x$ with $n$ decimals of relative precision $\alpha\in[\num{0.1};1)$ by $\lfloor x \rfloor_n^\alpha$. Relative precision implies $-\alpha\times 10^{-n} < \lfloor x \rfloor_n^\alpha - \lfloor x \rfloor < \alpha\times 10^{-n}$.
-  \item Let $a,b\in\mathbb{R}^2$. Let $k\in\mathbb{N}$. We say that $a\equiv_k b$ if $\lfloor a\rfloor = \lfloor b \rfloor$ and they have the same number of $0$ at least for the first $k$ decimals: $\lfloor a \rfloor + 0.\{0\}^k\|[0;9]^*$. For instance, $\num{4.05} \equiv_k \num{4.09}$ at precisions $k=0$ and $k=1$ but not at precision $k=2$.
+  \item Let $a,b\in\mathbb{R}^2$. Let $k\in\mathbb{N}$. We say that $a\equiv_k b$ if $\lfloor a\rfloor = \lfloor b \rfloor$ and they have the same number of $0$ at least for the first $k$ decimals: $\lfloor a \rfloor + 0.\{0\}^k\|\llbracket0;9\rrbracket^*$. For instance, $\num{4.05} \equiv_k \num{4.09}$ at precisions $k=0$ and $k=1$ but not at precision $k=2$.
   \item If $(b_i)$ is a 1-bit Boolean shares for value b, we denote $(-b_i)$ as the 64-bit Boolean shares for $2^{64} - b$. It means that if $b=0$, $(-b_i)$ is a 64-bit boolean shares for $0$, and
-  $b=1$, $(-b_i)$ is a 64-bit boolean shares for 0x\textsc{ffffffffffffffff}. 
-
-  
+  $b=1$, $(-b_i)$ is a 64-bit boolean shares for 0x\textsc{ffffffffffffffff}.   
+\end{itemize}
+%
+\subsection{Diagram Legend}
+The following diagrams (Figures \ref{fig:RemoveDec}, \ref{fig:SetExponentZero},\ref{fig:Secfprurshmod}) use the same legend:\begin{itemize}
+    \item Probing sets are denoted by $P_i$ or $O$ and are colored in \textcolor{red}{red}.
+    \item Simulation sets are denoted by $S_i^j$ and are colored in \textcolor{blue}{blue}.
+    \item \emph{t-SNI} gadgets are colored in \textcolor{green}{green}.
+    \item \emph{t-NI} gadgets are colored in \textcolor{black}{black}.
 \end{itemize}
 % 
 \subsection{FALCON Sign}
@@ -231,13 +238,9 @@ There are several ways of computing the floor function. The first one relies on 
   \forall x \in \mathbb{R}\backsim \mathbb{Z}, \lfloor x\rfloor = x - \frac{1}{2} + \frac{1}{\pi}\sum_{k=1}^n \frac{sin(2\pi kx)}{k},\text{ with }n\rightarrow \infty
 \end{equation}
 However, due to its discontinuities, Equation \ref{eq:floorfourier} suffers from the Gibbs phenomenon \cite{8e44e918-40ae-3857-bb25-dc12ccf9e7c3}, as illustrated in Figure \ref{fig:gibbs}. 
-\begin{figure}[!h]
-  \includegraphics[width=\textwidth]{figure/gibbsphenomenon.png}
-  \label{fig:gibbs}
-  \caption{Gibbs phenomenon for Equation \ref{eq:floorfourier} with $n=$\textcolor{red}{5},\textcolor{blue}{10},\textcolor{green}{50} and floor(x) in black}
-However, due to its discontinuities, Equation \ref{eq:floorfourier} suffers from the Gibbs phenomenon \cite{8e44e918-40ae-3857-bb25-dc12ccf9e7c3}, as illustrated in Figure \ref{fig:gibbs}. 
-\begin{figure}[!h]
-  \includegraphics[width=\textwidth]{figure/gibbsphenomenon.png}
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=7cm]{figure/gibbsphenomenonsmall.png}
   \label{fig:gibbs}
   \caption{Gibbs phenomenon for Equation \ref{eq:floorfourier} with $n=$\textcolor{red}{5},\textcolor{blue}{10},\textcolor{green}{50} and floor(x) in black}
 \end{figure}
@@ -249,14 +252,14 @@ It means this series cannot be used as it is to mask the floor function in reaso
 The floor function can be arithmetized using Equation \ref{eq:floorfourier}. However, as stated in Section \ref{subsec:floorfunction}, this method cannot be performed in reasonable time. We thus elaborate a strategy to optimize this arithmetization.
 
 \subsubsection{Absolute Precision} 
-The first idea relies on constructing the floor of $x\in\mathbb{R}$ rather than computing it. Indeed, if we can compute the floor of $x$ with one decimal of precision, we can then multiply the result by $10$ and then reapply our computation to the new value $y=10\times \lfloor x\rfloor_1$. Thus, we have the following proposition:
+The first idea relies on constructing the floor of $x\in\mathbb{R}$ rather than computing it. Indeed, if we can compute the floor of $x$ with one decimal of absolute precision, we can then multiply the result by $10$ and then reapply our computation to the new value $y=10\times \lfloor x\rfloor_1$. We have the following proposition:
 \begin{proposition}\label{prop:floorprec}
   Let $x\in\mathbb{R}$. Let $y = 10\times\lfloor x\rfloor_1$. Then $\lfloor y \rfloor_1 /10 \equiv_2 \lfloor x \rfloor_2$.
 \end{proposition}
 \begin{proof}
   Let recall that $\lfloor x \rfloor_1 = \lfloor x \rfloor + 0.0 \|[0;9]^*$. Thus, $y=10\times\lfloor x \rfloor_1=\lfloor x\rfloor\|0+0.[0;9]^*$ as multiplying by $10$ can be seen as a left-shift in base $10$. By computing the floor of $y$ with absolute precision $1$ we have $y_1=\lfloor y \rfloor_1 = \lfloor x \rfloor\|0 + 0.0\|[0;9]^*$. Finally, $ y_1/10 = \lfloor x \rfloor + 0.00\|[0;9]^*\equiv_2 \lfloor x \rfloor_2$ as dividing by $10$ can be seen as a right-shift in base $10$.  
 \end{proof}
-Thus, we can use Proposition \ref{prop:floorprec} to construct the floor of $x$ with the following Algorithm \ref{alg:floorconstruct}:
+We can use Proposition \ref{prop:floorprec} to construct the floor of $x$ with the following Algorithm \ref{alg:floorconstruct}:
 
 \begin{algorithm}[H]
   \caption{ConstructFloor($x,prec$)}
@@ -275,8 +278,7 @@ Thus, we can use Proposition \ref{prop:floorprec} to construct the floor of $x$ 
 \begin{proof}
   We use a recursive proof. The initial state is proven by Proposition \ref{prop:floorprec}. Let Theorem \ref{thm:floorprec} be true for precision $prec-1$. We have $X=\lfloor x \rfloor_{prec-1}$ the output of Algorithm \ref{alg:floorconstruct}. We reapply Algorithm \ref{alg:floorconstruct} to $X\times 10^{prec-1}$ but with precision $1$ and then divide by $10^{prec-1}$. This is stricly equal to applying Algorithm \ref{alg:floorconstruct} with precision $prec$. Algorithm \ref{alg:floorconstruct} with precision $1$ is proven by Proposition \ref{prop:floorprec}. Thus, we have $\lfloor X \rfloor_1 = \lfloor x\rfloor \| \{0\}^{prec-1} + 0.0\|[0;9]^*$. By dividing by $10^{prec-1}$, we shift all the zeros stored in the integer part of $X$ into the fractional part. Thus we have $\lfloor X \rfloor_1 /10^{prec-1} = \lfloor x \rfloor + 0.\{0\}^{prec}\|[0;9]^* \equiv_{prec} \lfloor x \rfloor_{prec}$. We thus proved Theorem \ref{thm:floorprec}.
 \end{proof}
-
-%All we need now is a function able of computing $\lfloor x \rfloor_1$ in reasonable time. 
+ 
 \subsubsection{Relative Precision}
 We discuss how to achieve absolute precision from relative precision. In relative precision, we have the possibility that the error from the result can be negative. This results in $\lfloor x \rfloor_n^\alpha = \lfloor x \rfloor - 0.\{0\}^{n}\|[0;9]^*=\lfloor x \rfloor-1 + 0.\{9\}^{n}\|[0;9]^* $. Thus, we cannot construct the floor function using directly $\lfloor x \rfloor_n^\alpha$, as in Algorithm \ref{alg:floorconstruct}. We introduce a second idea: controlled bias.
 
@@ -291,7 +293,6 @@ We discuss how to achieve absolute precision from relative precision. In relativ
     \item The error is negative. Thus $-\alpha\times 10^{-2} < \lfloor x \rfloor_2^\alpha - \lfloor x \rfloor \leq 0$ and $0 < \lfloor x \rfloor_2^\alpha + \alpha\times 10^{-2} - \lfloor x \rfloor \leq \alpha\times 10^{-2} < 1\times 10^{-2}$. Thus, in this case, we have $\lfloor x \rfloor_2^\alpha + \alpha\times 10^{-2} \equiv_2 \lfloor x \rfloor_2$ and by construction of $\lfloor x \rfloor_n$, we have $\lfloor x \rfloor_2^\alpha + \alpha\times 10^{-2} \equiv_1 \lfloor x \rfloor_1$.
     \item The error is positive. Thus $0 \leq \lfloor x \rfloor_2^\alpha - \lfloor x \rfloor < \alpha\times10^{-2}$ and $\alpha\times10^{-2} \leq \lfloor x \rfloor_2^\alpha + \alpha\times 10^{-2} - \lfloor x \rfloor \leq 2\alpha\times 10^{-2}$. This implies $0<\lfloor x \rfloor_2^\alpha + \alpha\times 10^{-2} - \lfloor x \rfloor<1\times10^{-1}$. Thus, in this case, we have $\lfloor x \rfloor_2^\alpha + \alpha\times 10^{-2} \equiv_1 \lfloor x \rfloor_1$.
   \end{enumerate}
-  We demonstrate that we can have an absolute precision of $1$ from a relative precision of $2$.
 \end{proof}
 
 However, we can improve upon Proposition \ref{prop:floorbias} by limiting the maximum value of $\alpha$. We have the following proposition:\begin{proposition}\label{prop:floorbiasopt}
@@ -320,30 +321,32 @@ Instead of computing the floor function, Algorithm \ref{alg:floorstep1} gives th
   Let $x\in(0;1)\subset\mathbb{R}\backsim \mathbb{Z}$ with up to $19$ decimals, \emph{id est} $x= 0.[0;9]^{19}\|{0}^*$. We set $n=3$ and $\alpha=0.4$. Algorithm \ref{alg:floorstep1} returns $\lfloor x \rfloor_1^\alpha+\frac{1}{2}$ in $24$ iterations.
 \end{theorem}
 \begin{proof}
-  We denote $x + \frac{1}{\pi}\sum_{k=1}^{3}\frac{sin(2\pi k x)}{k}$ by $f(x)$. Let set $(U_n)_{n\in\mathbb{N}}$ such as $U_{n+1} = f(U_n)$. First, we will prove the convergence of $(U_n)_{n\in\mathbb{N}}$. Then, we use the Newton method and a visual proof to demonstrate Theorem \ref{thm:floorstep1}.
+  We denote $x + \frac{1}{\pi}\sum_{k=1}^{3}\frac{sin(2\pi k x)}{k}$ by $f(x)$. Let set $(U_n)_{n\in\mathbb{N}}$ such as $U_{n+1} = f(U_n)$. First, we will prove the convergence of $(U_n)_{n\in\mathbb{N}}$. Then, we use the Newton's method and a visual proof to demonstrate Theorem \ref{thm:floorstep1}.
 
   \medskip
 
   \noindent \textbf{PREUVE DE LA CONVERGENCE A FAIRE!!!!!!}
 
-  \begin{figure}[h!]
-    \includegraphics[width =\textwidth]{figure/eqn7Newton.png}
-    \caption{Equation \ref{eq:floorfourier} with $n=3$}
+  \begin{figure}[!ht]
+    \centering
+    \includegraphics[width =7cm]{figure/eqn7NewtonSmaller.png}
+    \caption{\textcolor{blue}{Equation} \ref{eq:floorfourier} with $n=3$ and \textcolor{lightgray}{Newton's method}}.
     \label{fig:newton3}
   \end{figure}
 
-  For the second part of the proof, we use the Newton method on a graphical representation of $f(x)$(\textcolor{blue}{labeled Eq}). The Newton method, in \textcolor{gray}{grey arrows} in Figure , allows to graphically compute the next term $U_{n+1}$ from $U_n$. We start at the point $(U_n,0)$ ($\num{0.15}$ in this example) and find the point $(U_n,f(U_n))$ (\textcolor{gray}{arrow labeled u}). We then find the point of \textcolor{red}{$c(x)=x$} with ordinate $f(U_n)$ (\textcolor{gray}{arrow labeled v}) and look at its abscissa (\textcolor{gray}{arrow labeled w}), which gives us $U_{n+1}$. Thanks to this method, we can visually compute the number of iterations of Algorithm \ref{alg:floorstep1} required to have $\num{0.46}\leq U_{n+1}\leq \num{0.54}$(\textcolor{green}{green area}). The amount of iterations is shown in Table \ref{tab:n3} (due to the symetric nature of $sin(x)$, we restrict the study on $(0;\num{0.5}]$).
+  For the second part of the proof, we use the Newton's method on a graphical representation of $f(x)$(\textcolor{blue}{labeled Eq}). The Newton's  method, in \textcolor{gray}{grey arrows} in Figure , allows to graphically compute the next term $U_{n+1}$ from $U_n$. We start at the point $(U_n,0)$ ($\num{0.15}$ in this example) and find the point $(U_n,f(U_n))$ (\textcolor{gray}{arrow labeled u}). We then find the point of \textcolor{red}{$c(x)=x$} with ordinate $f(U_n)$ (\textcolor{gray}{arrow labeled v}) and look at its abscissa (\textcolor{gray}{arrow labeled w}), which gives us $U_{n+1}$. Thanks to this method, we can visually compute the number of iterations of Algorithm \ref{alg:floorstep1} required to have $\num{0.46}\leq U_{n+1}\leq \num{0.54}$(\textcolor{green}{green area}). The amount of iterations is shown in Table \ref{tab:n3}.
 
-  \begin{table}[!h]
-    \caption{Subsets of $(0;\num{0.5}]$ and number of iterations to reach $[\num{0.46};\num{0.54}]$}
+  Finally, we have tested the maximum number of iterations required on extreme points for our set of parameters using a \emph{PoC} based on the MPFR library from GMP. Hence the limit to $24$ iterations for this set of parameters.
+  \begin{table}[!ht]
+    \caption{Subsets of $(0;1)$ and \textcolor{blue}{$[0.1;0.9]$}, number of iterations to reach $[\num{0.46};\num{0.54}]$}
     \label{tab:n3}
     \begin{tabularx}{\textwidth}{lcX}
       \toprule
-      Number of iterations & &Subsets \\
+      Iterations & &Subsets \\
       \midrule
-      1 & &$U_1=[\num{0.0767};\num{0.1002}]\vee[\num{0.1962};\num{0.2522}]\vee[\num{0.3213};\num{0.4060}]\vee [\num{0.4514};\num{0.5}]$\\
-      At most 2 & & $U_2=U_1\vee[\num{0.0110};\num{0.0143}]\vee[\num{0.0287};\num{0.0373}]\vee[\num{0.0488};\num{0.0648}]\vee[\num{0.0746};\num{0.263}]\vee[\num{0.3095};\num{0.5}]$\\
-      At most 3 & & $U_3=U_2\vee[\num{0.0016};\num{0.002}]\vee[\num{0.0041};\num{0.0052}]\vee[\num{0.007};\num{0.0092}]\vee[\num{0.0107};\num{0.0391}]\vee[\num{0.0469};\num{0.5}]$\\
+      1 & &$U_1=\lbrack\num{0.0767};\textcolor{blue}{\num{0.1002}\rbrack\vee\lbrack\num{0.1962};\num{0.2522}\rbrack\vee\lbrack\num{0.3213};\num{0.4060}\rbrack\vee \lbrack\num{0.4514};\num{0.5486}\rbrack}\newline\textcolor{blue}{\vee\lbrack\num{0.5940};\num{0.6787}\rbrack\vee\lbrack\num{0.7478};\num{0.8037}\rbrack\vee\lbrack\num{0.8998}};\num{0.9233}\rbrack$\\
+      $\leq 2$ & & $U_2=U_1\vee[\num{0.0110};\num{0.0143}]\vee[\num{0.0287};\num{0.0373}]\vee[\num{0.0488};\num{0.0648}]\vee\lbrack\num{0.0746};\textcolor{blue}{\num{0.1037}\rbrack\vee\lbrack\num{0.1908};\num{0.263}\rbrack\vee\lbrack\num{0.3095};\num{0.6907}\rbrack\vee\lbrack\num{0.7370};\num{0.8092}\rbrack}\newline\textcolor{blue}{\vee\lbrack\num{0.8963}};\num{0.9253}\rbrack\vee[\num{0.9353};\num{0.9511}]\vee[\num{0.9627};\num{0.9713}]\vee[\num{0.9856};\num{0.9890}]$\\
+      $\leq 3$ & & $U_3=U_2\vee[\num{0.0016};\num{0.002}]\vee[\num{0.0041};\num{0.0052}]\vee[\num{0.007};\num{0.0092}]\vee[\num{0.0107};\num{0.0148}]\vee[\num{0.0278};\num{0.0391}]\vee\lbrack\num{0.0469};\num{0.1}\rbrack\vee\textcolor{blue}{\lbrack\num{0.1};\num{0.9}\rbrack}\vee[\num{0.9};\num{0.9532}]\vee[\num{0.9608};\num{0.9722}]\vee[\num{0.9851};\num{0.9893}]\vee[\num{0.9907};\num{0.9930}]\vee[\num{0.9947};\num{0.9959}]\vee[\num{0.9979};\num{0.9985}]$\\
       \bottomrule
     \end{tabularx}
   \end{table}
@@ -353,13 +356,13 @@ Instead of computing the floor function, Algorithm \ref{alg:floorstep1} gives th
   The choice of setting $\alpha=\num{0.4}$ in Theorem \ref{thm:floorstep1} is not the most optimal as taking $\alpha=\num{0.5}$ is more advantageous as shown in Proposition \ref{prop:floorbiasopt}. However, by taking $\alpha = \num{0.4}$, we have that Algorithm \ref{alg:floorstep1} returns $\lfloor x \rfloor + err$ such as $\num{0.46}\leq err \leq \num{0.54}$. Thus, by retrieving to this result $0.45$, we have $\num{0.01} \leq err - \num{0.45} \leq \num{0.09}$. By multiplying by $10$, we have $\num{0.1} \leq 10*(err-\num{0.45}) \leq \num{0.9}$. As a result, when applying Algorithm \ref{alg:floorconstruct} we avoid some extreme points and reduce the number of iterations required by Algorithm \ref{alg:floorstep1}. This strategy is not specific to the current set of parameters and will always benefit our method. 
 \end{remark}
 
-According to Table \ref{tab:n3}, all values of $x\in[\num{0.1};\num{0.9}]$ converge towards $[\num{0.46};\num{0.54}]$ in less than $3$ iterations. Thus, in accordance with Remark \ref{rem:alpha04} we can limit the number of iterations in the following steps of our floor compuation to only $3$. We can use Algorithm \ref{alg:arfloor} to compute the floor function of $x\in\mathbb{R}\backsim\mathbb{Z}$ in reasonable times.
+According to Table \ref{tab:n3}, all values of $x\in[\num{0.1};\num{0.9}]$ converge towards $[\num{0.46};\num{0.54}]$ in less than $3$ iterations. Thus, in accordance with Remark \ref{rem:alpha04} we can limit the number of iterations in the following steps of our floor computation to only $3$. We can use Algorithm \ref{alg:arfloor} to compute the floor function of $x\in\mathbb{R}\backsim\mathbb{Z}$ in reasonable times.
 
 \begin{algorithm}[H]
   \caption{ArFloor($x,prec$)}
   \label{alg:arfloor}
   \KwData{$x\in\mathbb{R}\backsim\mathbb{Z}$ and the precision $prec\in\mathbb{N}$}
-  \KwResult{$\lfloor x \rfloor_prec$}
+  \KwResult{$\lfloor x \rfloor_{prec}$}
   $x\leftarrow \emph{ArFloorStep}(x,3,24) -\num{0.45}$\;
   $x \leftarrow 10 \times x$\;
   \For{\texttt{i from 1 to prec-1}}{
@@ -374,7 +377,7 @@ In this part we will consider $f$ as one of these three funtions : floor, trunca
 
 \subsection{Overview}
   %\paragraph[short]{Binary64 -- IEEE 754.} 
-  Recall that we're working with floating point in a specific representation, the standardized\footnote{Binary64 -- IEEE 754} one,
+  Recall that we're working with floating point in a specific representation, the standardized\footnote{Binary64 -- IEEE 754} one \cite{kahan1996ieee},
     it's really important to understand the encoding method because all operation algorithms using floating point are based on. We can define this encoding as follow : 
     let $x \in \mathbb{R}$, $x$ is represented by a tupple of three elements $(s,e,m)$, where $s$, $e$ and $m$ are respectively 1-bit length, 11-bit length and 52-bit length, such as $$x= (-1)^s \times 2^{e-1023} \times (1+m\times 2^{-52})$$
     We call $s$ the sign bit, $e$ the exponent and $m$ the mantissa.% which we must not forget to add an implicit bit. 
@@ -388,7 +391,7 @@ In this part we will consider $f$ as one of these three funtions : floor, trunca
 
     \subsection{Masked Floor Function}
     The function SecFprBaseInt is the main function to compute masked floor, masked truncature or masked round. Its result depends on the inputed function : gadgets and Zero$_f$ are different. 
-    \begin{figure}[h!]
+    \begin{figure}[!ht]
         \centering
         \includegraphics[width=0.5\textwidth]{figure/secpfrhierarchie.pdf}
         \label{fig:hierar}
@@ -404,11 +407,13 @@ In this part we will consider $f$ as one of these three funtions : floor, trunca
     The particularity of our shift method for calculating floor function is that it requires the gadgets proposed by Chen and Chen \cite{Chen_Chen_2024}. So by proposing this method, we are extending their work to mask the Gaussian sampler by using only the gadgets of their creation.
     By way of summary, we propose a table showing the functions used to create our gadgets and the sources from which they come.
 
-    \begin{figure}[h!]
+    \begin{figure}[!ht]
         \begin{center}
             \begin{tabular}{C{2.5 cm} || C{6 cm} C{1.2cm} C{2cm}}
-                \hline \textbf{Algorithm} & \textbf{Decription} & \textbf{Security} & \textbf{Reference}\\
-                \hline SecAnd   & AND of Boolean shares             & $t$-SNI &  \cite{ishai2003private}, \cite{barthe2016strong}\\
+              \toprule
+               \textbf{Algorithm} & \textbf{Description} & \textbf{Security} & \textbf{Reference}\\
+                \midrule
+                 SecAnd   & AND of Boolean shares             & $t$-SNI &  \cite{ishai2003private}, \cite{barthe2016strong}\\
                  SecAdd         & Addition of Boolean shares        & $t$-SNI&  \cite{coron2015conversion}, \cite{barthe2018masking}\\
                  A2B            & Arithmetic to Boolean conversion  & $t$-SNI& \cite{schneider2019efficiently}\\
                  B2A            & Boolean to Arithmetic conversion  & $t$-SNI&  \cite{bettale2018improved}\\
@@ -418,7 +423,7 @@ In this part we will consider $f$ as one of these three funtions : floor, trunca
                  SecNonZero     & NonZero check of shares           & $t$-SNI&  \cite{Chen_Chen_2024}\\
                  SecFprUrsh     & Right-shift keeping sticky bit updated  & $t$-SNI&  \cite{Chen_Chen_2024}\\
                  SecFprNorm64   & Normalization to $[2^{63},2^{64})$ & $t$-NI& \cite{Chen_Chen_2024}\\
-                \hline
+                \bottomrule
             \end{tabular}
         \end{center}
     \end{figure}
@@ -452,7 +457,7 @@ In this part we will consider $f$ as one of these three funtions : floor, trunca
       As explained in overview, these three functions can be summarised in a global structure. 
       What will differentiate the three functions will in fact be the gadgets and the Zero$_f$ parameter.
       To perform the floor function, we first extract the data from the encoding and place it in three variables $s_y, e_y$ and $m_y$, which will be linked directly to the output of the algorithm. 
-      By extracting this data footnote{Pseudo-code in appendix: SecFprExtract -- \autoref{algo:SecFprExtract }}, we carry out a few operations on the mantissa and the exponent to match the conventions of Chen's implementation..
+      By extracting this data\footnote{Pseudo-code in appendix: SecFprExtract -- \autoref{algo:SecFprExtract }}, we carry out a few operations on the mantissa and the exponent to match the conventions of Chen's implementation.
         Indeed, the input $x$ is a 64-bit boolean share, consequently we'll have to transform the exponent into a 16-bit arithmetic share by performing a boolean to arithmetic conversion.
         Another important thing to add is the bit implicit in the mantissa. 
         This bit which is not present in the $x$ information, in order to save one bit and gain in precision, is nevertheless very important.
@@ -477,7 +482,6 @@ In this part we will consider $f$ as one of these three funtions : floor, trunca
         $$2^{e_x-1023} \times (1+m_x\times 2^{-52})\quad\leq \quad 2^{-2} \times (1+m_x\times 2^{-52}) \quad< \quad 0.5$$ 
         
         To sum up, after the first step, only $my$ can change. The two values it can take are $my$ it-self (no changes) or $0$.
-        The second step 
         The second step removes the decimals by shifting them to the right, using RemoveDecimal -- \autoref{algo:RemoveDecimal_floor}. 
         As this algorithm does not normalise the mantissa, we then apply the SecFprNorm64 function, !!!!!!!! followed by a refresh (SecFprNorm64 is a $t$-NI gadgets) and !!!!!!!!!!! a computation of shifted $my$ and $ey$ to set the mantissa back to bits $[52:1]$ and update $ey$.
         Finally, the last step in the algorithm, before reformatting the initial encoding, is to apply the specific encoding of "0" if this is the result to be returned.
@@ -631,50 +635,95 @@ In this part we will consider $f$ as one of these three funtions : floor, trunca
     \end{figure}
 
 \section{Security Proof}
-\subsection{SetExponentZero$_\text{floor}$}
+In this section we will cover the \emph{t-SNI} security of our design with $n=t+1$ shares.
 
-FAIRE LA PREUVE
-
-\begin{figure}[h!]
+\begin{lemma}
+  The gadget \textbf{SetExponentZero$_\text{floor}$} (Algorithm \ref{algo:SetExponentZero_floor}) is \emph{t-SNI} secure.
+\end{lemma}
+\begin{figure}[!ht]
   \centering
-  \includegraphics[width=1\textwidth]{figure/SetExZero.pdf}
+  \includegraphics[width=7cm]{figure/SetExZero2.pdf}
   \label{fig:SetExponentZero}
-  \caption{SetExponentZero}
+  \caption{Abstract diagram of SetExponentZero}
 \end{figure}
+\begin{proof}
+  We use an abstract diagram in Figure \ref{fig:SetExponentZero} for our demonstration. The gadget only contains \emph{t-SNI} gadgets and the input shares are distinct from the output shares for each gadgets. By composition of \emph{t-SNI} gadgets and independence of input and output shares, \textbf{SetExponentZero$_{floor}$} is itself \emph{t-SNI}.
+\end{proof}
 
-\subsection{SecFprUrsh$_\text{floor}$}
+\begin{lemma}
+  The gadget \textbf{SecFprUrsh$_\text{floor}$} (Algorithm \ref{algo:SecFprUrsh}) is \emph{t-SNI} secure.
+\end{lemma}
 
-FAIRE LA PREUVE
-
-\begin{figure}[h!]
+\begin{figure}[!ht]
   \centering
-  \includegraphics[width=1\textwidth]{figure/secfprurshmod.pdf}
-  \label{fig:Secfprursh}
-  \caption{SecFprUrsh$_f$}
+  \includegraphics[width=7cm]{figure/secfprurshmod.png}
+  \label{fig:Secfprurshmod}
+  \caption{Abstract diagram of SecFprUrsh$_{floor}$}
 \end{figure}
+
+\begin{proof}
+  The gadget \textbf{SecFprUrsh$_\text{floor}$} is a slight modification of the gadget \textbf{SecFprUrsh} from \cite{Chen_Chen_2024}. Ours does not compute the sticky bit but retains the rotated out information. We rely on their proof regarding the \emph{t-SNI} security of the gadget \textbf{Rotate} (see \cite{Chen_Chen_2024}, Lemma 3 and Figure 2). We now show that the operations following the rotation loop are \emph{t-SNI} secure. We use an abstract diagram in Figure \ref{fig:Secfprurshmod} for the demonstration. Let an adversary probe the intermediate values sets $\textcolor{red}{P_1}$ of \textbf{SecAnd}, $\textcolor{red}{P_2}$ of \textbf{SecAnd} and $\textcolor{red}{P_3}$ of \textbf{XOR}. As \textbf{SecAnd} is \emph{t-SNI} secure, one can use the sets \textcolor{blue}{$S_2^1$},\textcolor{blue}{$S_2^2$} (resp. \textcolor{blue}{$S_1^1$},\textcolor{blue}{$S_1^2$}) to simulate \textcolor{red}{$P_2$} (resp. \textcolor{red}{$P_1$}) and the ouput shares of $(rot)$ (resp. $(xi)>>(ci)$) with sizes no more than \textcolor{red}{$P_2$} (resp. \textcolor{red}{$P_1$}). One can simulate the probing set of \textcolor{red}{$P_3$} in the \textbf{XOR} and the simulation sets \textcolor{blue}{$S_2^2$} and \textcolor{blue}{$S_1^2$} with the output shares \textcolor{blue}{$S_3$} of the rotation of $(mi)$. All probes are now simulated with output shares \textcolor{blue}{$S_1^1\cup S_2^1$} of the rotation of $(xi)$ and \textcolor{blue}{$S_3$} of the rotation of $(mi)$. We have $\textcolor{blue}{|S_1^1\cup S_2^1|} \leq \textcolor{red}{|P_1| + |P_2|}$ and $\textcolor{blue}{|S_3|}\leq \textcolor{red}{|P_3|}+\textcolor{blue}{|S_2^2| + |S_1^2|} \leq \textcolor{red}{|P_3|+|P_2|+|P_1|}$. Along with the internal probes \textcolor{red}{$P_5$} and \textcolor{red}{$P_4$} into the rotation loop, can be simulated by input shares due to the \emph{t-SNI} security showed at first in (\cite{Chen_Chen_2024}, Lemma 3).
+\end{proof}
 
 \subsection{RemoveDecimal$_\text{floor}$}
 
 FAIRE LA PREUVE
 
-\begin{figure}[h!]
+\begin{lemma}\label{lemma:remdec}
+  The gadget \textbf{RemoveDecimal$_\text{floor}$} (Algorithm \ref{algo:RemoveDecimal_floor}) is \emph{t-SNI} secure.
+\end{lemma}
+
+\begin{figure}[!ht]
   \centering
-  \includegraphics[width=1\textwidth]{figure/RemoveDec.pdf}
-  \label{fig:Secfprursh}
-  \caption{SecFprUrsh$_f$}
+  \includegraphics[width=8cm]{figure/RemoveDec2.pdf}
+  \label{fig:RemoveDec}
+  \caption{Abstract diagram of RemoveDecimal$_\text{floor}$}
 \end{figure}
+\begin{proof}
+  We use an abstract diagram in Figure \ref{fig:RemoveDec} for the demonstration. Let assume an adversary probe the intermediate values sets of the output shares \textcolor{red}{$O$} and \textcolor{red}{$P_i$} in each gadget for $i\in\llbracket 1;12 \rrbracket$. We use simulation sets \textcolor{blue}{$S_i^j$} to simulate the values for each gadget. \emph{t-SNI} security implies that if the size of all probing sets $P_i$ is $t_I\leq t$ and if the size of values required to simulate in each gadget is smaller than $t$, then the simulation sets linked to the input shares are not bigger than $t_I$. \emph{t-SNI} gadgets imply $\textcolor{blue}{|S|} \leq \textcolor{red}{|P|}$ while \emph{t-NI} gadgets imply $\textcolor{blue}{|S|} \leq \textcolor{red}{|P|+|O|}$. As \textbf{Refresh}, \textbf{SecAnd}, \textbf{SecNonZero}, \textbf{SecFprUrsh$_{floor}$}, \textbf{B2A} and \textbf{A2B} are all \emph{t-SNI} secure while \textbf{SecAdd} and \textbf{$+$} are \emph{t-NI} secure, we can sequentially derive the following:
+  \begin{multicols}{2}
+    \begin{itemize}
+      \item $\textcolor{blue}{|S_1|} \leq \textcolor{red}{|P_1|}$
+      \item $\textcolor{blue}{|S_2^1|,|S_2^2|} \leq \textcolor{red}{|P_2|} + \textcolor{blue}{|S_1|} \leq \textcolor{red}{|P_2|+|P_1|}$
+      \item $\textcolor{blue}{|S_3|} \leq \textcolor{red}{|P_3|}$
+      \item $\textcolor{blue}{|S_4^1|,|S_4^2|} \leq \textcolor{red}{|P_4|} + \textcolor{blue}{|S_3|} \leq \textcolor{red}{|P_4|+|P_3|}$
+      \item $\textcolor{blue}{|S_5^1|,|S_5^2|} \leq \textcolor{red}{|P_5|}$
+      \item $\textcolor{blue}{|S_6|} \leq \textcolor{red}{|P_6|}$
+      \item $\textcolor{blue}{|S_7^1|,|S_7^2|} \leq \textcolor{red}{|P_7|}$
+      \item $\textcolor{blue}{|S_8|} \leq \textcolor{red}{|P_8|}$
+      \item $\textcolor{blue}{|S_9^1|,|S_9^2|} \leq \textcolor{red}{|P_9|}$
+      \item $\textcolor{blue}{|S_{10}^1|,|S_{10}^2|} \leq \textcolor{red}{|P_{10}|}$
+      \item $\textcolor{blue}{|S_{11}|} \leq \textcolor{red}{|P_{11}|}$
+      \item $\textcolor{blue}{|S_{12}|} \leq \textcolor{red}{|P_{12}|}$
+    \end{itemize}
+  \end{multicols}
+  Based on the previous inequalities, one can check that no gadget requires more than $t_I$ values to be simulated. This apply to the input shares as well, with $\textcolor{blue}{|S_{10}^1|}\leq\textcolor{red}{|P_10|}$ for $(sy)$, $\textcolor{blue}{|S_7^1|}\leq\textcolor{red}{|P_7|}$ for $(my)$, $\textcolor{blue}{|S_12|} \leq \textcolor{red}{|P_12|}$ for $(cx)$ and $\textcolor{blue}{|S_2^1|}\leq\textcolor{red}{|P_2|} + \textcolor{blue}{|S_1|} \leq \textcolor{red}{|P_2| + |P_1|}$ for $(ey)$, no sizes being more than $t_I$.
+\end{proof}
 
-\subsection{SecBaseInt$_\text{floor}$}
+\begin{theorem}
+  The gadget \textbf{SecBaseInt$_\text{floor}$} (Algorithm \ref{algo:SecFprBaseInt}) is \emph{t-SNI} secure.
+\end{theorem}
 
-FAIRE LA PREUVE
-
-\begin{figure}[h!]
+\begin{figure}[!ht]
   \centering
-  \includegraphics[width=1\textwidth]{figure/secbaseint.pdf}
-  \label{fig:Secfprursh}
-  \caption{SecFprUrsh$_f$}
+  \includegraphics[width=10cm]{figure/secbaseint2.pdf}
+  \label{fig:secbaseint}
+  \caption{Abstract diagram of SecBaseInt$_\text{floor}$}
 \end{figure}
-\newpage
+\begin{proof}
+  We use the same method as for the demonstration of Lemma \ref{lemma:remdec}. We use an abstract diagram in Figure \ref{fig:secbaseint} for the demonstration. Let assume an adversary probe the intermediate values sets of the output shares \textcolor{red}{$O$} and \textcolor{red}{$P_i$} in each gadget for $i\in\llbracket 1;6 \rrbracket$. We use simulation sets \textcolor{blue}{$S_i^j$} to simulate the values for each gadget. \emph{t-SNI} security implies that if the size of all probing sets $P_i$ is $t_I\leq t$ and if the size of values required to simulate in each gadget is smaller than $t$, then the simulation sets linked to the input shares are not bigger than $t_I$. As \textbf{SetExponentZero}, \textbf{RemoveDecimal}, \textbf{SecAnd}, \textbf{A2B} and \textbf{Refresh} are all \emph{t-SNI} secure while \textbf{SecFprNorm64} is \emph{t-NI} secure, we can sequentially derive the following:
+  \begin{multicols}{2}
+    \begin{itemize}
+      \item $\textcolor{blue}{|S_1^1|,|S_1^2|,|S_1^3} \leq \textcolor{red}{|P_1|}$
+      \item $\textcolor{blue}{|S_2^1|,|S_2^2|} \leq \textcolor{red}{|P_2| +|O_{(my)}|} $
+      \item $\textcolor{blue}{|S_3^1|,|S_3^2|,|S_3^3|,|S_3^4|} \leq \textcolor{red}{|P_3|}$
+      \item $\textcolor{blue}{|S_4^1|,|S_4^2|} \leq \textcolor{red}{|P_4|}$
+      \item $\textcolor{blue}{|S_5|} \leq \textcolor{red}{|P_5|}$
+      \item $\textcolor{blue}{|S_6|} \leq \textcolor{red}{|P_6|}$
+    \end{itemize}
+  \end{multicols}
+  Based on the previous inequalities, one can check that no gadget requires more than $t_I$ values to be simulated. This also apply to the input shares, with $\textcolor{blue}{|S_{4}^1|}\leq\textcolor{red}{|P_4|}$ for $(my)$, $\textcolor{blue}{|S_5 \cup S_3^2\cup S_6|}\leq\textcolor{red}{|P_5|+|P_3| + |P_6|}$ for $(ey)$ and $\textcolor{blue}{|S_3^4\cup S_1^3|}\leq\textcolor{red}{|P_3|+|P_1|}$ for $(sy)$, none being more than $t_I$.
+\end{proof}
 
 \section{Application to FALCON}\label{sec:appfalcon}
 \subsection{Masked Floor Function For FALCON}
