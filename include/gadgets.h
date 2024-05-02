@@ -35,6 +35,7 @@ void    RefreshMasks        (MaskedB out, int size);
 
 void    A2B                 (MaskedB out, MaskedA in, uint64_t mod);
 void    A2B128              (MaskedB outup,MaskedB outdown, MaskedA inup, MaskedA indown, int size);
+void    A2B_rec             (uint64_t *out, uint64_t *in, uint64_t mod, int size);
 void    B2A                 (MaskedA out, MaskedB in, uint64_t mod, int size);
 void    B2A128              (MaskedA outup,MaskedA outdown, MaskedB inup,MaskedB indown, int size);
 void    B2A_bit             (MaskedA A, MaskedB x, uint64_t mod);

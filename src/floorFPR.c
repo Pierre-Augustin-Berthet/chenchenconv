@@ -8,8 +8,8 @@ void FourierEA(MaskedB out, MaskedB in){
 
     //masquer depi
     SecFprMul(tempx,depi,in);
-    Taylor(sin,cos,tempx);
-    SerialTerm(t0,t1,t2,sin,cos);
+    //Taylor(sin,cos,tempx);
+    //SerialTerm(t0,t1,t2,sin,cos);
     //masquer invpi
     SecFprMul(tempx,invpi,t0);
     SecFprAdd(add,in,tempx,0);
