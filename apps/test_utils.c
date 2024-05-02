@@ -63,5 +63,17 @@ int main(int *argc, char **argv){
     Mult128(&resB,&resA,A1,A2);
     fprintf(OUTPUT,"%lu * %lu = %lu * 2^64 + %lu\n",A1,A2,resB,resA);
     fprintf(OUTPUT,"Mult128 succeeded!\n");   
+
+    uint64_t in1, in2, in3, in4, out1, out2;
+
+    in1 = -1;
+    in2 = 0;
+    in3 = -1;
+    in4 = 0;
+
+    Mult128Bi(&out2, &out1, in2, in1, in4, in3 );
+
+    
+
     return 0;
 }

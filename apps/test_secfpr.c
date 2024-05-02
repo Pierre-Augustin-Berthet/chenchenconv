@@ -164,6 +164,143 @@ int main(int *argc, char **argv){
 
     //}}
 
+    fprintf(OUTPUT,"\n-----------------FprMul----------------\n");
+
+
+    inb[0]  = 0x4014000000000000;//0x404c800000000000;//0x4014000000000000;//((uint64_t)2<<50) + ((uint64_t)0<<63) + ((uint64_t)1025<<52);
+    inb[1] = 0;
+    inb[2] = 0;
+
+    inb2[0] = 0x41F7F91566100000;//0x443f38135d49f424;//0x4014000000000000;//0x41F7F91566100000;//0x43A0A741A4627800;//0x4059000000000000;//0x4014000000000000;//0x43A0A741A4627800;//0xC014000000000000;//((uint64_t)0) + ((uint64_t)0<<63) + ((uint64_t)1075<<52);
+    inb2[1] = 0;
+    inb2[2] = 0;
+
+    //-5--> 0xC014000000000000
+    //5--> 0x4014000000000000
+    //6--> 0x4018000000000000
+
+    SecFprMul(outb, inb, inb2); 
+
+    UnmaskB(&res, outb, MASKSIZE);
+    printf("outb = %lu\n", res);
+    print_binary_form(res);
+    printf("\n\n\n");
+
+    SecFprAdd(outb, inb, inb2, mod); 
+
+    UnmaskB(&res, outb, MASKSIZE);
+    printf("outb = %lu\n", res);
+    print_binary_form(res);
+    printf("\n\n\n");
+
+
+
+    fprintf(OUTPUT,"\n-----------------APPROX EXP----------------\n");
+
+    inb[0]  = 0x3FE3333333333333;//0x3FE0000000000000;
+    inb[1] = 0;
+    inb[2] = 0;
+
+    inb2[0]  = 0x3FE0000000000000;
+    inb2[1] = 0;
+    inb2[2] = 0;
+
+    Secfpr_expm_p63(outb,inb, inb2);
+
+    UnmaskB(&res, outb, MASKSIZE);
+    printf("approx = %lu\n", res);
+    print_binary_form(res);
+    printf("\n\n\n");
+
+
+    fprintf(OUTPUT,"\n-----------------FprAdd------------------\n");
+
+
+    inb[0] = 0b0100001001001011001010100100011001111110000000110000000000000000;//((uint64_t)2<<50) + ((uint64_t)0<<63) + ((uint64_t)1025<<52);
+    inb[1] = 0;
+    inb[2] = 0;
+
+    MaskB(inb, inb[0]);
+    for (int i = 0; i<MASKSIZE; i++) printf("inb = %lu\n", inb[i]);
+
+
+    inb2[0] = 0b1100001000000001110100000100011000001110100011000000000000000000;//0x43A0A741A4627800;//0xC014000000000000;//((uint64_t)0) + ((uint64_t)0<<63) + ((uint64_t)1075<<52);
+    inb2[1] = 0;
+    inb2[2] = 0;
+
+    MaskB(inb2, inb2[0]);
+    for (int i = 0; i<MASKSIZE; i++) printf("inb = %lu\n", inb2[i]);
+
+    //-5--> 0xC014000000000000
+    //5--> 0x4014000000000000
+    //6--> 0x4018000000000000
+
+    SecFprAdd(outb, inb2, inb, mod); 
+
+    UnmaskB(&res, outb, MASKSIZE);
+    printf("outb = %lu\n", res);
+    print_binary_form(res);
+
+    printf("Expected : \n");
+    print_binary_form(0x424A0D421D1A4000);
+    print_binary_form(4776644932387094528);
+
+    
+
+
+    inb[0] = 0x4014000000000000;//((uint64_t)2<<50) + ((uint64_t)0<<63) + ((uint64_t)1025<<52);
+    inb[1] = 0;
+    inb[2] = 0;
+
+    inb2[0] = 0x4014000000000000;
+    inb2[1] = 0;
+    inb2[2] = 0;
+
+    //-5--> 0xC014000000000000
+    //5--> 0x4014000000000000
+    //6--> 0x4018000000000000
+
+    SecFprAdd(outb, inb, inb2, mod); 
+
+    UnmaskB(&res, outb, MASKSIZE);
+    printf("outb = %lu\n", res);
+    print_binary_form(res);
+    printf("\n\n\n");
+
+
+    fprintf(OUTPUT,"\n-----------------BerExp----------------\n");
+
+    inb[0]  = 0x4014000000000000;//0x3FE0000000000000;//0x3FE0000000000000;
+    inb[1] = 0;
+    inb[2] = 0;
+
+    inb2[0]  = 0x3FE0000000000000;
+    inb2[1] = 0;
+    inb2[2] = 0;
+
+    SecFprBerExp(outb,inb, inb2);
+
+    UnmaskB(&res, outb, MASKSIZE);
+    printf("approx = %lu\n", res);
+    print_binary_form(res);
+    printf("\n\n\n");
+
+
+    /*uint64_t fpr_ln2_inv = 0x3FF71547652B82FE;
+    uint64_t fpr_ln2 = 0x3FE62E42FEFA39EF;
+
+    MaskedB inv_ln2, ln2, s, r;
+
+    MaskB(inv_ln2, fpr_ln2_inv);
+    MaskB(ln2, fpr_ln2);
+
+    SecFprMul2(s, inv_ln2, inb);
+
+    //SecFprFloor(s,s);*/
+
+
+    
+
     exit(0);
 }
 //00000 00000 00000 00000 00000 00000 000
