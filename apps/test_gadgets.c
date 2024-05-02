@@ -205,7 +205,7 @@ int main(int *argc, char **argv){
     }
 
     fprintf(OUTPUT,"\n---------------128bits---------------\n");
-        B1 = rand64();
+    B1 = rand64();
     B2 = rand64();
     MaskedB b31,b11,b21;
     uint64_t resB1,comp1,comp;
@@ -236,12 +236,14 @@ int main(int *argc, char **argv){
     fprintf(OUTPUT,"SecAdd128 Succeeded!\n");
 
 
+    //A1 = 5629499534213120;
+    //A2 = 0;
     A1 = rand64();
     A2 = rand64();
     MaskA128(a1,a2,A1,A2);
     UnmaskA128(&resB,&resA,a1,a2);
 
-    if(A1^resB|A2^resA){
+    if((A1^resB)|(A2^resA)){
         fprintf(OUTPUT,"MaskA128-DemaskA128 failed!\n");
         fprintf(OUTPUT,"%lu * 2^64 + %lu",A2,A1);
         fprintf(OUTPUT,"\n!=\n");
@@ -298,10 +300,11 @@ int main(int *argc, char **argv){
      
     B1 = rand64();
     MaskB(b1,B1);
-    MaskB(b2,0);
+    MaskB(b2,2);
     B2A128(a3up,a3down,b2,b1,MASKSIZE);
     UnmaskA128(&resB1,&resB,a3up,a3down);
-    if(B1^resB|resB1){
+    printf("test chelou : %lu\n",B1^resB|(resB1^2));
+    if(B1^resB|(resB1^2)){
         fprintf(OUTPUT,"B2A128 failed!\n");
         fprintf(OUTPUT,"%lu * 2^64 + %lu",(uint64_t)0,B1);
         fprintf(OUTPUT,"\n!=\n");

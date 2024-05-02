@@ -43,7 +43,7 @@ void SecNonZeroB(MaskedB out, MaskedB in){
         for(size_t i=0; i<MASKSIZE;i++){
             t2[i] = (t[i]>>(len)) & mask;
         } 
-        RefreshXOR(l,t2,((uin64_t)1<<len),MASKSIZE);
+        RefreshXOR(l,t2,((uint64_t)1<<len),MASKSIZE);
         for(size_t i=0; i<MASKSIZE;i++){
             r[i] = t[i] & mask;
         }
@@ -56,40 +56,45 @@ void SecNonZeroB(MaskedB out, MaskedB in){
 
 }
 
-void SecFPR(MaskedB x, MaskedB s, MaskedA e, MaskedB z){
-    MaskedB eb,b,za,ea,xb;
-    uint64_t test;
-    UnmaskB(&test,s,MASKSIZE);
-    printf("\n TEST SIGN SECFPR : ");
-    print_binary_form(test);
-    printf("\n");
-    e[0] += 1076;
-    A2B(eb,e,(1<<16),MASKSIZE);
-    for(size_t i = 0; i <MASKSIZE; i++) b[i] = -((e[i]>>15)&1);
-    b[0] = ~(b[0]);
+void SecFpr(MaskedB x, MaskedB s, MaskedA e, MaskedB z){
 
-    SecAnd(za,z,b,MASKSIZE);
-    for(size_t i = 0; i < MASKSIZE; i++) b[i] = -((za[i]>>54)&1);
-    SecAnd(ea,eb,b,MASKSIZE);
-    for(size_t i = 0; i <MASKSIZE; i++) b[i] = ((za[i]>>54)&1);
-    SecAdd(eb,ea,b,(1<<16),4,MASKSIZE);
-    RefreshXOR(eb,eb,(1<<16),MASKSIZE);
+    MaskedB eb,b,za,ea,xb, f;
+    uint64_t res;
+
+    e[0] += 1076;
+    A2B(eb, e, 1<<16);
+
+    for (int i = 0; i<MASKSIZE; i++) b[i] =  -((eb[i]>>15)&1);
+    b[0] = ~b[0];
+
+    SecAnd(z, z, b, MASKSIZE);
+
+    for (int i = 0; i<MASKSIZE; i++) b[i] =  -((z[i]>>54)&1);
+
+    SecAnd(eb,eb,b, MASKSIZE);
+
+    for (int i = 0; i<MASKSIZE; i++) b[i] =  ((z[i]>>54)&1);
+
+    SecAdd(eb, eb, b,0, 8, MASKSIZE);
+
+
+    RefreshXOR(eb,eb,0,MASKSIZE);
     RefreshXOR(s,s,0,MASKSIZE);
-    UnmaskB(&test,s,MASKSIZE);
-    printf("\n TEST SIGN SECFPR : ");
-    print_binary_form(test);
-    printf("\n");
-    for(size_t i = 0; i < MASKSIZE ;i++) xb[i] = ((uint64_t)(s[i]&1) << 63) | ((eb[i]&(0x7ff))<<52) | ((za[i]<<10)>>12);
-    UnmaskB(&test,xb,MASKSIZE);
-    printf("\n TEST SIGN SECFPR : ");
-    print_binary_form(test);
-    printf("\n");
-    for(size_t i = 0; i < MASKSIZE; i++) {eb[i] = (za[i]&1); b[i] = ((za[i]>>2)&1);}
-    RefreshXOR(eb,eb,1,MASKSIZE);
-    SecOr(ea,eb,b);
-    for(size_t i = 0; i<MASKSIZE;i++) b[i] = ((za[i]>>1)&1);
-    SecAnd(eb,ea,b,MASKSIZE);
-    SecAdd(x,xb,eb,0,8,MASKSIZE);
+
+    for (int i = 0; i<MASKSIZE; i++) x[i] = (s[i]<<63) ^ ((eb[i])<<52) ^ ((z[i]>>2)& 0xfffffffffffff);
+
+    for (int i = 0; i<MASKSIZE; i++) b[i] =  ((z[i])&1);
+
+    for (int i = 0; i<MASKSIZE; i++) za[i] =  ((z[i]>>2)&1);
+
+    RefreshXOR(b,b,0,MASKSIZE);
+    SecOr(f,b, za);
+
+    for (int i = 0; i<MASKSIZE; i++) za[i] =  ((z[i]>>1)&1);
+    SecAnd(f, f, za, MASKSIZE);
+   
+    SecAdd(x,f,x,0, 8,MASKSIZE);
+
 }
 
 /*------------------------------------------------
@@ -99,8 +104,10 @@ input       :   Boolean masking in (MaskedB)
 output      :   Boolean masking out (MaskedB)
 ------------------------------------------------*/
 
-void SecFprUrsh(MaskedB out, MaskedB in, MaskedA c){
+void SecFprUrsh(MaskedB out, MaskedB in1, MaskedA c){
     MaskedB m;
+    MaskedB in;
+    for (int i = 0; i<MASKSIZE; i++) in[i] = in1[i];
     for (int i = 0; i<MASKSIZE; i++) m[i] = 0;
     m[0] = ((uint64_t)1)<<63;
     for (int j =0; j< MASKSIZE; j++){
@@ -210,10 +217,12 @@ SecFprNorm64(MaskedB out, MaskedA e, uint64_t mod){
     }
 }
 
+
+
 void SecFprMul(MaskedB out, MaskedB x, MaskedB y){
-    MaskedB s,sbx,sby,p1,p2,b,z,z2,w,bx,by,d,ebx,eby,mbxu,mbxd,mbyu,mbyd;
+    MaskedB s,sbx,sby,p1,p2,b,z,z2,w,w2,bx,by,d,ebx,eby,mbxu,mbxd,mbyu,mbyd, b1,b2;
     MaskedA e,eax,eay,wa,p3,p4,mxu,mxd,myu,myd,sx,sy;
-    uint64_t test;
+    uint64_t test, test2;
     //EXTRACTION
     for(size_t i =0; i < MASKSIZE;i++){
         sbx[i] = (x[i]>>63);
@@ -225,26 +234,74 @@ void SecFprMul(MaskedB out, MaskedB x, MaskedB y){
         mbyd[i] = y[i] & 0xfffffffffffff;
         mbyu[i]=0;
     }
-    UnmaskB(&test,sbx,MASKSIZE);
-    printf("\n\n TEST SIGN SECFPRMUL : ");
-    print_binary_form(test);
-    printf("\n");
-    UnmaskB(&test,sby,MASKSIZE);
-    print_binary_form(test);
-    printf("\n\n");
+
+    SecNonZeroB(b1, x);
+    SecNonZeroB(b2, y);
+
+    for(size_t i =0; i<MASKSIZE; i++){
+        mbxd[i] = mbxd[i] ^ (b1[i]<<52);
+        mbyd[i] = mbyd[i] ^ (b2[i]<<52);
+    }
+
     B2A(eax,ebx,(1<<16),MASKSIZE);
     B2A128(mxu,mxd,mbxu,mbxd,MASKSIZE);
     B2A(eay,eby,(1<<16),MASKSIZE);
     B2A128(myu,myd,mbyu,mbyd,MASKSIZE);
-    //FIN EXTRACTION
+
+
     for(size_t i= 0; i <MASKSIZE; i++) s[i] = sbx[i]^sby[i];
+
+    //printf("\n\n==============Recherche erreur multiplication=============\n");
+
     e[0] = eax[0] + eay[0] -2100;
     for(size_t i =1;i < MASKSIZE;i++) e[i] = eax[i] + eay[i];
+
     SecMult128(p3,p4,mxu,mxd,myu,myd);
+
     A2B128(p1,p2,p3,p4,MASKSIZE);
-    for(size_t i =0; i < MASKSIZE;i++) w[i] = p2[i] & 0x7ffffffffffff;
-    SecNonZeroB(b,w);
+
+    for (int i = 0; i<MASKSIZE; i++){
+        b[i] = (p2[i]<<(13))>>13;
+        z[i] = p2[i]>>50;
+        z2[i] = p2[i]>>51;
+    }
+    for (int i = 0; i<MASKSIZE; i++){
+        z[i]^= (p1[i]<<23)>>9;
+        z2[i]^= (p1[i]<<22)>>9;
+    }
+
+    SecNonZeroB(b,b);
+    for (int i = 0; i<MASKSIZE; i++){
+        z2[i] = z2[i]^z[i];
+        //w[i] = (p1[i]<<23)>>63;
+        w[i] = (p1[i]>>41)&1;
+        w2[i] = -w[i];
+    }
+
+    RefreshXOR(w2, w2, 0,  MASKSIZE);
+    SecAnd(z2, z2, w2, MASKSIZE);
+
+    for (int i = 0; i<MASKSIZE; i++){
+        z[i] = z2[i]^z[i];
+    }
+
+    SecOr(z, z, b );
+
+    B2A_bit(wa, w, 1<<16);
+
+    for(int i =0; i<MASKSIZE; i++) e[i] = e[i] + wa[i];
+
+    SecNonZeroB(bx, ebx);
+    SecNonZeroB(by, eby);
+
+    SecAnd(d,bx,by, MASKSIZE);
+
+    for (int i =0; i<MASKSIZE; i++) d[i] = -(d[i]&1);
+    SecAnd(z, z, d, MASKSIZE);
+
+    SecFpr(out, s, e, z);
 }
+
 
 
 
@@ -267,37 +324,9 @@ void SecFprAdd(MaskedB out, MaskedB in1, MaskedB in2, uint64_t mod){
     
     SecNonZeroB(b, dp);
 
-/* Check this part
-Here the result must be 0 or 1 : 0 if in1 = in2, 1 if not.
-*///
-/*
-    UnmaskB(&res, dp, MASKSIZE);
-    printf("dp = %lu ------> ", res);
-    print_binary_form(res);
-    printf("\n");
-    printf("\n\n");
-    UnmaskB(&res, b, MASKSIZE);
-    printf("b = %lu\n", res);
-*/
-
     dp[0] = ~(d[0] ^ ((uint64_t)1<<63));
 
     SecNonZeroB(bp,dp);
-
-/* Check this part
-NOT YET : TO DO -- TEST
-*/
-/*
-    UnmaskB(&res, dp, MASKSIZE);
-
-    printf("dp = %lu ------> ", res);
-    print_binary_form(res);
-    printf("\n\n");
-    printf("\n");
-    UnmaskB(&res, bp, MASKSIZE);
-    printf("bp = %lu\n", res);
-*/
-
 
     for (int i = 1; i<MASKSIZE; i++){
         dp[i] = b[i];
@@ -433,6 +462,8 @@ NOT YET : TO DO -- TEST
 
     //PART 6 : SEC FPR
 
+    //SecFpr(out, sx, ex, z );
+
     ex[0] += 1076;
 
     MaskedB e, bi, zi;
@@ -483,7 +514,7 @@ SecFprTrunc(MaskedB out, MaskedB in){
     A2B(c, cx, 1<<16);
 
     for(int i = 0; i<MASKSIZE; i++) c[i] = (c[i]>>15)&1;
-    SecNonZeroB(c,c);
+    //SecNonZeroB(c,c);
 
     for (int j = 0; j<MASKSIZE; j++){
         c0[j] = 0;
@@ -505,7 +536,7 @@ SecFprTrunc(MaskedB out, MaskedB in){
     cx[0] = cx[0] - 52;
     A2B(c, cx, 1<<16);
     for(int i = 0; i<MASKSIZE; i++) c[i] = (c[i]>>15)&1;
-    SecNonZeroB(c,c);
+    //SecNonZeroB(c,c);
 
     for (int j = 0; j<MASKSIZE; j++){
         cp[j] = 0;
@@ -563,6 +594,67 @@ SecFprTrunc(MaskedB out, MaskedB in){
 
 
 }
+
+
+
+void SecFprScalPtwo(MaskedB out, MaskedB in1, uint16_t ptwo){
+   
+    //PART 2 : EXTRACTING (S,E,M)
+    MaskedB mx, my, sx, sy, exp, eyp, b;
+    MaskedA ex, ey;
+    for (int i = 0; i<MASKSIZE; i++){
+        //52 low bits. 
+        mx[i] = (in1[i]<<12)>>12; 
+        //11 bits just after the 52 first bits.
+        exp[i] = (uint32_t)(in1[i]>>52);
+        exp[i] = exp[i] - (exp[i]&0b100000000000); 
+        //1 top bit.
+        sx[i] = in1[i]>>63;
+    }
+
+    SecNonZeroB(b, exp); // test si exp = 0
+    //si exp = 0; Addition doesn't count
+    for (int i =0; i<MASKSIZE; i++) b[i] = -b[i];
+
+    B2A(ex, exp, 1<<16, MASKSIZE);
+    ex[0] += ptwo;
+
+    A2B(exp, ex, 1<<16);
+
+    SecAnd(exp, exp, b, MASKSIZE);
+
+    for (int i = 0; i<MASKSIZE; i++) out[i] = (mx[i]) ^ ((exp[i])<<52) ^ (sx[i]<<63);
+}
+
+void SecFprDivPtwo(MaskedB out, MaskedB in1, uint16_t ptwo){
+   
+    //PART 2 : EXTRACTING (S,E,M)
+    MaskedB mx, my, sx, sy, exp, eyp, b;
+    MaskedA ex, ey;
+    for (int i = 0; i<MASKSIZE; i++){
+        //52 low bits. 
+        mx[i] = (in1[i]<<12)>>12; 
+        //11 bits just after the 52 first bits.
+        exp[i] = (uint32_t)(in1[i]>>52);
+        exp[i] = exp[i] - (exp[i]&0b100000000000); 
+        //1 top bit.
+        sx[i] = in1[i]>>63;
+    }
+
+    SecNonZeroB(b, exp); // test si exp = 0
+    //si exp = 0; Addition doesn't count
+    for (int i =0; i<MASKSIZE; i++) b[i] = -b[i];
+
+    B2A(ex, exp, 1<<16, MASKSIZE);
+    ex[0] -= ptwo;
+
+    A2B(exp, ex, 1<<16);
+
+    SecAnd(exp, exp, b, MASKSIZE);
+
+    for (int i = 0; i<MASKSIZE; i++) out[i] = (mx[i]) ^ ((exp[i])<<52) ^ (sx[i]<<63);
+}
+
 
 
 void 
@@ -830,3 +922,221 @@ SecFprRound(MaskedB out, MaskedB in){
 
     for (int i = 0; i<MASKSIZE; i++) out[i] = ((mout[i]<<12)>>12) + (eoutp[i]<<52) + (sout[i]<<63);
 }
+
+
+
+
+void
+Secfpr_expm_p63(MaskedB out, MaskedB x, MaskedB ccs)
+{
+
+    static const uint64_t Cp[] = {
+		0x4211D0460E8C0000u,
+		0x424B2A467E030000u,
+		0x42827EE5F8A05000u,
+		0x42B71D939DE04500u,
+		0x42EA019EB1EDF080u,
+		0x431A01A073DE5B8Cu,
+		0x4346C16C182D87F5u,
+		0x4371111110E066FDu,
+		0x4395555555541C3Cu,
+		0x43B55555555581FFu,
+		0x43D00000000000ADu,
+		0x43DFFFFFFFFFFFD2u,
+		0x43E0000000000000u
+	};
+
+    uint64_t y, ptwo_63;
+    MaskedB z, yz, ymask, cmask;
+
+    for (int i = 0; i<MASKSIZE; i++) ymask[i] = 0;
+    ymask[0] = Cp[0];
+
+    SecFprScalPtwo(z, x, 63);
+    SecFprFloor(z, z);
+
+    uint64_t res;
+    for (int u = 1; u < 13; u ++) {
+        SecFprMul(yz, z, ymask);
+        SecFprDivPtwo(yz, yz, 63);
+
+        for (int i = 0; i<MASKSIZE; i++) cmask[i] = 0;
+        cmask[0] = Cp[u];
+        yz[0] = yz[0] ^ ((uint64_t)1<<63);
+
+        SecFprAdd(ymask,yz,cmask, 1<<16);
+	}
+
+    SecFprScalPtwo(z, ccs, 63);
+    SecFprFloor(z, z);
+    SecFprMul(ymask, ymask, z);
+    SecFprDivPtwo(out, ymask, 63);
+}
+
+uint64_t
+SecFprBerExp(MaskedB out, MaskedB x, MaskedB ccs){
+    uint64_t fpr_ln2_inv = 0x3FF71547652B82FE;
+    uint64_t fpr_ln2 = 0x3FE62E42FEFA39EF;
+
+    MaskedB inv_ln2, ln2, s, r, b, es, esa, z;
+
+    MaskB(inv_ln2, fpr_ln2_inv);
+    MaskB(ln2, fpr_ln2);
+
+    SecFprMul(s, inv_ln2, x);
+
+    SecFprFloor(s,s);
+
+    uint64_t res;
+    UnmaskB(&res, s, MASKSIZE);
+    printf("s       = %lu\n", res);
+    print_binary_form(res);
+
+    //SecFprScalPtwo(s, s, 63);
+    //SecFprScalPtwo(ln2, ln2, 63);
+
+    SecFprMul(r,ln2,s); //problème ici sur l'exposant, à regarder.
+
+    //SecFprDivPtwo(s, s, 63);
+    //SecFprDivPtwo(r, r, 126);
+
+    UnmaskB(&res, r, MASKSIZE);
+    printf("r       = %lu\n", res);
+    print_binary_form(res);
+
+
+    SecNonZeroB(b, r);
+    for (int i =0; i<MASKSIZE; i++) r[i] = r[i]^(b[i]<<63);
+
+    SecFprAdd(r,x,r, 1<<16);
+
+
+    //SecFprScalPtwo(s, s, 63); // test when s > 64
+
+    //COMPARAISON 
+    for (int i = 0; i<MASKSIZE; i++) es[i] = ((s[i]<<1)>>53);
+    B2A(esa, es, 1<<16, MASKSIZE);
+    esa[0] -= 1029;
+    A2B(es,esa, 1<<16);
+
+    for (int i = 0; i<MASKSIZE; i++) b[i] = -((es[i]>>15)&1);
+    SecAnd(s, b, s, MASKSIZE);
+
+    UnmaskB(&res, s, MASKSIZE);
+    printf("s       = %lu\n", res);
+    print_binary_form(res);
+
+    //Create new s : 
+    MaskedB news, un;
+    MaskB(news, 0x404F800000000000);
+    b[0] = ~b[0];
+
+    SecAnd(news, news, b, MASKSIZE);
+
+    SecAdd(s, s, news, 0, 8, MASKSIZE);
+
+    Secfpr_expm_p63(z, r, ccs);
+
+    UnmaskB(&res, z, MASKSIZE);
+    printf("z       = %lu\n", res);
+    print_binary_form(res);
+
+
+    MaskB(un, 0xBFF0000000000000); //équivalent -1
+
+    SecFprScalPtwo(z, z, 1);
+    SecFprAdd(z,z,un, 1<<16);
+
+    MaskedA cs;
+    esa[0] -= 46;
+    for (int i = 0; i<MASKSIZE; i++) cs[i] = -(esa[i]);
+    for (int i = 0; i<MASKSIZE; i++) s[i] = (s[i]&((uint64_t)(0xfffffffffffff))) + ((uint64_t)1<<52);
+
+    SecFprUrsh2(s, s, cs);
+    B2A(cs, s, 1<<16, MASKSIZE);
+
+    MaskedB mz;
+    for(int i = 0; i<MASKSIZE; i++){
+        mz[i] = (z[i]<<12)>>12;
+    }
+    mz[0] += (uint64_t)1 << 52;
+ 
+    for (int i = 0; i<MASKSIZE; i++) {
+        mz[i] <<= 11;
+    }
+
+    SecFprUrsh2(mz, mz, cs);
+
+    //---> DANS mZ, on a les bits à comparer
+    UnmaskB(&res, mz, MASKSIZE);
+    printf("mz = %lu\n", res);
+    print_binary_form(res);
+    
+
+   // A2B(ebz, ez, 1<<16);
+
+    //for (int i = 0; i<MASKSIZE; i++) z[i] = (ebz[i]<<52) ^ (mz[i]&0xfffffffffffff);
+
+    uint64_t counter = 64;
+    uint64_t w = 0;
+
+    do{
+        counter -= 8;
+
+    }while((w==0&(counter>0)));
+
+    /*
+    Pour la comparaison.
+    b = SecNonZero(w), si b = 0 hors de la boucle.
+    b2 = SecNonZero(w^(64)) ----> retourner b2;
+    */
+
+    return (w<0);
+
+
+
+
+    UnmaskB(&res, inv_ln2, MASKSIZE);
+    printf("inv_ln2 = %lu\n", res);
+    print_binary_form(res);
+    
+    SecFprUrsh2(mz,mz,cs);
+
+    UnmaskB(&res, inv_ln2, MASKSIZE);
+    printf("inv_ln2 = %lu\n", res);
+    print_binary_form(res);
+
+    
+    UnmaskB(&res, inv_ln2, MASKSIZE);
+    printf("inv_ln2 = %lu\n", res);
+    print_binary_form(res);
+
+    printf("\n");
+
+    UnmaskB(&res, s, MASKSIZE);
+    printf("s       = %lu\n", res);
+    print_binary_form(res);
+
+    printf("\n");
+
+    UnmaskB(&res, x, MASKSIZE);
+    printf("x       = %lu\n", res);
+    print_binary_form(res);
+    printf("\n");
+
+    UnmaskB(&res, r, MASKSIZE);
+    printf("r       = %lu\n", res);
+    print_binary_form(res);
+
+    UnmaskB(&res, z, MASKSIZE);
+    printf("z       = %lu\n", res);
+    print_binary_form(res);
+
+    UnmaskB(&res, mz, MASKSIZE);
+    printf("mz = %lu\n", res);
+    print_binary_form(res);
+
+
+    return 0;
+}
+

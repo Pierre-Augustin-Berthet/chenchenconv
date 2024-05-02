@@ -26,6 +26,7 @@ uint64_t rand64(void){
   for(int i = 63; i>=0;i--){
     fprintf(OUTPUT,"%ld",(in>>i)&1);
   }
+  fprintf(OUTPUT, "\n");
  }
   
 uint64_t addq(uint64_t ina, uint64_t inb, uint64_t mod){
