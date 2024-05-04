@@ -20,3 +20,6 @@ target_link_libraries(test_secfpr toto m)
 
 add_executable(test_utils apps/test_utils.c)
 target_link_libraries(test_utils toto m)
+
+add_executable(test_secfloor apps/test_secfloor.c)
+target_link_libraries(test_secfloor toto m)
