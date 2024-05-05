@@ -289,7 +289,8 @@ $u \leftarrow \textsc{UniformBits}(72)$\;
 \subsection{Floor Function}\label{subsec:floorfunction}
 The floor function is defined as follows:
 \begin{definition}\label{def:floorfunction}
-  $\forall x \in \mathbb{R}$, the floor function of $x$, denoted by $\lfloor x \rfloor$, returns the greatest integer $z$ such as $z\leq x$.\newline
+  $\forall x \in \mathbb{R}$, the floor function of $x$, denoted by $\lfloor x \rfloor$, 
+  returns the greatest integer $z$ such as $z\leq x$.\newline
   $\forall x \in \mathbb{R}$, the truncate function of $x=E.F,(E,F)\in\mathbb{Z}\times\mathbb{N}$, denoted by $truncate(x)$, returns $E$.
 \end{definition}
 There are several ways of computing the floor function. One
@@ -297,7 +298,7 @@ relies on floating-point arithmetic \cite{kahan1996ieee}.
 \subsubsection{Binary64 Encoding}
 A floating-point is encoded\footnote{Binary64 Standard -- IEEE 754 \cite{kahan1996ieee}} with a sign bit $s$, a 11-bits long exponent $e$ and a 52-bits long mantissa $m$ such as:
 \begin{equation}\label{eq:ieee754}
-  x\in \mathbb{R}, x = (-1)^s \times 2^{1023-e} \times (1+ m\times2^{-52}).
+  x\in \mathbb{R}, x = (-1)^s \times 2^{e-1023} \times (1+ m\times2^{-52}).
 \end{equation}
 \subsubsection{Computing The Floor}\label{sec:computefloor}
 Computing the floor function on a floating-point is performed by truncating the
@@ -646,26 +647,27 @@ In this part we denote by f as one of these three funtions : floor, truncature a
     \end{figure}
 
 \section{Security Proof}\label{sec:security}
-In this section we will cover the \emph{t-SNI} security of our design with $n=t+1$ shares.
+In this section we will cover the \emph{t-SNI} security of our design with $n=t+1$ shares. We follow and rely on the same principles used by Chen and Chen \cite{Chen_Chen_2024} for our proofs. Our strategy revolves around proposing only \emph{t-SNI} secure gadgets as they are composable, thus limiting the risks of compositional flaws. We are aware that it leads to performance overheads and more demanding randomness requirements.
 
+\subsection{Floor Function}
 \begin{lemma}
   The gadget \textbf{SetExponentZero$_\text{floor}$} (Algorithm \ref{algo:SetExponentZero_floor}) is \emph{t-SNI} secure.
 \end{lemma}
-\begin{figure}[!ht]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=7cm]{figure/SetExZero2.pdf}
   \label{fig:SetExponentZero}
   \caption{Abstract diagram of SetExponentZero}
 \end{figure}
 \begin{proof}
-  We use an abstract diagram in Figure \ref{fig:SetExponentZero} for our demonstration. The gadget only contains \emph{t-SNI} gadgets and the input shares are distinct from the output shares for each gadgets. By composition of \emph{t-SNI} gadgets and independence of input and output shares, \textbf{SetExponentZero$_{floor}$} is itself \emph{t-SNI}.
+  We use an abstract diagram in Figure \ref{fig:SetExponentZero} for our demonstration. The gadget only contains \emph{t-SNI} gadgets. By composition of \emph{t-SNI} gadgets and independence of input and output shares, \textbf{SetExponentZero$_{floor}$} is itself \emph{t-SNI}. \hfill \qed
 \end{proof}
 
 \begin{lemma}
   The gadget \textbf{SecFprUrsh$_\text{floor}$} (Algorithm \ref{algo:SecFprUrsh}) is \emph{t-SNI} secure.
 \end{lemma}
 
-\begin{figure}[!ht]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=7cm]{figure/secfprurshmod.png}
   \label{fig:Secfprurshmod}
@@ -673,18 +675,15 @@ In this section we will cover the \emph{t-SNI} security of our design with $n=t+
 \end{figure}
 
 \begin{proof}
-  The gadget \textbf{SecFprUrsh$_\text{floor}$} is a slight modification of the gadget \textbf{SecFprUrsh} from \cite{Chen_Chen_2024}. Ours does not compute the sticky bit but retains the rotated out information. We rely on their proof regarding the \emph{t-SNI} security of the gadget \textbf{Rotate} (see \cite{Chen_Chen_2024}, Lemma 3 and Figure 2). We now show that the operations following the rotation loop are \emph{t-SNI} secure. We use an abstract diagram in Figure \ref{fig:Secfprurshmod} for the demonstration. Let an adversary probe the intermediate values sets $\textcolor{red}{P_1}$ of \textbf{SecAnd}, $\textcolor{red}{P_2}$ of \textbf{SecAnd} and $\textcolor{red}{P_3}$ of \textbf{XOR}. As \textbf{SecAnd} is \emph{t-SNI} secure, one can use the sets \textcolor{blue}{$S_2^1$},\textcolor{blue}{$S_2^2$} (resp. \textcolor{blue}{$S_1^1$},\textcolor{blue}{$S_1^2$}) to simulate \textcolor{red}{$P_2$} (resp. \textcolor{red}{$P_1$}) and the ouput shares of $(rot)$ (resp. $(xi)>>(ci)$) with sizes no more than \textcolor{red}{$P_2$} (resp. \textcolor{red}{$P_1$}). One can simulate the probing set of \textcolor{red}{$P_3$} in the \textbf{XOR} and the simulation sets \textcolor{blue}{$S_2^2$} and \textcolor{blue}{$S_1^2$} with the output shares \textcolor{blue}{$S_3$} of the rotation of $(mi)$. All probes are now simulated with output shares \textcolor{blue}{$S_1^1\cup S_2^1$} of the rotation of $(xi)$ and \textcolor{blue}{$S_3$} of the rotation of $(mi)$. We have $\textcolor{blue}{|S_1^1\cup S_2^1|} \leq \textcolor{red}{|P_1| + |P_2|}$ and $\textcolor{blue}{|S_3|}\leq \textcolor{red}{|P_3|}+\textcolor{blue}{|S_2^2| + |S_1^2|} \leq \textcolor{red}{|P_3|+|P_2|+|P_1|}$. Along with the internal probes \textcolor{red}{$P_5$} and \textcolor{red}{$P_4$} into the rotation loop, can be simulated by input shares due to the \emph{t-SNI} security showed at first in (\cite{Chen_Chen_2024}, Lemma 3).
+  The gadget \textbf{SecFprUrsh$_\text{floor}$} is a slight modification of the gadget \textbf{SecFprUrsh} from \cite{Chen_Chen_2024}. Ours does not compute the sticky bit but retains the rotated out information. We rely on their proof regarding the \emph{t-SNI} security of the gadget \textbf{Rotate} (see \cite{Chen_Chen_2024}, Lemma 3 and Figure 2). We now show that the operations following the rotation loop are \emph{t-SNI} secure. We use an abstract diagram in Figure \ref{fig:Secfprurshmod} for the demonstration. Let an adversary probe the intermediate values sets $\textcolor{red}{P_1}$ of \textbf{SecAnd}, $\textcolor{red}{P_2}$ of \textbf{SecAnd} and $\textcolor{red}{P_3}$ of \textbf{XOR}. As \textbf{SecAnd} is \emph{t-SNI} secure, one can use the sets \textcolor{blue}{$S_2^1$},\textcolor{blue}{$S_2^2$} (resp. \textcolor{blue}{$S_1^1$},\textcolor{blue}{$S_1^2$}) to simulate \textcolor{red}{$P_2$} (resp. \textcolor{red}{$P_1$}) and the ouput shares of $(rot)$ (resp. $(xi)>>(ci)$) with sizes no more than \textcolor{red}{$P_2$} (resp. \textcolor{red}{$P_1$}). One can simulate the probing set of \textcolor{red}{$P_3$} in the \textbf{XOR} and the simulation sets \textcolor{blue}{$S_2^2$} and \textcolor{blue}{$S_1^2$} with the output shares \textcolor{blue}{$S_3$} of the rotation of $(mi)$. All probes are now simulated with output shares \textcolor{blue}{$S_1^1\cup S_2^1$} of the rotation of $(xi)$ and \textcolor{blue}{$S_3$} of the rotation of $(mi)$. We have $\textcolor{blue}{|S_1^1\cup S_2^1|} \leq \textcolor{red}{|P_1| + |P_2|}$ and $\textcolor{blue}{|S_3|}\leq \textcolor{red}{|P_3|}+\textcolor{blue}{|S_2^2| + |S_1^2|} \leq \textcolor{red}{|P_3|+|P_2|+|P_1|}$. Along with the internal probes \textcolor{red}{$P_5$} and \textcolor{red}{$P_4$} from the rotation loop, all gadgets can be simulated by input shares with no more than $t_I$ values due to the \emph{t-SNI} security showed at first in (\cite{Chen_Chen_2024}, Lemma 3). \hfill \qed
 \end{proof}
 
-\subsection{RemoveDecimal$_\text{floor}$}
-
-FAIRE LA PREUVE
 
 \begin{lemma}\label{lemma:remdec}
   The gadget \textbf{RemoveDecimal$_\text{floor}$} (Algorithm \ref{algo:RemoveDecimal_floor}) is \emph{t-SNI} secure.
 \end{lemma}
 
-\begin{figure}[!ht]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=8cm]{figure/RemoveDec2.pdf}
   \label{fig:RemoveDec}
@@ -708,20 +707,19 @@ FAIRE LA PREUVE
       \item $\textcolor{blue}{|S_{12}|} \leq \textcolor{red}{|P_{12}|}$
     \end{itemize}
   \end{multicols}
-  Based on the previous inequalities, one can check that no gadget requires more than $t_I$ values to be simulated. This apply to the input shares as well, with $\textcolor{blue}{|S_{10}^1|}\leq\textcolor{red}{|P_10|}$ for $(sy)$, $\textcolor{blue}{|S_7^1|}\leq\textcolor{red}{|P_7|}$ for $(my)$, $\textcolor{blue}{|S_12|} \leq \textcolor{red}{|P_12|}$ for $(cx)$ and $\textcolor{blue}{|S_2^1|}\leq\textcolor{red}{|P_2|} + \textcolor{blue}{|S_1|} \leq \textcolor{red}{|P_2| + |P_1|}$ for $(ey)$, no sizes being more than $t_I$.
+  Based on the previous inequalities, one can check that no gadget requires more than $t_I$ values to be simulated. This apply to the input shares as well, with $\textcolor{blue}{|S_{10}^1|}\leq\textcolor{red}{|P_10|}$ for $(sy)$, $\textcolor{blue}{|S_7^1|}\leq\textcolor{red}{|P_7|}$ for $(my)$, $\textcolor{blue}{|S_12|} \leq \textcolor{red}{|P_12|}$ for $(cx)$ and $\textcolor{blue}{|S_2^1|}\leq\textcolor{red}{|P_2|} + \textcolor{blue}{|S_1|} \leq \textcolor{red}{|P_2| + |P_1|}$ for $(ey)$, no sizes being more than $t_I$. \hfill \qed
 \end{proof}
 
 \begin{theorem}
   The gadget \textbf{SecBaseInt$_\text{floor}$} (Algorithm \ref{algo:SecFprBaseInt}) is \emph{t-SNI} secure.
+\end{theorem}
 
-
-\begin{figure}[!ht]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=10cm]{figure/secbaseint2.pdf}
   \label{fig:secbaseint}
   \caption{Abstract diagram of SecBaseInt$_\text{floor}$}
 \end{figure}
-\end{theorem}
 
 \begin{proof}
   We use the same method as for the demonstration of Lemma \ref{lemma:remdec}. We use an abstract diagram in Figure \ref{fig:secbaseint} for the demonstration. Let assume an adversary probe the intermediate values sets of the output shares \textcolor{red}{$O$} and \textcolor{red}{$P_i$} in each gadget for $i\in\llbracket 1;6 \rrbracket$. We use simulation sets \textcolor{blue}{$S_i^j$} to simulate the values for each gadget. \emph{t-SNI} security implies that if the size of all probing sets $P_i$ is $t_I\leq t$ and if the size of values required to simulate in each gadget is smaller than $t$, then the simulation sets linked to the input shares are not bigger than $t_I$. As \textbf{SetExponentZero}, \textbf{RemoveDecimal}, \textbf{SecAnd}, \textbf{A2B} and \textbf{Refresh} are all \emph{t-SNI} secure while \textbf{SecFprNorm64} is \emph{t-NI} secure, we can sequentially derive the following:
@@ -735,9 +733,87 @@ FAIRE LA PREUVE
       \item $\textcolor{blue}{|S_6|} \leq \textcolor{red}{|P_6|}$
     \end{itemize}
   \end{multicols}
-  Based on the previous inequalities, one can check that no gadget requires more than $t_I$ values to be simulated. This also apply to the input shares, with $\textcolor{blue}{|S_{4}^1|}\leq\textcolor{red}{|P_4|}$ for $(my)$, $\textcolor{blue}{|S_5 \cup S_3^2\cup S_6|}\leq\textcolor{red}{|P_5|+|P_3| + |P_6|}$ for $(ey)$ and $\textcolor{blue}{|S_3^4\cup S_1^3|}\leq\textcolor{red}{|P_3|+|P_1|}$ for $(sy)$, none being more than $t_I$.
+  Based on the previous inequalities, one can check that no gadget requires more than $t_I$ values to be simulated. This also apply to the input shares, with $\textcolor{blue}{|S_{4}^1|}\leq\textcolor{red}{|P_4|}$ for $(my)$, $\textcolor{blue}{|S_5 \cup S_3^2\cup S_6|}\leq\textcolor{red}{|P_5|+|P_3| + |P_6|}$ for $(ey)$ and $\textcolor{blue}{|S_3^4\cup S_1^3|}\leq\textcolor{red}{|P_3|+|P_1|}$ for $(sy)$, none being more than $t_I$.\hfill \qed
 \end{proof}
 
+\subsection{Inverse}
+
+\begin{lemma}\label{lemma:secfprcomp}
+  The gadget \textbf{SecFprComp} (Algorithm TODOref{}) is \emph{t-SNI} secure.
+\end{lemma}
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=7cm]{definitive scheme/SecFprInv/secfprcomp.pdf}
+  \label{fig:secfprcomp}
+  \caption{Abstract diagram of SecFprComp}
+\end{figure}
+\begin{proof}
+  We use an abstract diagram in Figure \ref{fig:secfprcomp} for our demonstration. This gadget is similar to the swap part of the \textbf{SecFprAdd} gadget from \cite{Chen_Chen_2024} (Theorem 3, first part of the proof). We added some \textbf{Refresh} to ensure the \emph{t-SNI} security. Please note that the \textbf{XOR} associated to the probing set $\textcolor{red}{|P_1|}$ is \emph{t-NI} as this linear operation is performed on each share separately. The gadget \textbf{SecAdd} associated to the probe $\textcolor{red}{P_5}$ is also \emph{t-NI}, all the other gadgets are \emph{t-SNI}. We have the following inequalities:
+  \begin{multicols}{2}
+    \begin{itemize}
+      \item $\textcolor{blue}{|S_1^0|,|S_1^1|,|S_1^2} \leq \textcolor{red}{|P_1| +|O_{(comp)}|}$
+      \item $\textcolor{blue}{|S_2|} \leq \textcolor{red}{|P_2|} $
+      \item $\textcolor{blue}{|S_3|} \leq \textcolor{red}{|P_3|}$
+      \item $\textcolor{blue}{|S_4|} \leq \textcolor{red}{|P_4|}$
+      \item $\textcolor{blue}{|S_5^0|,|S_5^1|} \leq \textcolor{red}{|P_5|} + \textcolor{blue}{|S_4|} \leq \textcolor{red}{|P_5| + |P_4|}$
+      \item $\textcolor{blue}{|S_6|} \leq \textcolor{red}{|P_6|}$
+    \end{itemize}
+  \end{multicols}
+  Given those inequalities, one can check that no gadget requires more than $t_I$ values to be simulated. This applies to the input shares. For $(x_i)$, we have $\textcolor{blue}{|S_6|} \leq \textcolor{red}{|P_6|} \leq t_I$. For $(y_i)$ we have $\textcolor{blue}{|S_5^0|} \leq \textcolor{red}{|P_5| + |P_4|} \leq t_I$.\hfill \qed
+\end{proof}
+
+\begin{lemma}\label{lemma:secfprscalepow2}
+  The gadget \textbf{SecFprScalePow2} (Algorithm TODOREF) is \emph{t-SNI} secure.
+\end{lemma}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=7cm]{definitive scheme/Secfprscal2pow.pdf}
+  \label{fig:secfprscalepow2}
+  \caption{Abstract diagram of SecFprScalePow2}
+\end{figure}
+
+\begin{proof}
+  We use an abstract diagram in Figure \ref{fig:secfprscalepow2} for our demonstration. This gadget mainly affects the exponent shares $(ey)$.
+\end{proof}
+
+\begin{lemma}\label{lemma:compandsub}
+  The gadget \textbf{CompAndSub} (Algorithm TODOREF) is \emph{t-SNI} secure.
+\end{lemma}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=7cm]{definitive scheme/SecFprInv/CompAndSub.pdf}
+  \label{fig:compandsub}
+  \caption{Abstract diagram of CompAndSub}
+\end{figure}
+
+\begin{proof}
+  We use an abstract diagram in Figure \ref{fig:compandsub} for our demonstration. This gadget composes \emph{t-SNI} gagdets, including \textbf{SecFprComp} and \textbf{SecFprScalePow2}, proven \emph{t-SNI} in Lemmas \ref{lemma:secfprcomp} and \ref{lemma:secfprscalepow2}. It is thus itself \emph{t-SNI}.\hfill \qed
+\end{proof}
+
+\begin{theorem}
+  The gadget \textbf{SecFprInv} (Algorithm TODOREF) is \emph{t-SNI} secure.
+\end{theorem}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=7cm]{definitive scheme/SecFprInv/SecFprInv.pdf}
+  \label{fig:secfprinv}
+  \caption{Abstract diagram of SecFprInv} 
+\end{figure}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=7cm]{figure/loopinv2.pdf}
+  \label{fig:loopinv2}
+  \caption{Abstract diagram of LOOP}  
+\end{figure}
+
+\begin{proof}
+  We use an abstract diagram in Figure \ref{fig:secfprinv} for our demonstration. First we will prove that the gadget \textbf{LOOP} associated to the probe set $\textcolor{red}{|P_5|}$ is \emph{t-SNI} secure.\newline
+  We use an abstract diagram in Figure \ref{fig:loopinv2} for our demonstration. The left part of the algorithm is \emph{t-SNI} according to Lemma \ref{lemma:compandsub}. The right part of the diagram is a loop on itself also composing \emph{t-SNI} gadgets. The entire gadget is thus \emph{t-SNI}.
+\end{proof}
 \section{Application to FALCON}\label{sec:appfalcon}
 \subsection{Masked Floor Function For FALCON}
 \subsection{Masking the Gaussian Sampler}
