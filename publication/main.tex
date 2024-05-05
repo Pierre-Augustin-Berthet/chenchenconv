@@ -165,6 +165,7 @@ Finally, we provide some performances of our methods and compare them with the r
 \section{Notation and Background}\label{sec:background}
 \subsection{Notation}
 \begin{itemize}
+  \item We denote by $A\backsim B$ the set $A$ excluding the values of set $B$, \emph{id est} $(A\backsim B) \bigcap B = \emptyset $.
   \item For $x\in\mathbb{R}$, we denote the floor function of $x$ by $\lfloor x \rfloor$.
   \item We will use the dot $.$ as the separator between the integer part $i$ and the fractional part $f$ of a real number $x=i.f$.
   \item If $(b_i)$ is a 1-bit Boolean shares for value b, we denote $(-b_i)$ as the 64-bit Boolean shares for $2^{64} - b$. It means that if $b=0$, $(-b_i)$ is a 64-bit boolean shares for $0$, and
@@ -288,7 +289,8 @@ $u \leftarrow \textsc{UniformBits}(72)$\;
 \subsection{Floor Function}\label{subsec:floorfunction}
 The floor function is defined as follows:
 \begin{definition}\label{def:floorfunction}
-  $\forall x \in \mathbb{R}$, the floor function of $x$, denoted by $\lfloor x \rfloor$, returns the greatest integer $z$ such as $z\leq x$.
+  $\forall x \in \mathbb{R}$, the floor function of $x$, denoted by $\lfloor x \rfloor$, returns the greatest integer $z$ such as $z\leq x$.\newline
+  $\forall x \in \mathbb{R}$, the truncate function of $x=E.F,(E,F)\in\mathbb{Z}\times\mathbb{N}$, denoted by $truncate(x)$, returns $E$.
 \end{definition}
 There are several ways of computing the floor function. One
 relies on floating-point arithmetic \cite{kahan1996ieee}.
@@ -307,15 +309,20 @@ sign:
     (e<1023)\wedge(s=1) &\implies 0 > x \geq -2^{-1} + -m\times2^{-53} \geq -1.
   \end{align}
   \item If $e>1074$ then $\lfloor x \rfloor = x$. We have \begin{align}
-    e>1074 \implies x &= 2^{e-1023} + m\times2^{e-1023-52} \\ &= (2^{e-1023})\in\mathbb{N}^* + (m\times2^{e-1075})\in\mathbb{N} \implies x\in\mathbb{N}^*.
+    e>1074 \implies |x| &= 2^{e-1023} + m\times2^{e-1023-52} \\ &= (2^{e-1023})\in\mathbb{N}^* + (m\times2^{e-1075})\in\mathbb{N} \implies x\in\mathbb{N}^*.
   \end{align}
+  The sign bit $s$ only changes "$\in\mathbb{N}$" in "$\in\mathbb{Z}$".
   \item If $1023\leq e \leq 1074$ then we truncate the mantissa $m$ of $x$ and remove its $1074-e$ last bits $m^{[52-(e-1023):1]}$. That way we have \begin{align}
     1023\leq e \leq 1074 \implies x&= 2^{e-1023} + m^{[64:1075-e]}\times 2^{52-(e-1023)+e-1023-52} \\
     &= (2^{e-1023})\in\mathbb{N}^* + (m^{[64:1075-e]})\in\mathbb{N}.
   \end{align}
+  However, this only provide $truncate(x)$. To get $\lfloor x \rfloor$, one have to take into account the sign bit $s$. We can rely on the fact that $\forall x\in\mathbb{R}^-\backsim\mathbb{Z}, truncate(x) = \lfloor x \rfloor +1$ and $\forall x \in\mathbb{R}^+, truncate(x) = \lfloor x \rfloor$. Thus, recovering the sign bit allows to properly compute the floor function from the truncate one in this case.
 \end{itemize}
- However, while this method is fast and efficient, it requires
-the use of the exponent and the sign. We propose here a method to
+\begin{remark}
+  To compute the truncate function, one can use the same method but discard the use of the sign. For the first case, \emph{id est} $e<1023$, the result is always $0$.
+\end{remark}
+This method requires
+the use of the exponent and the sign, which are both sensitive values. In this work we propose a method to
 perform this truncation in a secure manner.
 
 %
@@ -326,11 +333,40 @@ Masking is a generic countermeasure to SCA at the software level. Instead of pro
 \end{definition}
 \emph{t-NI} gadgets composition does not imply \emph{t-NI} security. We need a stronger definition for this:
 \begin{definition}
-  (\emph{t-}Strong Non Interference (\emph{t-SNI}) security). A gadget is \emph{t-}Strong Non Interference (\emph{t-SNI}) secure if for every set of $t_I$ of internal intermediate values and $t_O$ of its output shares with $t_I + t_O \leq$\emph{t}, they can be simulated by no more than $t_I$ shares of each of its inputs.
+  (\emph{t-}Strong Non Interference (\emph{t-SNI}) security). A gadget is said \emph{t-}Strong Non Interference (\emph{t-SNI}) secure if for every set of $t_I$ of internal intermediate values and $t_O$ of its output shares with $t_I + t_O \leq$\emph{t}, they can be simulated by no more than $t_I$ shares of each of its inputs.
 \end{definition}
 
 We will use those models in Section \ref{sec:security} to demonstrate the security of our design.
 
+\section{Masking the Floor Function}
+In Section \ref{sec:computefloor} we describe how to compute the floor using floating-point arithmetic. In this section we will present masking gadgets to do this feat in a secure manner. We rely on existing gadgets and propose new ones, as shown in Table \ref{tab:gadgets}. 
+\begin{table}[ht]
+  \label{tab:gadgets}
+  \caption{List of gadgets, their security and their reference}
+  \begin{tabular}{C{2.5 cm} || C{5.8 cm} C{1.4cm} C{2cm}}
+    \toprule
+     \textbf{Algorithm} & \textbf{Description} & \textbf{Security} & \textbf{Reference}\\
+      \midrule
+       SecAnd   & AND of Boolean shares             & \emph{t-SNI} &  \cite{ishai2003private}, \cite{barthe2016strong}\\
+       SecAdd         & Addition of Boolean shares        & \emph{t-SNI}&  \cite{coron2015conversion}, \cite{barthe2018masking}\\
+       A2B            & Arithmetic to Boolean conversion  & \emph{t-SNI}& \cite{schneider2019efficiently}\\
+       B2A            & Boolean to Arithmetic conversion  & \emph{t-SNI}&  \cite{bettale2018improved}\\
+       RefreshMasks   & $t$-NI refresh of masks           & \emph{t-NI}&  \cite{barthe2016strong}, \cite{bettale2018improved}\\
+       Refresh        & $t$-SNI refresh of masks          & \emph{t-SNI}& \cite{barthe2016strong}\\
+       SecOr          & OR of Boolean shares              & \emph{t-SNI}&  \cite{Chen_Chen_2024}\\
+       SecNonZero     & NonZero check of shares           & \emph{t-SNI}&  \cite{Chen_Chen_2024}\\
+       SecFprUrsh     & Right-shift with sticky bit   & \emph{t-SNI}&  \cite{Chen_Chen_2024}\\
+       SecFprNorm64   & Normalization to $[2^{63},2^{64})$ & \emph{t-NI}& \cite{Chen_Chen_2024}\\
+       SetExponentZero& Set exponent to zero & \emph{t-SNI} &  Algorithm \ref{algo:SetExponentZero_floor}\\
+       SecFprUrshMod & Right-shift without sticky bit & \emph{t-SNI} &  Algorithm \ref{algo:SecFprUrsh}\\
+       RemoveDecimal & Truncate the mantissa & \emph{t-SNI} &  Algorithm \ref{algo:RemoveDecimal_floor}\\
+       SecBaseInt & Compute the floor & \emph{t-SNI} &  Algorithm \ref{algo:SecFprBaseInt}\\
+      \bottomrule
+  \end{tabular}  
+\end{table}
+\begin{remark}
+  With small modifications, our design can also be used to compute the truncate and the rounding functions in a secure manner. As only the floor is required to protect FALCON, we will provide the pseudocodes for truncate and rounding in Appendix \ref{app:function}.
+\end{remark}
 
 \section{Masking The Floor Function}\label{sec:maskfloor}
 In this part we denote by f as one of these three funtions : floor, truncature and round. Differences will be discussed when necessary.
@@ -725,11 +761,10 @@ FAIRE LA PREUVE
  \bibliographystyle{splncs04}
  \bibliography{falcon}
 
-\newpage
+ \appendix
+\section{Alternate Algorithms For Truncate and Rounding}\label{app:function}
 
 \section*{Appendix}
-
-
 \subsection*{Extract}
 
 \begin{algorithm}[H]
